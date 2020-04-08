@@ -1,0 +1,660 @@
+body {
+  background: #ccc !important;
+}
+q {
+  font-style: italic;
+  font-size: 1.2rem;
+  quotes: "« " " »";
+}
+
+/*Common*/
+.content-border {
+  height: 135px;
+  width: 100%;
+  border: 1px solid #d7d7d7;
+}
+
+label {
+  position: relative;
+  color: #000000;
+  text-align: left !important;
+}
+.mat-header-cell {    text-align: center;    }
+
+div.contentdiv {
+  width: calc(100vw + 30px);
+  height: calc(100vh - 160px);
+  margin: 0;
+  background-color: #ebebeb;
+  display: table;
+  overflow: hidden;
+}
+.row {
+  background-color: #ebebeb;
+}
+.cnt {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.sidenav {
+  height: 92%;
+  width: 217px;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  overflow-x: visible; 
+}
+
+.main {
+  margin-left: 160px; /* Same as the width of the sidenav */
+  padding: 0px 10px;
+}
+
+
+
+/*Common*/
+
+/*---------------------------Arch wizard custom-------------------*/
+/*First stepper stage1*/
+.first.stepper {
+  height: 12vw;
+  background: #ffffff;
+  color: #ffff;
+  position: relative;
+  text-align: center;
+  line-height: 40px; 
+  margin-bottom:4vw;
+}
+
+/*.first.stepper:before {
+  content: "";
+  position: absolute;
+  height: 0;
+  width: 0;
+  left: -6%;
+  top: -2px;
+  border: 52px solid transparent;
+  border-left: 25px solid #fff;
+  border-radius: 40px;
+}*/
+
+/*.first.stepper:after {
+  content: "";
+  position: absolute;
+  height: 0;
+  width: 0;
+  left: 86%;
+  top: -2px;
+  border: 52px solid transparent;
+  border-right: 25px solid #fff;
+  border-radius: 40px;
+}*/
+
+
+
+.first.stepper:after {
+  content: "";
+  position: absolute;
+  height: 0;
+  width: 0;
+  left: 14%;
+  top: 10vw;
+  border: 107px solid transparent;
+  border-left: 50px solid #fff;
+  z-index: 1;
+  -webkit-transform: rotate(88deg);
+  transform: rotate(90deg);
+}
+
+
+.stg1text {
+  font-size: 1.25rem;
+  position: relative;
+  top: 6vw;
+  color: #000000;
+}
+/*First stepper stage1*/
+
+.second.stepper {
+  height: 12vw;
+  background: #ffffff;
+  color: #fff;
+  text-align: center;
+  line-height: 40px;
+  position: relative;
+  margin-bottom:1vw; 
+}
+.second.stepper:before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  top: -5.7vw;
+  left: 1.9vw;
+  border: 110px solid #fff;
+  border-left: 50px solid transparent;
+  -webkit-transform: rotate(89deg);
+  transform: rotate(90deg);
+}
+.second.stepper:after {
+  content: "";
+  position: absolute;
+  height: 0;
+  width: 0;
+  left: 11%;
+  top: 10vw;
+  border: 107px solid transparent;
+  border-left: 50px solid #fff;
+  z-index: 1;
+  -webkit-transform: rotate(88deg);
+  transform: rotate(90deg);
+}
+
+.stg2text {
+  font-size: 1.25rem;
+  position: relative;
+  top: 5vw;
+  color: #000000;
+}
+/*Second stepper stage2*/
+
+/*Third stepper stage3*/
+.third.stepper {
+  height: 9.4vw;
+  background: #ffffff;
+  color: #fff;
+  position: relative;
+  text-align: center;
+  line-height: 40px;
+  top:5vw;
+}
+
+
+.third.stepper:after {
+    content: "";
+    position: absolute;
+    height: 0;
+    width: 0;
+    left: 2%;
+    top: 6.9vw;
+    border: 123px solid transparent;
+    border-left: 53px solid #343434;
+    z-index: 1;
+    -webkit-transform: rotate(88deg);
+    transform: rotate(90deg);
+
+}
+
+.third.stepper:before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  top: -8vw;
+  left: 1.3vw;
+  border: 115px solid #343434;
+  border-left: 52px solid transparent;
+  -webkit-transform: rotate(89deg);
+  transform: rotate(90deg);
+
+}
+
+
+.stg3text {
+  font-size: 1.25rem;
+  position: relative;
+  top: 10px;
+}
+/*Third stepper stage3*/
+
+/*wizard active class*/
+.stepper-active {
+  background: #343434 !important;
+}
+/*wizard active class*/
+
+/*Arch wizard stage color*/
+
+::ng-deep #w3wizard3 aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li.current .step-indicator {
+  background-color: #da880b;
+}
+/*Arch wizard stage color*/
+
+/*Wizard1-stepper 1,2 navbar */
+.md-stepper-horizontal {
+  display: table;
+  width: 100%;
+  margin: 0 auto;
+}
+.md-stepper-horizontal .md-step {
+  display: table-cell;
+  position: relative;
+  padding: 24px;
+  padding-top: 12px;
+}
+
+.md-stepper-horizontal .md-step:first-child .md-step-bar-left,
+.md-stepper-horizontal .md-step:last-child .md-step-bar-right {
+  display: none;
+}
+.md-stepper-horizontal .md-step .md-step-circle {
+  width: 35px;
+  height: 35px;
+  margin: 0 auto;
+  background-color: #00b050;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 37px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #ffffff;
+}
+.md-stepper-horizontal.green .md-step.active .md-step-circle {
+  background-color: #00ae4d;
+}
+.md-stepper-horizontal.orange .md-step.active .md-step-circle {
+  background-color: #f96302;
+}
+.md-stepper-horizontal .md-step.active .md-step-circle {
+  background-color: rgb(33, 150, 243);
+}
+.md-stepper-horizontal .md-step.done .md-step-circle:before {
+  font-family: "FontAwesome";
+  font-weight: 100;
+  content: "\f00c";
+}
+.md-stepper-horizontal .md-step.done .md-step-circle *,
+.md-stepper-horizontal .md-step.editable .md-step-circle * {
+  display: none;
+}
+
+.md-stepper-horizontal .md-step.active.done .md-step-title,
+.md-stepper-horizontal .md-step.active.editable .md-step-title {
+  font-weight: 600;
+}
+
+.md-stepper-horizontal .md-step .md-step-bar-left,
+.md-stepper-horizontal .md-step .md-step-bar-right {
+  position: absolute;
+  top: 31px;
+  height: 1px;
+  border-top: 2px solid #00b050;
+}
+.md-stepper-horizontal .md-step .md-step-bar-right {
+  right: 0;
+  left: 50%;
+  margin-left: 20px;
+}
+.md-stepper-horizontal .md-step .md-step-bar-left {
+  left: 0;
+  right: 50%;
+  margin-right: 20px;
+}
+/*Wizard1-stepper 1,2 */
+
+/*---------------------------Arch wizard custom-------------------*/
+
+/*File Upload*/
+.fileUpload {
+  position: relative;
+  overflow: hidden;
+  background-color: #041e42;
+  color: white;
+}
+
+.fileUpload input.upload {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+  cursor: pointer;
+  opacity: 0;
+  filter: alpha(opacity=0);
+}
+
+.input-group-addon,
+.input-group-btn {
+  width: 0px !important;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+#uploadadditionalfeature.input-group {
+  position: relative;
+  display: -webkit-box;
+  display: flex;
+  flex-wrap: wrap;
+  -webkit-box-align: stretch;
+  align-items: stretch;
+  width: 273px !important;
+  margin-top: 9px;
+  margin-bottom: 0;
+}
+
+#uploadexcludecntrlstre.input-group {
+  position: relative;
+  display: -webkit-box;
+  display: flex;
+  flex-wrap: wrap;
+  -webkit-box-align: stretch;
+  align-items: stretch;
+  width: 273px !important;
+  margin-top: 9px;
+  margin-bottom: 0;
+}
+/*File Upload*/
+
+/*Date picker*/
+button.calendar {
+  width: 2.75rem;
+  background-image: url("assets/images/calendar.png") !important;
+  background-repeat: no-repeat !important;
+  background-size: 23px !important;
+  background-position: center !important;
+}
+
+.dategrp {
+  margin-left: 2rem;
+  margin-top: 2rem;
+  width: 90%;
+}
+
+.aligndate {
+  top: 8px;
+  background-color: #fff;
+}
+/*Date picker*/
+
+/*Button Groups*/
+.butn {
+  border: none;
+  color: white;
+  background-color: #343434;
+  font-size: 16px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.analyzefeature-save {
+  height: 38px;
+  float: right;
+  margin-top: 66px;
+}
+
+.advnc-save-btn {
+  height: 35px;
+  float: right;
+  width: 100px;
+  margin-top: 1rem;
+}
+
+.identifycntrlstore {
+  height: 38px;
+  float: right;
+  width: 190px;
+  margin-top: 63px;
+}
+.reset {
+  height: 38px;
+  width: 90px;
+}
+
+.stponebck {
+  height: 38px;
+  width: 90px;
+  margin: 63px 3px;
+  bottom: 61px;
+  left: 83px;
+}
+
+.advanced-setting-btn {
+  height: 36px;
+  margin-left: 2px;
+  width: 175px;
+  margin-top: 33px;
+}
+/*Button Groups*/
+
+/*Modal box */
+.modal-title {
+  color: #fff !important;
+}
+
+.modal-header {
+  background-color: #007bff !important;
+}
+
+.modal-body {
+  background-color: #ebebeb !important;
+}
+.modalfeaturetitle {
+  font-size: 16px !important;
+  margin-left: 288px !important;
+}
+
+/*Modal box */
+
+/*Considered features List box*/
+.feature-viewport {
+  height: 460px;
+  width: 810px;
+  border: 2px solid #e1e1e1;
+  background-color: #fff;
+  margin-left: 1rem;
+}
+
+.feature-item {
+  height: 25px;
+  margin-left: 2rem;
+  margin-top: 1rem;
+}
+/*Considered features List box*/
+
+/*Material*/
+.mat-radio-button ~ .mat-radio-button {
+  margin-left: 30px;
+}
+
+::ng-deep .mat-radio-button.mat-accent .mat-radio-inner-circle {
+  background-color: #343434 !important; /*inner circle color change*/
+}
+
+::ng-deep.mat-radio-button.mat-accent.mat-radio-checked .mat-radio-outer-circle {
+  border-color: #343434 !important; /*outer ring color change*/
+}
+
+::ng-deep.mat-radio-outer-circle {
+  border-color: #343434 !important; /*outer ring color change*/
+}
+
+table.mat-table {
+  border-spacing: 0 !important;
+  width: auto;
+}
+
+.mat-elevation-z8 {
+  box-shadow: none !important;
+}
+
+tr.mat-header-row {
+  background-color: #041e42 !important;
+}
+th.mat-header-cell {
+  color: #fff !important;
+  border-right: 3px solid #e0e0e0;
+}
+.header-align {
+    border: none;
+    background: 0 0;
+    display: inline-block;
+    align-items: center;
+    padding: 0;
+    cursor: inherit;
+    outline: 0;
+    width: 100%;
+    font: inherit;
+    color: currentColor;
+}
+td.mat-cell {
+  padding: 0;
+  border-bottom-width: 1px !important;
+  border-bottom-style: solid !important;
+  border-right: 3px solid #e0e0e0 !important;
+  text-align: center;
+}
+
+.Advcsettingtbl td.mat-cell:first-of-type {
+  padding-left: 19px;
+}
+
+.Advcsettingtbl .table-header-label {
+  font-size: 14px;
+}
+
+.Matchresultstbl .table-header-label {
+  font-size: 14px;
+  border: none;
+  background: 0 0;
+  display: contents;
+  align-items: center;
+  padding: 0;
+  cursor: inherit;
+  outline: 0;
+  width: 100%;
+  font: inherit;
+  color: currentColor;
+}
+
+.Statisticalresultlbl .table-header-label {
+  font-size: 16px;
+}
+.Matchresultstbl td.mat-cell:first-of-type {
+  text-align:center;
+  
+}
+.table-scroll-container {
+  overflow: auto;
+  overflow-x: hidden;
+  width: 138%;
+  margin-left:-8vw;
+}
+
+.sub-td {
+  border-bottom: 2px solid #ebebeb;
+  padding: 10px;
+  display: block !important;
+  width: 100% !important;
+}
+.tr-row {
+  display: block !important;
+  width: 100% !important;
+}
+.mat-checkbox-inner-container-no-side-margin {
+  margin-left: 40px !important;
+}
+
+
+
+.button{
+  width:100% !important;
+}
+
+.search_filter {
+  float: right !important;
+}
+
+th.mat-header-cell {
+  text-align: center !important;
+  /* padding-left: 33px; */
+}
+
+th.mat-header-cell:first-of-type {
+  padding-left: 11px !important;
+  padding-right: 11px !important;
+}
+
+tr.mat-header-row {
+  height: 45px !important;
+}
+
+.mat-table tbody {
+  display: block;
+  width: 100%;
+}
+
+.filter-match-result {
+  font-family: Arial, FontAwesome;
+  margin-bottom: 1rem;
+  width: 400px;
+  
+
+}
+.dwnld-excel {
+  height: 37px;
+  width: 400px;
+}
+mat-cell{
+  text-align:center;
+}
+/*Material*/
+
+@media only screen and (min-width: 1025px) {
+  .Selectfeatheading {
+    top: 80px;
+  }
+  .Unselectfeatheading {
+    top: 80px;
+    left: 95px;
+  }
+  .modal-advc-esetting-title {
+    font-size: 16px !important;
+    margin-left: 485px !important;
+  }
+  .perpagelbl {
+    width: 43%;
+    float: left;
+    margin-top: 22px;
+  }
+
+  .perpagesel {
+    width: 43%;
+    margin-top: 1rem;
+  }
+}
+
+@media only screen and (max-width: 1020px) {
+  .Selectfeatheading {
+    top: 80px;
+  }
+  .Unselectfeatheading {
+    top: 80px;
+    left: 80px;
+  }
+  .modal-advc-esetting-title {
+    font-size: 16px !important;
+    margin-left: 350px !important;
+  }
+  .perpagelbl {
+    width: 56%;
+    float: left;
+    margin-top: 22px;
+  }
+
+  .perpagesel {
+    width: 47%;
+    margin-top: 1rem;
+  }
+}
+/*active 7 step*/
+::ng-deep #w3wizard3 aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator.steps-2 li:last-child.current .step-indicator {
+  background:#393!important;font-size:0}
+::ng-deep #w3wizard3 aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator.steps-2 li:last-child.current .step-indicator:before {
+    font-family: "FontAwesome";
+    font-weight: 100;font-size:16px;
+    content: "\f00c";
+}

@@ -1,0 +1,20 @@
+<ng-container *ngIf="data.format == 1">
+<p style="text-align:justify">
+<ng-container *ngIf="data.message_type == 'success'">	
+<i class="fa fa-check" style="color: green;" aristyle="color: red;" a-hidden="true"></i>&nbsp;
+</ng-container>
+
+<ng-container *ngIf="data.message_type == 'error'">	
+<i class="fa fa-exclamation-triangle" style="color: red;" aria-hidden="true"></i>&nbsp;
+</ng-container>
+
+<ng-container *ngIf="data.message_type == 'warning'">	
+<i class="fa fa-exclamation-triangle" style="color: orange;" aria-hidden="true"></i>&nbsp;
+</ng-container>
+Features are expected for {{data.expected_for}} but are uploaded only for {{data.uploaded_for}} stores. Stores with missing data for features will be imputed / discarded depending on the number of stores data is uploaded  for
+</p>	
+<ul>
+<li>Data uploaded for greater than 50% of total number of stores - impute with mean</li>
+<li>Data uploaded for lesser than 50% of total number of stores - discard feature</li>
+</ul>
+</ng-container>

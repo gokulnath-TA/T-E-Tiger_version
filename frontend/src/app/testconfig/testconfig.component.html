@@ -1,0 +1,1164 @@
+  <div class="sidenav">
+      <div class="first stepper stepper-active">
+        <h5 class="stg1text">Design a Test</h5>
+        
+          <aw-wizard
+            #wizard1
+            id="w1wizard1"
+            [navBarLayout]="'large-filled'"
+            [navBarLocation] = "'right'"
+            [disableNavigationBar]="true"
+            [defaultStepIndex]="stepindex"
+            style="margin-left: -45vw"
+          >
+            <aw-wizard-step
+              [stepTitle]="''"
+              [stepId]="1"
+              (stepEnter)="enterStep($event)"
+              [navigationSymbol]="{ symbol: '1' }"
+            >
+              <ng-template awWizardStepSymbol *ngIf="CompletedStep">
+                <i class="fa fa-check"></i>
+              </ng-template>
+            </aw-wizard-step>
+            <aw-wizard-step
+              [stepTitle]="''"
+              [stepId]="2"
+              (stepEnter)="enterStep($event)"
+              [navigationSymbol]="{ symbol: '2' }"
+            >
+            <ng-template awWizardStepSymbol *ngIf="CompletedStep2">
+                <i class="fa fa-check"></i>
+              </ng-template>
+            </aw-wizard-step>
+
+            <aw-wizard-step
+              [stepTitle]="''"
+              [stepId]="3"
+              (stepEnter)="enterStep($event)"
+              [navigationSymbol]="{ symbol: '3' }"
+            >
+            </aw-wizard-step>
+
+          </aw-wizard>
+    
+    </div>
+
+    
+      <div class="second stepper">
+        <h5 class="stg2text">Test - Control Matching</h5>
+        <!-- <div class="md-stepper-horizontal">
+          <div class="md-step">
+            <div class="md-step-circle"><span>3</span></div>
+            <div class="md-step-bar-left"></div>
+            <div class="md-step-bar-right"></div>
+          </div>
+          <div class="md-step">
+            <div class="md-step-circle"><span>4</span></div>
+            <div class="md-step-bar-left"></div>
+            <div class="md-step-bar-right"></div>
+          </div>
+          <div class="md-step">
+            <div class="md-step-circle"><span>5</span></div>
+            <div class="md-step-bar-left"></div>
+            <div class="md-step-bar-right"></div>
+          </div>
+        </div> -->
+      </div>
+    
+
+    
+      <div class="third stepper">
+        <h5 class="stg3text">Impact Analysis</h5>
+        <!-- <div class="md-stepper-horizontal">
+          <div class="md-step">
+            <div class="md-step-circle"><span>6</span></div>
+            <div class="md-step-bar-left"></div>
+            <div class="md-step-bar-right"></div>
+          </div>
+          <div class="md-step">
+            <div class="md-step-circle"><span>7</span></div>
+            <div class="md-step-bar-left"></div>
+            <div class="md-step-bar-right"></div>
+          </div>
+        </div> -->
+      </div>
+    </div>
+  
+
+<div class="main">
+
+  <div class="container" [hidden]="showcnt1">
+    <div class="form-group">
+      <label>Select Market</label>
+      <ngx-select
+        [items]="market"
+        optionTextField="market_name"
+        optionValueField="market_id"
+        [(ngModel)]="MarketId"
+        [noAutoComplete]="true"
+        placeholder="Market 1"
+      >
+      </ngx-select>
+    </div>
+    <div class="row">
+      <div class="content-border" style="border: none !important;"></div>
+
+      <div class="col-md-12 Footerbtngrp">
+        <button type="button" class="col-md-4 butn stponenxt" (click)="movetostp2()">Next</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container" [hidden]="showcnt2">
+    <ng-container *ngIf="show_testplan">
+      <div class="form-group" [hidden]="plantestdrpdown">
+        <label>Plan Test</label>
+        <ngx-select
+          [items]="plantest"
+          [(ngModel)]="itemId"
+          (select)="showcontrolstore($event)"
+          [noAutoComplete]="true"
+          placeholder="---Select A Plan---"
+        >
+        </ngx-select>
+      </div>
+      <ng-container *ngIf="hide_back">
+        <div class="content-border" style="border: none !important;"></div>
+        <div class="row">
+          <div class="col-md-4 Footerbtngrp">
+            <button type="button" class="butn stponebck" (click)="movetostp1()">Back</button>
+          </div>
+        </div>
+      </ng-container>
+      <ng-container *ngIf="show_testplan_store">
+        <div class="content-border">
+          <div class="test_name_content">
+            <div><label class="testname-label">Test Name</label></div>
+            <input
+              type="text"
+              value=""
+              id="testname"
+              (keydown.enter)="enterclick($event)"
+              class="form-control testnameinpt"
+              [(ngModel)]="testvalue"
+              autocomplete="off"
+              [disabled]=loaddatas
+              (keypress)="omit_special_char($event)"
+            />
+            <ng-container *ngIf="!loaddatas">
+            <button type="button" #identifytestcntrl class="butn identify-control-storebtn" (click)="show_teststr()">
+              Continue
+            </button>
+          </ng-container>
+          <ng-container *ngIf="loaddatas">
+            <button type="button" #identifytestcntrl class="butn identify-control-storebtn">
+              Next
+            </button>
+          </ng-container>
+
+            <ng-container *ngIf="testplan_name_req">
+              <div><label style="color:red;">* Test Name Required</label></div>
+            </ng-container>
+            <ng-container *ngIf="testplan_name_unique">
+              <div><label style="color:red;">* Test Name already exists</label></div>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 Footerbtngrp">
+            <button type="button" class="butn stponebck" *ngIf="!loaddatas"(click)="movetostp1()">Back</button>
+            <button type="button" class="butn stponebck" *ngIf="loaddatas"(click)="reset()">Home</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="show_Testmeasurement">
+        <div class="content-border row" style="margin-left: 1px;">
+          <div class="col-md-4 test_name_content">
+            <div><label class="testname-label">Test Name</label></div>
+            <input
+              type="text"
+              value=""
+              [(ngModel)]="test_mea_name_val"
+              id="testname"
+              class="form-control testnameinpt"
+            />
+            <ng-container *ngIf="testmeaure_name_req">
+              <div><label style="color:red;">* Provide a Test Name</label></div>
+            </ng-container>
+          </div>
+          <div class="col-md-4 test_name_content">
+            <span>Upload Test and Control Stores</span>
+            <div class="input-group" id="uploadtestandcntrl">
+              <input
+                type="text"
+                id="filenm"
+                class="form-control"
+                [value]="filenameval_test_cntrl"
+                readonly
+                style="width: 270px;"
+              />
+              <div class="input-group-btn">
+                <span class="fileUpload btn" style="border: none;border-radius: 0rem;margin-bottom: 1rem;">
+                  <span class="upl" id="upload">Choose file</span>
+                  <input
+                    type="file"
+                    #file
+                    class="upload"
+                    id="up"
+                    accept=".csv,.xlsx"
+                    (change)="getFileData_testcntrl($event)"                    
+                  /> </span
+                ><!-- btn-orange -->
+                <button
+                  type="button"
+                  [hidden]="submit_visible_test_cntrl"
+                  class="submit btn"
+                  (click)="SubmitTestCntrlFile()"
+                >
+                  Submit
+                </button>
+              </div>
+              <!-- btn -->
+              <ng-container *ngIf="show_fileextnerror_testmeasure">
+                <span style="color:red;margin-top: -1rem;">Allowed File Types-.csv,.xls,.xlsx </span>
+              </ng-container>
+            </div>
+            <!-- group -->
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4 Footerbtngrp">
+            <button type="button" class="butn stponebck" (click)="movetostp1()">Back</button>
+          </div>
+        </div>
+      </ng-container>
+
+      <ng-template #content let-modal>
+        <div class="modal-header">
+          <h5 class="modal-title modalfeaturetitle" id="modal-basic-title">Unmatched data</h5>
+          <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body"></div>
+      </ng-template>
+
+      <ng-container *ngIf="show_load_store">
+        <div style="float:right;">
+          <input
+            class="form-control"
+            type="text"
+            (keyup)="FilterLoadSavedTest($event.target.value)"
+            placeholder="&#xF002;&nbsp; Search"
+            style="font-family:Arial, FontAwesome;margin-bottom: 1rem;"
+          />
+        </div>
+
+        <table
+          mat-table
+          matSort
+          [dataSource]="
+            LoadSavedTestdata
+              | paginate: { itemsPerPage: loadsize, currentPage: lp, totalItems: Load_saved_DATA.length }
+          "
+          (matSortChange)="sortDataLoadSaved($event)"
+          class="mat-elevation-z8"
+        >
+          <!-- TestName Column -->
+          <ng-container matColumnDef="test_name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <span class="table-header-label">Test Names</span> &nbsp;<img
+                class="logo"
+                src="assets/images/sort-arrow.png"
+                alt="sort"
+              />
+            </th>
+            <td mat-cell *matCellDef="let row" style="padding-left: 45px;">{{ row.test_name }}</td>
+          </ng-container>
+
+          <!-- StoreName Column -->
+          <ng-container matColumnDef="stage_id">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <span class="table-header-label">Stage &nbsp;</span
+              ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+            </th>
+
+            <td mat-cell *matCellDef="let row">
+              <ng-container *ngIf="row.stage_id == '1'">
+                Test Configuration
+              </ng-container>
+              <ng-container *ngIf="row.stage_id == '2'">
+                Control Store Matching
+              </ng-container>
+              <ng-container *ngIf="row.stage_id == '3'">
+                Test Measurement
+              </ng-container>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="Created">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <span class="table-header-label">Created On</span> &nbsp;<img
+                class="logo"
+                src="assets/images/sort-arrow.png"
+                alt="sort"
+              />
+            </th>
+            <td mat-cell *matCellDef="let row" style="padding-left: 45px;">{{ format(row.created_on) }}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="Modified">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <span class="table-header-label">Modified On</span> &nbsp;<img
+                class="logo"
+                src="assets/images/sort-arrow.png"
+                alt="sort"
+              />
+            </th>
+            <td mat-cell *matCellDef="let row" style="padding-left: 45px;">
+              {{ format1(row.modified_on, row.created_on) }}
+            </td>
+          </ng-container>
+          <!-- Actions Column -->
+
+          <ng-container matColumnDef="Actions">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <span class="table-header-label">Actions &nbsp;</span>
+            </th>
+            <td mat-cell *matCellDef="let row" style="padding-left: 10px;">
+              <button mat-raised-button class="edit_button" (click)="LoadData(row.test_id,row.test_name)">
+                <img class="pencil" src="assets/images/edit.png" style="width: 18px" />
+              </button>
+
+              <button mat-raised-button color="delete_button" (click)="DeleteData(row.test_id)">
+                <img class="bin" src="assets/images/delete.png" style="width: 18px" />
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsLoadSaved"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumnsLoadSaved" (click)="selection.toggle(row)"></tr>
+        </table>
+
+        <div class="row">
+          <div class="col-md-10">
+            <pagination-controls
+              (pageChange)="lp = $event; paginateloadsaved(lp)"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+          </div>
+          <div class="col-md-2">
+            <label style="width:43%;float: left;margin-top: 22px;">Per page</label>
+            <select
+              class="form-control"
+              style="width:43%;margin-top: 1rem;"
+              [(ngModel)]="loadperpage"
+              (change)="perpageLoadSaved($event)"
+            >
+              <option value="10"> 10 </option>
+              <option value="25"> 25 </option>
+              <option value="50"> 50 </option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 Footerbtngrp">
+            <button type="button" class="butn stponebck" (click)="movetostp1()">Back</button>
+          </div>
+
+        <!--   <div class="col-md-8 Footerbtngrp">
+            <button type="button" class="col-md-4 butn savecontinue" (click)="Movetowizard2()">Save & Continue</button>
+          </div> -->
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <ng-container *ngIf="show_testmeasure_table"
+      ><!--testmeasuretable -->
+      <div style="margin-top: 2rem;">
+        <div style="float:right;">
+          <input
+            class="form-control"
+            type="text"
+            (keyup)="Filtertestmeasure($event.target.value)"
+            placeholder="&#xF002;&nbsp; Search"
+            style="font-family:Arial, FontAwesome;margin-bottom: 1rem;"
+          />
+        </div>
+
+        <table
+          mat-table
+          matSort
+          [dataSource]="
+            TestMeasuredata
+              | paginate: { itemsPerPage: testmeasuresize, currentPage: p, totalItems: Test_measure_DATA.length }
+          "
+          (matSortChange)="sortDataTestMeasure($event)"
+          class="mat-elevation-z8"
+        >
+          <!-- Checkbox Column -->
+          <ng-container matColumnDef="select">
+            <th mat-header-cell *matHeaderCellDef width="13%">
+              <mat-checkbox
+                (change)="$event ? masterToggleTestMeasure() : null"
+                [checked]="testmeasureselection.hasValue() && isAllSelectedTestMeasure()"
+                [indeterminate]="testmeasureselection.hasValue() && !isAllSelectedTestMeasure()"
+                [aria-label]="checkboxLabelTestMeasure()"
+              >
+                <span style="font-size: 16px;"> Select All</span>
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row" style="text-align: center;">
+              <span style="margin-right:32px">
+                <mat-checkbox
+                  (click)="$event.stopPropagation()"
+                  (change)="$event ? testmeasureselection.toggle(row) : null"
+                  [checked]="testmeasureselection.isSelected(row)"
+                  [aria-label]="checkboxLabelTestMeasure(row)"
+                >
+                </mat-checkbox
+              ></span>
+            </td>
+          </ng-container>
+
+          <!-- StoreId Column -->
+          <ng-container matColumnDef="TestStore">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <span class="table-header-label">Test Store</span> &nbsp;<img
+                class="logo"
+                src="assets/images/sort-arrow.png"
+                alt="sort"
+              />
+            </th>
+            <td mat-cell *matCellDef="let row">{{ row.TestStore }}</td>
+          </ng-container>
+
+          <!-- StoreName Column -->
+          <ng-container matColumnDef="Controlstore">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label"> Control Store &nbsp;</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row; let i = index" style="padding-left:0;text-align: center;">
+                  <ng-container *ngFor="let rows of row.Controlstore; let j = index" style="width;100% !important; display:table">
+                    <tr class="tr-row" >
+                      <td class="sub-td">{{ row.Controlstore[j] }}</td>
+                    </tr>
+                  </ng-container>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="Rank">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label"> Rank  &nbsp;</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row; let i = index" style="padding-left:0;text-align: center;">
+                  <ng-container *ngFor="let rows of row.Rank; let j = index">
+                    <tr class="tr-row">
+                      <td class="sub-td">{{ row.Rank[j] }}</td>
+                    </tr>
+                  </ng-container>
+                </td>
+              </ng-container>
+
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnsTestMeasure"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnsTestMeasure"
+            (click)="testmeasureselection.toggle(row)"
+          ></tr>
+        </table>
+
+        <div class="row">
+          <div class="col-md-10">
+            <pagination-controls
+              (pageChange)="p = $event; paginatetestmeasure(p)"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+          </div>
+          <div class="col-md-2">
+            <label style="width:43%;float: left;margin-top: 22px;">Per page</label>
+            <select class="form-control" style="width:43%;margin-top: 1rem;" (change)="perpageTestMeasure($event)">
+              <option value="10"> 10 </option>
+              <option value="25"> 25 </option>
+              <option value="50"> 50 </option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4 Footerbtngrp">
+            <button type="button" class="butn reset" (click)="movetostp1()">Reset</button>
+            <button type="button" class="butn stponebck" (click)="HideTestMeasureTable()">Back</button>
+          </div>
+
+          <div class="col-md-8 Footerbtngrp">
+            <button type="button" class="col-md-4 butn savecontinue" (click)="Movetowizard3()">Save & Continue</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    
+    <ng-container *ngIf="show_upld_file_stores">
+      <div class="content-border" style="border: none;!important">
+        
+       <div class="form-group">
+        <label>Metric for Measuring Lift</label>
+        <ngx-select
+          [items]="sdmetric"
+          [(ngModel)]="sdid"
+          [noAutoComplete]="true"
+          placeholder="--Select Metric --"
+          required
+        >
+        </ngx-select>        
+      </div>
+      <ng-container *ngIf="standard_req">
+            <div><label style="color:red;">* Metric for Measuring Lift Required</label></div>
+      </ng-container>
+
+       <div class="row" style="margin-top: 60px">
+        <div class="col-md-4">
+          <label>Minimum Measurable Lift</label>
+          <input type="number"  class="form-control testnameinpt"  required [(ngModel)]="effect" name="effect">
+           <ng-container *ngIf="effect_req">
+            <div><label style="color:red;">* Minimum Measurable Lift Required</label></div>
+        </ng-container>
+        </div>
+       
+
+        <div class="col-md-4">
+          <label>Test Vs Control Ratio</label>
+          <input type="number"  class="form-control testnameinpt" required [(ngModel)]="testvscontrol" name="testvscontrol">
+          <ng-container *ngIf="ratio_req">
+            <div><label style="color:red;">* Test Vs Control Ratio Required</label></div>
+        </ng-container>
+        </div>
+          
+
+        <div class="col-md-4">
+          <label>Tolerance in measurement</label>
+          <input type="number"  class="form-control testnameinpt" required [(ngModel)]="lvlsign" name="lvlsign">
+          <ng-container *ngIf="significance_req">
+            <div><label style="color:red;">* Tolerance in measurement Required</label></div>
+        </ng-container>
+        </div>
+          
+
+       </div>
+        <!--confirm store-->
+
+        <div class="row">
+          <ng-container *ngIf="confirm_selection">
+            <div class="col-md-4 Footerbtngrp">
+              <button type="button" *ngIf="!loaddatas" class="butn stponebck" (click)="Hideuploadandselectstore()">Back</button>
+            </div>
+            <div class="col-md-8 Footerbtngrp" >
+              <button type="button" *ngIf="!loaddatas" class="col-md-4 butn savecontinue" (click)="ConfirmSelection()">
+                Confirm Selection
+              </button>
+               <button type="button" *ngIf="loaddatas" class="col-md-4 butn savecontinue" (click)="Movetowizard2_save()">
+                Next
+              </button>
+            </div>
+          </ng-container>
+
+         <!--  <ng-container *ngIf="save_stage">
+            <div class="col-md-4 Footerbtngrp">
+              <button type="button" class="butn stponebck" (click)="GotoselectStore()">Back</button>
+            </div>
+            <div class="col-md-8 Footerbtngrp">
+              <button type="button" class="col-md-4 butn savecontinue" (click)="Movetowizard2()">
+                Save & Continue
+              </button>
+            </div>
+          </ng-container> -->
+
+
+
+          <ng-container *ngIf="upld_stage">
+            <div class="col-md-4 Footerbtngrp">
+              <button type="button" class="butn stponebck" (click)="Hideuploadandselectstore()">Back</button>
+            </div>
+            <div class="col-md-8 Footerbtngrp">
+              <button type="button" class="col-md-4 butn savecontinue" (click)="estimateTeststore()">
+                Estimate Test Stores
+              </button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+
+    </ng-container>
+
+
+
+
+    <ng-container *ngIf="TestStoreEstimation">
+
+      <div class="col-md-12" style="height: 35vw;margin-top: 3vw">
+          <div class="col-md-5" style="float: left;">
+            <!-- <ng-multiselect-dropdown
+            [placeholder]="'-- Select Power --'"
+            [data]="PowerMetricval"
+            (onSelect)="onMetricSelect($event)"
+            (onSelectAll)="onMetricSelectAll($event)"
+            (onDeSelect)="onMetricDeSelect($event)"
+            (onDeSelectAll)="onMetricDeSelectAll($event)"
+            [settings]="PowerMetricSet"
+            [(ngModel)]="Powerid"
+          >
+          </ng-multiselect-dropdown>  -->   
+
+
+          <table
+          mat-table
+          matSort
+          [dataSource]="EffectData | paginate: { itemsPerPage: effectmeasuresize, currentPage: p, totalItems: EffectData.length }"
+          class="mat-elevation-z8"
+          style="height: 33.5vw !important;"
+        >
+
+        <ng-container matColumnDef="power">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <span class="table-header-label" style="margin-left: 0px !important;">Power </span>
+            </th>
+            <td mat-cell *matCellDef="let row">{{row.power}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="effect_size">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <span class="table-header-label">Effect Size</span>
+            </th>
+            <td mat-cell *matCellDef="let row">{{row.effect}}</td>
+          </ng-container>
+
+          <ng-container matColumnDef="no_ofstore">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>
+              <span class="table-header-label">No. of Stores Needed</span> 
+            </th>
+            <td mat-cell *matCellDef="let row">{{row.no_ofstore}}</td>
+          </ng-container>
+
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumnseffect"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumnseffect"
+            (click)="testmeasureselection.toggle(row)"
+          ></tr>
+        </table>
+
+        <div class="row" *ngIf="EffectData.length>7">
+          <div class="col-md-6">
+            <pagination-controls
+              (pageChange)="p = $event; paginatetestmeasure(p)"
+              nextLabel=""
+              previousLabel=""
+            ></pagination-controls>
+          </div>
+         <!--  <div class="col-md-6">
+            <label style="width:43%;float: left;margin-top: 22px;">Per page</label>
+            <select class="form-control" style="width:56%;margin-top: 1rem;" (change)="perpageTestMeasure($event)">
+              <option value="10"> 10 </option>
+              <option value="25"> 25 </option>
+              <option value="50"> 50 </option>
+            </select>
+          </div> -->
+        </div>
+
+      </div>
+      <div class="col-md-7" style="float:right;">         
+          <mat-card class="threat-detection-cart">
+           <mat-card-content style="padding-bottom: 1vw;">
+            <div style="display: block;">
+          <figure class="highcharts-figure">
+              <div id="container"></div>          
+          </figure>
+        </div>
+      </mat-card-content>
+    </mat-card>
+      </div>
+  </div>
+        
+
+    <ng-container *ngIf="upld_stage">
+      <div class="Footerbtngrp" style="height: 0vw">
+        <button type="button" class="col-md-1 butn stponebck" (click)="Hideuploadandselectstore()">Back</button>
+         <button type="button" class="col-md-1 butn savecontinue" (click)="HideEffect_Showstore()" style="margin-right: 2vw;margin-top: 1vw">
+          Next
+        </button>
+      </div>      
+    </ng-container>
+    </ng-container>
+
+     <ng-container *ngIf="show_teststores && !loaddatas">
+      <div class="radiobtn-group" style="margin-top: 3rem;">
+        <mat-radio-group aria-label="Select an option" (change)="radioChange($event)">
+          <mat-radio-button [checked]="true" value="1">Upload Test Stores</mat-radio-button>
+          <mat-radio-button value="2">Select Test Stores</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="show_upld_file_store">
+      <div class="content-border" style="border: none !important;margin-top: 2vw!important">
+        <ng-container *ngIf="show_uploadstore">
+          <span style="margin-top: 2rem;">Upload Test Stores</span>
+          <form [formGroup]="uploadForm" (ngSubmit)="SubmitFile($event)">
+            <div class="input-group" id="uploadtest">
+              <input
+                type="text"
+                id="filenm"
+                class="form-control"
+                [value]="filenameval"
+                readonly
+                style="width: 270px;"
+              />
+
+              <div class="input-group-btn">
+                <span class="fileUpload btn" style="border: none;border-radius: 0rem;margin-bottom: 1rem;">
+                  <span class="upl" id="upload">Choose file</span>
+                  <input
+                    type="file"
+                    #file
+                    class="upload"
+                    id="up"
+                    accept=".csv,.xlsx"
+                    name="upfile"
+                    (change)="getFileData($event)"
+                  /> </span
+                ><!-- btn-orange -->
+
+                <button type="submit" [hidden]="submit_visible" class="submit btn">Submit</button>
+              </div>
+              <!-- btn -->              
+            </div>
+            <!-- group -->
+          </form>
+          <ng-container *ngIf="show_uploadstoretable">
+            <div style="float:right;">
+              <input
+                class="form-control"
+                type="number"
+                (keyup)="FilterUploadstores($event.target.value)"
+                placeholder="&#xF002;&nbsp; Store ID"
+                style="font-family:Arial, FontAwesome;margin-bottom: 1rem;"
+              />
+            </div>
+
+            <div style="float:right">
+              <label class="upld-selectstr-label">Selected Store Count : {{ upload_store_checked.length }}</label>
+            </div>
+
+            <table
+              mat-table
+              matSort
+              [dataSource]="
+                Uploadstoredata
+                  | paginate: { itemsPerPage: upsize, currentPage: up, totalItems: UPLOAD_STORE_DATA.length }
+              "
+              (matSortChange)="sortDataUploadStore($event)"
+              class="mat-elevation-z8"
+            >
+              <!-- Checkbox Column -->
+              <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef width="13%">
+                  <mat-checkbox
+                    (change)="$event ? masterToggleUpload() : null"
+                    (change)="$event ? selected_upld_all($event, row) : null"
+                    [checked]="uploadselection.hasValue() && isAllSelectedUpload()"
+                    [indeterminate]="uploadselection.hasValue() && !isAllSelectedUpload()"
+                    [aria-label]="checkboxLabelUpload()"
+                  >
+                    <span style="font-size: 16px;"> Select All</span>
+                  </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row" style="text-align: center;">
+                  <span style="margin-right:32px">
+                    <mat-checkbox
+                      (click)="$event.stopPropagation()"
+                      (change)="$event ? uploadselection.toggle(row) : null"
+                      (change)="$event ? selected_upld_Row($event, row) : null"
+                      [checked]="uploadselection.isSelected(row)"
+                      [aria-label]="checkboxLabelUpload(row)"
+                    >
+                    </mat-checkbox
+                  ></span>
+                </td>
+              </ng-container>
+
+              <!-- StoreId Column -->
+              <ng-container matColumnDef="StoreId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label">Store ID</span> &nbsp;<img
+                    class="logo"
+                    src="assets/images/sort-arrow.png"
+                    alt="sort"
+                  />
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.store_sk }}</td>
+              </ng-container>
+
+              <!-- StoreName Column -->
+              <ng-container matColumnDef="StoreName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label"> Store Name &nbsp;</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.store_name }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="StoreType">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label"> Store Type &nbsp;</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.store_type }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="State">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label"> State &nbsp;</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.state_long }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="uplddisplayedcolumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: uplddisplayedcolumns" (click)="selection.toggle(row)"></tr>
+            </table>
+
+            <div class="row">
+              <div class="col-md-10">
+                <pagination-controls
+                  (pageChange)="up = $event; paginateuploadstore(up)"
+                  nextLabel=""
+                  previousLabel=""
+                ></pagination-controls>
+              </div>
+              <div class="col-md-2">
+                <label style="width:43%;float: left;margin-top: 22px;">Per page</label>
+                <select class="form-control" style="width:43%;margin-top: 1rem;" (change)="perpageUploadStore($event)">
+                  <option value="10"> 10 </option>
+                  <option value="25"> 25 </option>
+                  <option value="50"> 50 </option>
+                </select>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+        <ng-container *ngIf="hideselect_store">
+          <ng-container *ngIf="!show_uploadstore">
+            <div class="state_str row">
+              <div class="form-group col-md-2" style="margin-top:0;">
+                <ng-multiselect-dropdown
+                  [(ngModel)]="selectedstoretype"
+                  [placeholder]="'--Store Type--'"
+                  [data]="Storeval"
+                  [settings]="StoreSet"
+                >
+                </ng-multiselect-dropdown>
+              </div>
+              <div class="form-group col-md-2" style="margin-top:0;">
+                <ng-multiselect-dropdown
+                  [(ngModel)]="selectedstate"
+                  [placeholder]="'--State--'"
+                  [data]="Stateval"
+                  [settings]="StateSet"
+                >
+                </ng-multiselect-dropdown>
+              </div>
+              <div class="col-md-3" style="margin-top:0;">
+                <div class="input-group">
+                  <button type="button" class="butn state-str-filter" (click)="getStoreStateval()">Filter</button>
+                  <button
+                    type="button"
+                    class="butn state-str-filter"
+                    style="margin-left: 10px;"
+                    (click)="Resetfilter()"
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
+
+              <div class="col-md-2 filter-selecstr">
+                <input
+                  class="form-control srchbox"
+                  type="number"
+                  (keyup)="FilterSelectstores($event.target.value)"
+                  placeholder="&#xF002;&nbsp; Store ID"
+                />
+              </div>
+              <div class="col-md-12">
+                <div class="col-md-12">
+                  <label style="float:right;">Selected Store Count : {{ selectstorechecked.length }}</label>
+                </div>
+              </div>
+            </div>
+
+            <table
+              mat-table
+              matSort
+              [dataSource]="
+                Selectedstoredata | paginate: { itemsPerPage: size, currentPage: p, totalItems: STORE_DATA.length }
+              "
+              (matSortChange)="sortDataSelectStore($event)"
+              class="mat-elevation-z8"
+            >
+              <!-- Checkbox Column -->
+              <ng-container matColumnDef="select">
+                <th mat-header-cell *matHeaderCellDef width="13%">
+                  <mat-checkbox
+                    (change)="$event ? masterToggle($event, row) : null"
+                    (change)="$event ? selectedall($event, row) : null"
+                    [checked]="selection.hasValue() && isAllSelected()"
+                    [indeterminate]="selection.hasValue() && !isAllSelected()"
+                    [aria-label]="checkboxLabel()"
+                  >
+                    <span style="font-size: 16px;"> Select All</span>
+                  </mat-checkbox>
+                </th>
+                <td mat-cell *matCellDef="let row" style="text-align: center;">
+                  <span style="margin-right:32px">
+                    <mat-checkbox
+                      (click)="$event.stopPropagation()"
+                      (change)="$event ? selection.toggle(row) : null"
+                      (change)="$event ? selected_Row($event, row) : null"
+                      [checked]="selection.isSelected(row)"
+                      [aria-label]="checkboxLabel(row)"
+                    >
+                    </mat-checkbox
+                  ></span>
+                </td>
+              </ng-container>
+
+              <!-- StoreId Column -->
+              <ng-container matColumnDef="StoreId">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label">Store ID</span> &nbsp;<img
+                    class="logo"
+                    src="assets/images/sort-arrow.png"
+                    alt="sort"
+                  />
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.store_sk }}</td>
+              </ng-container>
+
+              <!-- StoreName Column -->
+              <ng-container matColumnDef="StoreName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label"> Store Name &nbsp;</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.store_name }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="StoreType">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label">Store Type&nbsp;</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.store_type }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="State">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label">State&nbsp;</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.state_long }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+
+            <div class="row">
+              <div class="col-md-10">
+                <pagination-controls
+                  (pageChange)="p = $event; paginateselectstore(p)"
+                  nextLabel=""
+                  previousLabel=""
+                ></pagination-controls>
+              </div>
+              <div class="col-md-2">
+                <label style="width:43%;float: left;margin-top: 22px;">Per page</label>
+                <select class="form-control" style="width:43%;margin-top: 1rem;" (change)="perpageSelectStore($event)">
+                  <option value="10"> 10 </option>
+                  <option value="25"> 25 </option>
+                  <option value="50"> 50 </option>
+                </select>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <!---confirm store---->
+        <ng-container *ngIf="show_confirm_store">
+          <div style="float:right;">
+            <input
+              class="form-control"
+              type="number"
+              (keyup)="FilterConfirmstores($event.target.value)"
+              placeholder="&#xF002;&nbsp; Store ID"
+              style="font-family:Arial, FontAwesome;margin-bottom: 1rem;"
+            />
+             <div class="col-md-12">
+                <div class="col-md-12">
+                  <label style="float:right;">Selected Store Count : {{ selectstorechecked.length }}</label>
+                </div>
+              </div>
+          </div>
+          <h5>Selected Stores</h5>
+          <table
+            mat-table
+            matSort
+            [dataSource]="
+              Confirmstoredata
+                | paginate: { itemsPerPage: cnfrmsize, currentPage: curp, totalItems: CONFIRM_STORE_DATA.length }
+            "
+            (matSortChange)="sortDataConfirmStore($event)"
+            class="mat-elevation-z8"
+          >
+            <!-- Checkbox Column -->
+            <!-- <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef width="13%">
+                <mat-checkbox
+                  (change)="$event ? masterToggleConfirm($event, row) : null"
+                  [checked]="confirmselection.hasValue() && isAllSelectedConfirm()"
+                  [indeterminate]="confirmselection.hasValue() && !isAllSelectedConfirm()"
+                  [aria-label]="checkboxLabel()"
+                >
+                  <span style="font-size: 16px;"> Select All</span>
+                </mat-checkbox>
+              </th>
+              <td mat-cell *matCellDef="let row" style="text-align: center;">
+                <span style="margin-right:32px">
+                  <mat-checkbox
+                    (click)="$event.stopPropagation()"
+                    (change)="$event ? confirmselection.toggle(row) : null"
+                    [checked]="confirmselection.isSelected(row)"
+                    [aria-label]="checkboxLabel(row)"
+                  >
+                  </mat-checkbox
+                ></span>
+              </td>
+            </ng-container> -->
+
+            <!-- StoreId Column -->
+            <ng-container matColumnDef="StoreId">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                <span class="table-header-label">Store ID</span> &nbsp;<img
+                  class="logo"
+                  src="assets/images/sort-arrow.png"
+                  alt="sort"
+                />
+              </th>
+              <td mat-cell *matCellDef="let row">{{ row.store_sk }}</td>
+            </ng-container>
+
+            <!-- StoreName Column -->
+            <ng-container matColumnDef="StoreName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                <span class="table-header-label"> Store Name &nbsp;</span
+                ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+              </th>
+              <td mat-cell *matCellDef="let row">{{ row.store_name }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="StoreType">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                <span class="table-header-label">Store Type&nbsp;</span
+                ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+              </th>
+              <td mat-cell *matCellDef="let row">{{ row.store_type }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="State">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                <span class="table-header-label">State&nbsp;</span
+                ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+              </th>
+              <td mat-cell *matCellDef="let row">{{ row.state_long }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="confirmstorecolumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: confirmstorecolumns"></tr>
+          </table>
+
+          <div class="row">
+            <div class="col-md-10">
+              <pagination-controls
+                (pageChange)="curp = $event; paginateconfirmstore(curp)"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+            </div>
+            <div class="col-md-2">
+              <label style="width:43%;float: left;margin-top: 22px;">Per page</label>
+              <select class="form-control" style="width:43%;margin-top: 1rem;" (change)="perpageConfirm($event)">
+                <option value="10"> 10 </option>
+                <option value="25"> 25 </option>
+                <option value="50"> 50 </option>
+              </select>
+            </div>
+          </div>
+        </ng-container>
+
+        <!--confirm store-->
+
+        <div class="row">
+          <ng-container *ngIf="confirm_selection">
+            <div class="col-md-4 Footerbtngrp">
+              <button type="button" *ngIf="!loaddatas"class="butn reset" (click)="movetostp1()">Reset</button>
+              <button type="button" *ngIf="!loaddatas" class="butn stponebck" (click)="Hideuploadandselectstore()">Back</button>
+            </div>
+            <div class="col-md-8 Footerbtngrp" >
+              <button type="button" *ngIf="!loaddatas" class="col-md-4 butn savecontinue" (click)="ConfirmSelection()">
+                Confirm Selection
+              </button>
+               <button type="button" *ngIf="loaddatas" class="col-md-4 butn savecontinue" (click)="Movetowizard2_save()">
+                Next
+              </button>
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="save_stage">
+            <div class="col-md-4 Footerbtngrp">
+              <button type="button" class="butn stponebck" (click)="GotoselectStore()">Back</button>
+            </div>
+            <div class="col-md-8 Footerbtngrp">
+              <button type="button" class="col-md-4 butn savecontinue" (click)="Movetowizard2()">
+                Save & Continue
+              </button>
+            </div>
+          </ng-container>
+
+
+
+          <ng-container *ngIf="upld_stage">
+            <div class="col-md-4 Footerbtngrp">
+              <button type="button" class="butn stponebck" (click)="Hideuploadandselectstore()">Back</button>
+            </div>
+            <div class="col-md-8 Footerbtngrp">
+              <button type="button" class="col-md-4 butn savecontinue" (click)="Movetowizard2()">
+                Save & Continue
+              </button>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

@@ -1,0 +1,61 @@
+@import "src/theme/theme-variables";
+
+.logo {
+  width: 50px;
+  margin-top: 3px;
+}
+.bg-black {
+  background-color: #f3f3f3 !important;
+}
+.collapse:not(.show) {
+  display: block;
+}
+.nav-link.dropdown-toggle {
+  cursor: pointer;
+}
+* {
+  margin: 0;
+  padding: 0;
+}
+#container {
+  height: 100%;
+  width: 100%;
+  font-size: 0;
+}
+
+#left,
+#middle,
+#right {
+  display: inline-block;
+  *display: inline;
+  zoom: 1;
+  vertical-align: top;
+  font-size: 12px;
+}
+
+#left {
+  width: 40%;
+}
+#middle {
+  width: 30%;
+  height: 55px;
+}
+
+.head-text {
+  text-align: center;
+  vertical-align: middle;
+  line-height: 55px;
+}
+
+#right {
+  width: 30%;
+}
+#navbar-menu {
+  height: 55px;
+}
+#user-circle {
+  font-size: 51px;
+}
+.navbar {
+  margin-bottom: 0rem;
+}

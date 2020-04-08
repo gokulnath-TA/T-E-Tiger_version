@@ -1,0 +1,1138 @@
+
+  <div class="sidenav">    
+      <div class="first stepper">
+        <h5 class="stg1text">Design a Test</h5>
+        <!-- <div class="col-md-12">
+          <div class="md-stepper-horizontal">
+            <div class="md-step done">
+              <div class="md-step-circle"><span>1</span></div>
+              <div class="md-step-bar-left"></div>
+              <div class="md-step-bar-right"></div>
+            </div>
+            <div class="md-step done">
+              <div class="md-step-circle"><span>2</span></div>
+              <div class="md-step-bar-left"></div>
+              <div class="md-step-bar-right"></div>
+            </div>
+            <div class="md-step done">
+              <div class="md-step-circle"><span>2</span></div>
+              <div class="md-step-bar-left"></div>
+              <div class="md-step-bar-right"></div>
+            </div>
+          </div>
+        </div> -->
+      </div>
+    
+      <div class="second stepper stepper-active">
+        <h5 class="stg2text">Test - Control Matching</h5>
+        <aw-wizard
+          #wizard
+          id="w2wizard2"
+          [navBarLayout]="'large-filled'"
+          [navBarLocation] = "'right'"
+          [disableNavigationBar]="true"
+          [defaultStepIndex]="stepindex"
+          style="margin-left: -45vw"
+        >
+          <aw-wizard-step
+            [stepTitle]="''"
+            [stepId]="3"
+            (stepEnter)="enterStep($event)"
+            [navigationSymbol]="{ symbol: '3' }"
+          >
+            <ng-template awWizardStepSymbol *ngIf="CompletedStep3">
+              <i class="fa fa-check"></i>
+            </ng-template>
+          </aw-wizard-step>
+          <aw-wizard-step
+            [stepTitle]="''"
+            [stepId]="4"
+            (stepEnter)="enterStep($event)"
+            [navigationSymbol]="{ symbol: '4' }"
+          >
+            <ng-template awWizardStepSymbol *ngIf="CompletedStep4">
+              <i class="fa fa-check"></i>
+            </ng-template>
+          </aw-wizard-step>
+          <aw-wizard-step
+            [stepTitle]="''"
+            [stepId]="5"
+            (stepEnter)="enterStep($event)"
+            [navigationSymbol]="{ symbol: '5' }"
+          >
+          </aw-wizard-step>
+        </aw-wizard>
+      </div>
+    
+
+    
+      <div class="third stepper">
+        <h5 class="stg3text">Impact Analysis</h5>
+        <!-- <div class="col-md-12">
+          <div class="md-stepper-horizontal">
+            <div class="md-step">
+              <div class="md-step-circle" style="background-color: #A0A0A0;"><span>6</span></div>
+              <div class="md-step-bar-left"></div>
+              <div class="md-step-bar-right" style="border-top: 1px solid #E6E6E6;"></div>
+            </div>
+            <div class="md-step">
+              <div class="md-step-circle" style="background-color: #A0A0A0;"><span>7</span></div>
+              <div class="md-step-bar-left" style="border-top: 1px solid #E6E6E6;"></div>
+              <div class="md-step-bar-right"></div>
+            </div>
+          </div>
+        </div> -->
+      </div>
+    </div>
+    
+    <div class="main">
+
+    <div class="col-md-12">
+      <ng-container *ngIf="isShow">
+        <button type="button" class="stponebck" (click)="movebcktostp3()">Back</button>
+      </ng-container>
+      <ng-container *ngIf="!isShow"> </ng-container>
+    </div>
+
+    <ng-container *ngIf="showcnt1">
+      <div class="container">
+        <div class="row" style="margin-top: 2vw">
+          <div class="col-md-4">
+            <div class="form-group">    
+            <label>Target Metric for Feature Selection</label>          
+              <ngx-select
+                [items]="testmetric"
+                optionTextField="metricname"
+                class="metric"
+                optionValueField="metricid"
+                [(ngModel)]="testmetricmodelid"
+                [noAutoComplete]="true"
+                [disabled]="loaddatas"
+                placeholder="Select"
+        (select)="MetricSelect($event)"
+              >
+              </ngx-select>
+              <p style="color:red" [hidden]="target_metric_req">*This field is required</p>
+            </div>
+          </div>
+
+          <!-- <div class="col-md-2  hierarchy">
+            <div class="form-group">
+              <label>Hierarchy </label>
+              <ngx-select
+                [items]="hierarchy"
+                optionTextField="hier_name"
+                optionValueField="hier_id"
+                (select)="HierSelect($event)"
+                [(ngModel)]="hiermodelid"
+                [noAutoComplete]="true"
+                [disabled]="loaddatas"
+                placeholder="Select"
+              >
+              </ngx-select>
+              <p style="color:red" [hidden]="hier_req">*This field is required</p>
+            </div>
+          </div> -->
+
+          <div class="col-md-4 product-cat">
+            <div class="form-group">
+              <label>Product Category </label>
+              <ng-multiselect-dropdown
+                [placeholder]=""
+                [data]="catmembers"
+                [settings]="ProductCategorySettings"
+                (onSelect)="onCatSelect($event)"
+                [disabled]="loaddatas"
+                (onDeSelect)="onCatDeSelect($event)"
+                [(ngModel)]="PrdCatmodelid"
+              >
+              </ng-multiselect-dropdown>
+              <p style="color:red" [hidden]="prdcat_req">*This field is required</p>
+            </div>
+          </div>
+         
+          <div class="col-md-4">
+            <div class="form-group products">
+              <label>Products </label>
+              <ng-multiselect-dropdown
+                [placeholder]=""
+                [data]="prductmembers"
+                [settings]="ProductSettings"
+                (onSelect)="onPrdSelect($event)"
+                (onDeSelect)="onPrdDeSelect($event)"
+                [(ngModel)]="product_array"
+                [disabled]="loaddatas"
+              >
+              </ng-multiselect-dropdown>
+              <p style="color:red;margin-top: 4px;" [hidden]="prd_req">* This field is required</p>
+            </div>
+          </div>
+		  <ng-container *ngIf="noteshow">
+			<h6 style="margin-left:1vw;color:#778899"> Note:  Target Metric for feature identification is {{metrixnote}} for {{productcount}}  {{products_text}} listed under {{categorycount}} Product {{category_text}}</h6>
+		  </ng-container>
+        </div>
+
+        <ng-template #htmlContent3 style="min-width:550px !important">
+                If the start date and end date selected do not fall on Monday and Sunday respectively
+                <ul style="text-align: left;">
+                  <li>Start Date will be moved to the preceding Monday irrespective of date selected</li>
+                  <li>End Date will be moved to the preceding Sunday irrespective of date selected</li>
+                </ul>
+              </ng-template>
+
+        <label style="margin-top: 2rem;">Feature Selection Window </label>
+         <i class="fa fa-info-circle unselected-tooltip"
+                    placement="top"
+                    (click)="tooltip()"
+                    tooltipClass="my-custom-class0"
+                    [ngbTooltip]="htmlContent3"
+                    aria-hidden="true"
+                    style="margin-left: .3vw;position: static;"
+                  ></i> 
+        <div class="content-border">
+          <div class="row dategrp">
+            <div class="col-md-4">
+              Start Date
+              <div class="form-group startdt-inpt">
+                <div class="input-group">
+                  <input
+                    class="form-control aligndate"
+                    placeholder="yyyy-mm-dd"
+                    readonly
+                    name="startdt"
+                    [(ngModel)]="model1"
+                    ngbDatepicker
+                    #d1="ngbDatepicker"
+                    [minDate] ="this.startmindate"
+                    [maxDate] ="this.endmindate"
+                    [disabled]="loaddatas"
+                    (click)="d1.navigateTo({ year: 2013, month: 2 })"
+                    [placement]="'top'"
+                    (dateSelect)="StartDate($event)"
+                  />
+                  <div class="input-group-append">
+                    <button
+                      class="btn btn-outline-secondary calendar"
+                      (click)="d1.toggle()"
+                      style="top:8px"
+                      type="button"
+                    ></button>
+                  </div>
+                </div>
+              </div>
+              <p style="color:red;margin-top: 4px;" [hidden]="startdt_req">* This field is required</p>
+            </div>
+
+            <div class="col-md-4">
+              End Date
+              <div class="form-group endt-inpt">
+                <div class="input-group">
+                  <input
+                    class="form-control aligndate"
+                    placeholder="yyyy-mm-dd"
+                    readonly
+                    name="enddt"
+                    [(ngModel)]="model2"
+                    ngbDatepicker
+                    #d2="ngbDatepicker"
+                    [disabled]="loaddatas"
+                    [minDate] ="this.startmindate"
+                    [maxDate] ="this.endmindate"
+                    [placement]="'top'"
+                    (dateSelect)="EndDate($event)"
+                  />
+                  <div class="input-group-append">
+                    <button
+                      class="btn btn-outline-secondary calendar"
+                      (click)="d2.toggle()"
+                      style="top:8px"
+                      type="button"
+                    ></button>
+                  </div>
+                </div>
+              </div>
+              <p style="color:red;margin-top: 4px;" [hidden]="enddt_req">* This field is required</p>
+            </div>
+            <div class="col-md-4">
+              Duration of Window (in weeks)
+              <div class="form-group">
+                <div class="input-group">
+                  <input
+                    class="form-control aligndate"
+                    [value]="days"
+                    [(ngModel)]="duration_weekss"
+                    style="background-color: #E1E1E1;"
+                    readonly
+                    name="duration"
+                  />
+                </div>
+              </div>
+              <p style="color:red;margin-top: 4px;" [hidden]="date_valid">* Start date must be lesser than end date</p>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top: 2rem">
+          <a href="javascript: void(0)" (click)="ViewConsideredFeature(content)">View List of Considered Features</a>
+        </div>
+
+        <ng-template #content let-modal>
+          <div class="modal-header">
+            <h5 class="modal-title modalfeaturetitle" id="modal-basic-title">List of Considered Features</h5>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <cdk-virtual-scroll-viewport itemSize="10" class="feature-viewport">
+              <mat-tree [dataSource]="TreeSource" [treeControl]="treeControl" class="example-tree">
+                <!-- This is the tree node template for leaf nodes -->
+                <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle>
+                  <li class="mat-tree-node">
+                    <!-- use a disabled button to provide padding for tree leaf -->
+                    <button mat-icon-button disabled></button>
+                    {{ node.feat_name }}
+                  </li>
+                </mat-tree-node>
+                <!-- This is the tree node template for expandable nodes -->
+                <mat-nested-tree-node *matTreeNodeDef="let node; when: hasChild">
+                  <li>
+                    <div class="mat-tree-node">
+                      <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.feat_name">
+                        <mat-icon class="mat-icon-rtl-mirror">
+                          {{ treeControl.isExpanded(node) ? 'remove' : 'add' }}
+                        </mat-icon>
+                      </button>
+                      {{ node.feat_name }}
+                    </div>
+                    <ul [class.example-tree-invisible]="!treeControl.isExpanded(node)">
+                      <ng-container matTreeNodeOutlet></ng-container>
+                    </ul>
+                  </li>
+                </mat-nested-tree-node>
+              </mat-tree>
+            </cdk-virtual-scroll-viewport>
+          </div>
+        </ng-template>
+
+        <form [formGroup]="uploadAdditionalFeat" (ngSubmit)="SubmitFile($event)">
+          <div class="content-border row" style="border:none">
+            <div class="col-md-5 cnt">
+              <ng-template #htmlContent>
+                Additional variables should be uploaded at a store level for all active stores in market, the data will be validated for
+                <ul style="text-align: left;">
+                  <li>Feature names will be checked against existing datastore feature names for duplicates</li>
+                  <li>Data Quality - Missing values</li>
+                  <li>Multicollinearity</li>
+                  <li>Correlation with target metric</li>
+                </ul>
+              </ng-template>
+
+
+
+              <span>Upload Additional Features</span>
+              <i
+                class="fa fa-info-circle upld-add-tooltip"
+                placement="top"
+                (click)="tooltip()"
+                tooltipClass="my-custom-class0"
+                [ngbTooltip]="htmlContent"
+                aria-hidden="true"
+              ></i>
+              <div class="input-group" id="uploadadditionalfeature">
+                <!-- <simple-notifications [options]="{position: ['bottom', 'bottom'],preventDuplicates:true, timeOut: 5000,clickIconToClose:true, icons:DefaultIcons,lastOnBottom: true}"></simple-notifications> -->
+                <input type="text" id="filenm" class="form-control" [value]="featurevalue" readonly />
+                <div class="input-group-btn">
+                  <span class="fileUpload btn" style="border: none;border-radius: 0rem;margin-bottom: 1rem;">
+                    <span class="upl" id="upload">Choose file</span>
+                    <input
+                      type="file"
+                      #file
+                      class="upload"
+                      accept=".csv,.xlsx"
+                      (change)="getFileData_features($event)"
+                      id="up"
+                    />
+                  </span>
+                  <button type="submit" [hidden]="submit_visible" class="submit btn">Submit</button>
+                </div>
+              </div>
+              <ng-container *ngIf="show_fileextnerror_feature">
+                <span style="color:red;margin-top: -1rem;">* Allowed File Types-.csv,.xls,.xlsx </span>
+              </ng-container>
+              <p style="color:red;margin-top: 4px;" [hidden]="file_add_req">* This field is required</p>
+            </div>
+          </div>
+          <div class="row" style="margin-top: -4vw">
+            <div class="col-md-6">
+             <!-- <button type="button" class="butn reset" (click)="MoveToWizard1(0)">Home</button>-->
+              
+                <button type="button" class="butn stponebck" (click)="Resetanalysis()">Reset</button>
+                <button type="button" class="butn stponebck" (click)="MoveToWizard1(1)">Back</button>
+              
+            </div>
+            
+            <div class="col-md-6">
+              <button type="button" *ngIf="!loaddatas" class="col-md-4 butn analyzefeature-save" (click)="movetostp4()">
+                Analyze Features
+              </button>
+              <button type="button" *ngIf="loaddatas" class="col-md-4 butn analyzefeature-save" (click)="movetostp4_saved()">
+                Next
+              </button>
+
+            </div>
+          </div>
+        </form>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="showcnt2">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-5" style="margin-top:15px">
+            <div class="input-group" style="top:35px">
+              <label style="top: 4px;">R-squared value:</label>
+              <input
+                type="text"
+                value=""
+                id="adjustedval"
+                style="left: 10px;"
+                class="form-control"
+                readonly
+                [(ngModel)]="adjustedval"
+              />
+            </div>
+          </div>
+
+          <div class="row" style="margin-top: 3vw;">
+          <h6 style="margin-left:1.5vw;color:#778899">Note : R-Squared only includes features selected by XGBoost and does not include any user forced-in variables</h6>
+          </div>
+          <div class="col-md-12">
+
+            <div cdkDropListGroup class="row" style="background: none;">
+              <div class="col-md-5 Selectfeatheading">
+              <ng-template #htmlContent2>
+                
+                <ul style="text-align: left;">
+                  <li>Features highlighted in blue under the selected features list are default forced-in features which were not selected by the XGBoost model</li>
+                </ul>
+              </ng-template>
+
+                <h4 style="font-size: 17px;font-color: #535353;color: #535353;">Selected Features
+                <i
+                    class="fa fa-info-circle unselected-tooltip"
+                    placement="top"
+                    (click)="tooltip()"
+                    tooltipClass="my-custom-class1"
+                    [ngbTooltip]="htmlContent2"
+                    aria-hidden="true" style="left:152px"
+                  ></i>
+                  </h4>
+               
+
+                <!--    <div
+                  cdkDropList
+                  [cdkDropListData]="seleceted"
+                  class="example-list"
+                  (cdkDropListDropped)="drop($event)" style="background: white;overflow: scroll;line-height: 29px;padding: 1vw;height: 20vw !important;"> -->
+                <select
+                  class="example-box"
+                  #chosenItems
+                  (change)="onChangeselfeat($event, chosenItems.value)"
+                  multiple
+                  [(ngModel)]="selectedToAdd"
+                  style="background: white;overflow: scroll;line-height: 29px;padding: 1vw;height: 20vw !important;width: 100%;border: none;overflow-x: hidden;"
+                >
+                  <option
+                    *ngFor="let item of seleceted; let i = index"
+                    [ngValue]="item"
+                    [ngClass]="selarr(i)"
+                    name="SelecteFeat"
+                    [disabled]="loaddatas"
+                    (ngModelChange)="chosenItems($event)"
+                  >
+                    {{ item }}
+                  </option>
+                </select>
+                <!--                   <div class="example-box" *ngFor="let item of seleceted" cdkDrag>{{item}}</div>
+                 </div>-->
+              </div>
+              <!-- [ngClass]="{ disabledbutton: checked.length <= 0 }" -->
+              <div class="col-md-1" style="left:50px;top:175px">
+                <button
+                  type="submit"
+                  class="move-remove-btn"
+                  (click)="moveitems()"
+                  [ngClass]="selstatus ? 'selected-btn-enable' : 'selected-btn-disable'"
+                  [disabled]="movedisable"
+                  name="Move"
+                >
+                  <span> <i style="color:#fff" class="fas fa-angle-right"></i></span>
+                </button>
+
+                <!-- [ngClass]="{ disabledbutton: selected_list.length <= 0 }" -->
+                <button
+                  type="submit"
+                  class="move-remove-btn"
+                  (click)="removeitems()"
+                  [ngClass]="unselstatus ? 'selected-btn-enable' : 'selected-btn-disable'"
+                  [disabled]="removedisable"
+                  name="Remove"
+                >
+                  <span><i style="color:#fff" class="fas fa-angle-left"></i></span>
+                </button>
+              </div>
+
+              <div class="col-md-5 Unselectfeatheading input-group">
+
+              <ng-template #htmlContent1>
+                
+                <ul style="text-align: left;">
+                  <li>Features highlighted in yellow under the unselected features list are additional features uploaded by user not selected by XGBoost model</li>
+                  <li>Use the arrows to move features between the selected and unselected list - Please note that this might impact matching of similar stores</li>
+                </ul>
+              </ng-template>
+
+                <h4 style="font-size: 17px;font-color: #535353;color: #535353;">
+                  Unselected Features
+                  <i
+                    class="fa fa-info-circle unselected-tooltip"
+                    placement="top"
+                    (click)="tooltip()"
+                    tooltipClass="my-custom-class1"
+                    [ngbTooltip]="htmlContent1"
+                    aria-hidden="true"
+                  ></i>
+                </h4>
+                <input
+                  class="form-control unselected-filter"
+                  type="text"
+                  (keyup)="FilterUnselectedFeatures($event.target.value)"
+                  placeholder="&#xF002;&nbsp; Feature Name"
+                  [(ngModel)]="term"
+                />
+                <!--    <div
+                  cdkDropList
+                  [cdkDropListData]="unselected"
+                  class="example-list"
+                  (cdkDropListDropped)="drop($event)" style="background: white;overflow: scroll;line-height: 29px;padding: 1vw;height: 20vw !important;">
+                  <div class="example-box" *ngFor="let item of unselected" cdkDrag>{{item}}</div>
+                </div>
+ -->
+                <select
+                  class="example-box"
+                  #chosenunselitems
+                  multiple
+                  [(ngModel)]="selectedToRemove"
+                  (change)="onChangeunselfeat($event, chosenunselitems.value)"
+                  style="background: white;overflow: scroll;line-height: 29px;padding: 1vw;height: 20vw !important;width: 100%;border: none;overflow-x: hidden;"
+                >
+                  <option
+                    *ngFor="let item of unselected; let i = index"
+                    [ngClass]="arr(i)"
+                    [ngValue]="item"
+                    name="UnSelecteFeat"
+                    [disabled]="loaddatas"
+                    (ngModelChange)="chosenItemsToRemove($event)"
+                  >
+                    {{ item }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <!--  <ng2-dual-list-box
+              id="listbx"
+              [data]="items"
+              valueField="id"
+              textField="name"
+              (onAvailableItemSelected)="log($event)"
+              (onSelectedItemsSelected)="log($event)"
+              (onItemsMoved)="log($event)"
+              [(ngModel)]="unselected"
+            >
+            </ng2-dual-list-box> -->
+          </div>
+        </div>
+        <form [formGroup]="uploadAdditionalFeat" (ngSubmit)="SubmitControlStrFile($event)">
+          <div class="content-border row" style="border:none;margin-top: 8rem;">
+            <div class="col-md-6 cnt">
+              <span>Upload Control Stores to be Excluded from Matching</span>
+              <div class="input-group" id="uploadexcludecntrlstre">
+                <input type="text" id="filenm" class="form-control" [value]="file_exclude" readonly />
+                <div class="input-group-btn">
+                  <span class="fileUpload btn" style="border: none;border-radius: 0rem;margin-bottom: 1rem;">
+                    <span class="upl" id="upload">Choose file</span>
+                    <input
+                      type="file"
+                      #file
+                      class="upload"
+                      accept=".csv,.xlsx"
+                      (change)="getFileData_excludematching($event)"
+                      id="up"
+                    />
+                  </span>
+                  <button type="submit" [hidden]="submitcntrl_visible" class="submit btn">Submit</button>
+                </div>
+              </div>
+              <ng-container *ngIf="show_fileextnerror_excludematching">
+                <span style="color:red;margin-top: -1rem;">* Allowed File Types-.csv,.xls,.xlsx </span>
+              </ng-container>
+            </div>
+          </div>
+        </form>
+        <div class="row">
+          <div class="col-md-4">
+            <div><label class="testname-label">Number of Control Store Matches</label></div>
+            <input type="text" #textbox numbersOnly maxlength="1"   (keyup)="restrictNumeric($event, textbox.value, 1, 5)" [(ngModel)]="no_of_cntrl"  [disabled]="loaddatas" (ngModelChange)="inputcheck()" class="form-control" />
+            <ng-container *ngIf="n_control_required">
+            <span style="color:red;margin-top: -1rem;">* This field is required </span>
+            </ng-container>
+          </div>
+
+          <div class="col-md-4">
+            <button type="button" class="butn advanced-setting-btn" (click)="AdvanceSettings(advnc_setting_content)">
+              <i class="fa fa-cog" aria-hidden="false"></i>&nbsp;&nbsp;Advanced Settings
+            </button>
+          </div>
+        </div>
+
+        <!--Advance Settings -->
+        <ng-template #advnc_setting_content let-modal>
+          <div class="modal-header">
+            <h5 class="modal-title modal-advc-esetting-title" id="modal-basic-title">Advanced Settings</h5>
+            <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div style="float:right;">
+              <input
+                class="form-control"
+                type="number"
+                (keyup)="Filterstores($event.target.value)"
+                placeholder="&#xF002;&nbsp; Test Store"
+                style="font-family:Arial, FontAwesome;margin-bottom: 1rem;"
+              />
+            </div>
+
+            <table
+              mat-table
+              [dataSource]="
+                Advancedsettingdata | paginate: { itemsPerPage: size, currentPage: ap, totalItems: AdvanceData.length }
+              "
+              class="mat-elevation-z8 Advcsettingtbl"
+            >
+              <!-- Checkbox Column -->
+              <ng-container matColumnDef="TestStore">
+                <th mat-header-cell *matHeaderCellDef [ngStyle]="{ display: 'none' }"></th>
+                <td mat-cell *matCellDef="let row; let i = index" style="padding-left:47px">
+                  <span style="text-align:center">
+                    <mat-checkbox
+                      (click)="$event.stopPropagation()"
+                      (change)="$event ? selection.toggle(row) : null"
+                      (change)="$event ? selected_Row($event, row, i) : null"
+                      [checked]="selection.isSelected(row)"
+                    >
+                    </mat-checkbox
+                  ></span>
+                  {{ row.TestStore }}
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="Selectall">
+                <th mat-header-cell *matHeaderCellDef width="15%" [attr.rowspan]="2">
+                  <span style="font-size: 16px;margin-left: 25px;">Test Store</span><br />
+                  <mat-checkbox
+                    (change)="$event ? masterToggle() : null"
+                    (change)="$event ? selectedall($event, row) : null"
+                    [checked]="selection.hasValue() && isAllSelected()"
+                    [indeterminate]="selection.hasValue() && !isAllSelected()"
+                  >
+                    <span style="font-size: 16px;line-height: 40px;padding-top: 19px;"> Select All</span>
+                  </mat-checkbox>
+                </th>
+              </ng-container>
+
+              <!-- StoreId Column -->
+              <tr>
+                <ng-container matColumnDef="State">
+                  <th mat-header-cell *matHeaderCellDef>
+                    <mat-checkbox
+                      (change)="$event ? masterToggleState() : null"
+                      (change)="$event ? selectedallstate($event, row) : null"
+                      [checked]="selectionstate.hasValue() && isAllSelectedState()"
+                      [indeterminate]="selectionstate.hasValue() && !isAllSelectedState()"
+                      [disabled]="state_disabled"
+                    >
+                      <span class="table-header-label">State </span>
+                    </mat-checkbox>
+                  </th>
+                  <td mat-cell *matCellDef="let row; let i = index" style="text-align: center;">
+                    <mat-checkbox
+                      (click)="$event.stopPropagation()"
+                      id="state{{ i }}"
+                      (change)="$event ? selectionstate.toggle(row) : null"
+                      (change)="$event ? selected_state_Row($event, row, i) : null"
+                      [checked]="selectionstate.isSelected(row)"
+                      disabled="{{ row.checkedstate }}"
+                    >
+                    </mat-checkbox>
+                    <span style="display:none"> {{ row.State }}</span>
+                  </td>
+                </ng-container>
+
+                <!-- StoreName Column -->
+                <ng-container matColumnDef="StoreType">
+                  <th mat-header-cell *matHeaderCellDef>
+                    <mat-checkbox
+                      (change)="$event ? masterToggleStoretype() : null"
+                      (change)="$event ? selectedallstore($event, row) : null"
+                      [checked]="selectionstoretype.hasValue() && isAllSelectedStoretype()"
+                      [indeterminate]="selectionstoretype.hasValue() && !isAllSelectedStoretype()"
+                      [disabled]="storetype_disabled"
+                    >
+                      <span class="table-header-label"> Store Type </span>
+                    </mat-checkbox>
+                  </th>
+                  <td mat-cell *matCellDef="let row; let i = index" style="text-align: center;">
+                    <mat-checkbox
+                      (click)="$event.stopPropagation()"
+                      (change)="$event ? selectionstoretype.toggle(row) : null"
+                      (change)="$event ? selected_store_Row($event, row, i) : null"
+                      [checked]="selectionstoretype.isSelected(row)"
+                      disabled="{{ row.checkedstate }}"
+                    >
+                    </mat-checkbox>
+                    <span style="display:none"> {{ row.StoreType }}</span>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="Locality">
+                  <th mat-header-cell *matHeaderCellDef>
+                    <mat-checkbox
+                      (change)="$event ? masterToggleLocality() : null"
+                      (change)="$event ? selectedallocality($event, row) : null"
+                      [checked]="selectionlocality.hasValue() && isAllSelectedLocality()"
+                      [indeterminate]="selectionlocality.hasValue() && !isAllSelectedLocality()"
+                      [disabled]="locality_disabled"
+                    >
+                      <span class="table-header-label"> Locality </span>
+                    </mat-checkbox>
+                  </th>
+                  <td mat-cell *matCellDef="let row; let i = index" style="text-align: center;">
+                    <mat-checkbox
+                      (click)="$event.stopPropagation()"
+                      (change)="$event ? selectionlocality.toggle(row) : null"
+                      (change)="$event ? selected_locality_Row($event, row, i) : null"
+                      [checked]="selectionlocality.isSelected(row)"
+                      disabled="{{ row.checkedstate }}"
+                    >
+                    </mat-checkbox>
+                    <span style="display:none"> {{ row.Locality }}</span>
+                  </td>
+                </ng-container>
+              </tr>
+              <ng-container matColumnDef="constraint-settings">
+                <th
+                  mat-header-cell
+                  *matHeaderCellDef
+                  [attr.colspan]="4"
+                  style="text-align: center;font-size: 16px; border-bottom: 3px solid #EBEBEB;"
+                >
+                  <span style="font-size: 16px;">Constraint Settings</span>
+                </th>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="['Selectall', 'constraint-settings']"></tr>
+              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            </table>
+
+            <div class="row">
+              <div class="col-md-10">
+                <pagination-controls
+                  (pageChange)="ap = $event; paginatestore(ap)"
+                  nextLabel=""
+                  previousLabel=""
+                ></pagination-controls>
+              </div>
+              <div class="col-md-2">
+                <label class="perpagelbl">Per page</label>
+                <select class="form-control perpagesel" (change)="perpageStore($event)">
+                  <option value="10"> 10 </option>
+                  <option value="25"> 25 </option>
+                  <option value="50"> 50 </option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-12">
+                <button type="button" class="col-md-4 butn advnc-save-btn" (click)="SaveAdvSetting()">
+                  Save
+                </button>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+        <!--Advance Settings -->
+
+        <div class="row">
+          <div class="col-md-4">
+            <!-- <button type="button" class="butn reset" (click)="MoveToWizard1()">Reset</button> -->
+            <button type="button" class="butn stponebck" (click)="movebcktostp3()">Back</button>
+          </div>
+
+          <div class="col-md-8">
+            <button type="button" *ngIf="!loaddatas" class="col-md-4 butn identifycntrlstore" (click)="movetostp5()">
+              Identify Control Stores
+            </button>
+             <button type="button" *ngIf="loaddatas" class="col-md-4 butn identifycntrlstore" (click)="movetostp5_saved()">
+              Next
+            </button>
+
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="showcnt3">
+      <nav class="container-fluid navbar navbar-expand-lg" style="height: 50px;background-color: #343434;">
+        <div class="collapse navbar-collapse" id="navbarColor02">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active" style="margin-left: 75px;">
+              <button
+                [ngClass]="currentres ? 'btntrue' : 'btnfalse'"
+                (click)="currentvr = false; currentres = true; currentssr = false; match_results()"
+              >
+                Match Results
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                #chartclick
+                [ngClass]="currentvr ? 'btntrue' : 'btnfalse'"
+                (click)="currentvr = true; currentres = false; currentssr = false; visulaize_results()"
+              >
+                Visualize Results
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                [ngClass]="currentssr ? 'btntrue' : 'btnfalse'"
+                (click)="currentvr = false; currentres = false; currentssr = true; stat_results()"
+              >
+                Statistical Significance Results
+              </button>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <ng-container *ngIf="show_match_results">
+        <div class="container">
+          <div style="float:right;margin-top: 3rem;" class="row">
+            <input
+              class="form-control col-md-4 filter-match-result"
+              type="text"
+              (keyup)="FilterMatchVals($event.target.value)"
+              placeholder="&#xF002;&nbsp; Test Store"
+            />
+            <button type="button" (click)="downloadCSV()" class="col-md-4 butn dwnld-excel">
+              Download Result As Excel
+            </button>
+          </div>
+
+          <div class="table-scroll-container mat-elevation-z8">
+            <table
+              mat-table
+              matSort
+              [dataSource]="
+                MatchResultsdata
+                  | paginate: { itemsPerPage: match_vals_size, currentPage: mp, totalItems: MatchValues_DATA.length }
+              "
+              (matSortChange)="sortDataMatchvals($event)"
+              class="Matchresultstbl"
+            >
+              <ng-container matColumnDef="Test Store">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label">Test Store</span> &nbsp;
+                  <img
+                    class="logo"
+                    src="assets/images/sort-arrow.png"
+                    alt="sort"
+                  />
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.TestStore }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Control Store">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="table-header-label"> Control Store &nbsp;</span
+                  >
+                  <!-- <img class="logo" src="assets/images/sort-arrow.png" alt="sort" /> -->
+                </th>
+                <td mat-cell *matCellDef="let row; let i = index" style="padding-left:0;text-align: center;">
+                  <ng-container *ngFor="let rows of row.Controlstore; let j = index">
+                    <tr class="tr-row">
+                      <td class="sub-td">{{ row.Controlstore[j] }}</td>
+                    </tr>
+                  </ng-container>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="Similarity Value">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="table-header-label">Similarity Value</span> &nbsp;
+                  <!-- <img
+                    class="logo"
+                    src="assets/images/sort-arrow.png"
+                    alt="sort"
+                  /> -->
+                </th>
+                <td mat-cell *matCellDef="let row" style="padding-left:0;text-align: center;">
+                  <ng-container *ngFor="let rows of row.Similarval; let j = index">
+                    <tr class="tr-row">
+                      <td class="sub-td">{{ row.Similarval[j] }}</td>
+                    </tr>
+                  </ng-container>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="Sales Correlation">
+                <th mat-header-cell *matHeaderCellDef>
+                  <span class="table-header-label">Sales Correlation</span> &nbsp;
+                 <!--  <img
+                    class="logo"
+                    src="assets/images/sort-arrow.png"
+                    alt="sort"
+                  /> -->
+                </th>
+                <td mat-cell *matCellDef="let row" style="padding-left:0;text-align: center;">
+                  <ng-container *ngFor="let rows of row.Salescorrelation; let j = index">
+                    <tr class="tr-row">
+                      <td class="sub-td">{{ row.Salescorrelation[j] }}</td>
+                    </tr>
+                  </ng-container>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedColsMatchrslts; sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedColsMatchrslts" style="line-height: 2.0;"></tr>
+            </table>
+          </div>
+          <div class="row">
+            <div class="col-md-10">
+              <pagination-controls
+                (pageChange)="mp = $event; paginatematchvals(mp)"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+            </div>
+            <div class="col-md-2">
+              <label style="width:43%;float: left;margin-top: 22px;">Per page</label>
+              <select class="form-control" style="width:43%;margin-top: 1rem;" (change)="perpageMatchVals($event)">
+                <option value="10"> 10 </option>
+                <option value="25"> 25 </option>
+                <option value="50"> 50 </option>
+              </select>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-4">
+             <!--  <button type="button" class="butn reset" (click)="MoveToWizard1()">Reset</button> -->
+              <button type="button" class="butn stponebck" (click)="movebcktostp4()">Back</button>
+            </div>
+
+            <div class="col-md-8">
+              <button type="button" *ngIf="!loaddatas"class="col-md-4 butn analyzefeature-save" (click)="Movetowizard3()">
+                Save & Continue
+              </button>
+               <button type="button" *ngIf="loaddatas"class="col-md-4 butn analyzefeature-save" (click)="Movetowizard3_Save()">
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- <ng-container *ngIf=show_visualize_results> -->
+
+      <div class="container" [hidden]="show_visualize_results">
+        <div class="col-md-7" style="margin-top:3rem;padding-bottom: 4vw;">
+          <div class="form-group">
+          <label style="float:left;top: 5px;left: -7px;">Test Stores :  </label>
+            <ngx-select
+              [items]="VisResTeststr"
+              optionTextField="name"
+              optionValueField="id"
+              (select)="VisTestSelect($event)"
+              [(ngModel)]="vistest_modelid"
+              [noAutoComplete]="false"
+              placeholder="Select Test Store"
+              style="float:left;width:45%"
+            >
+            </ngx-select>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12" style="padding-top: 2vw;">
+          <mat-card class="threat-detection-cart">
+           <mat-card-content style="padding-bottom: 1vw;">
+            <div style="display: block;">
+              <figure class="highcharts-figure">
+              <div id="container"></div>
+              </figure>
+            </div>
+           </mat-card-content> 
+       </mat-card> 
+          </div>
+         </div> 
+      <!--   <div style="margin-top:5rem">
+          <figure class="highcharts-figure">
+            <div id="container"></div>
+          </figure>
+        </div> -->
+
+        <div class="row">
+          <div class="col-md-4">
+            <!-- <button type="button" class="butn reset" (click)="MoveToWizard1()">Reset</button> -->
+            <button type="button" class="butn stponebck" (click)="movebcktostp4()">Back</button>
+          </div>
+
+          <div class="col-md-8">
+            <button type="button" *ngIf="!loaddatas"class="col-md-4 butn analyzefeature-save" (click)="Movetowizard3()">
+                Save & Continue
+              </button>
+               <button type="button" *ngIf="loaddatas"class="col-md-4 butn analyzefeature-save" (click)="Movetowizard3_Save()">
+                Next
+              </button>
+          </div>
+        </div>
+      </div>
+      <!-- </ng-container> -->
+      <ng-container *ngIf="show_statistical_results">
+        <div class="container">
+          <div style="margin-top:4vw">
+			<h6 class="col-md-10" style="float:left;color:#778899">Note : Higher p-value indicates test store and matched control store are similar based on the top features selected.</h6>
+			
+            <input style="float:right;"
+              class="col-md-2 form-control"
+              type="text"
+              (keyup)="FilterStatVals($event.target.value)"
+              placeholder="&#xF002;&nbsp; Features"
+              style="font-family:Arial, FontAwesome;margin-bottom: 1rem;margin-top: 1rem;"
+            />
+          </div>
+         <!--  <table
+            mat-table
+            matSort
+            [dataSource]="StatResultsdata
+                | paginate: { itemsPerPage: stat_vals_size, currentPage: p, totalItems: Stat_Result_Data.length }
+            "
+            (matSortChange)="sortDataStatvals($event)"
+            class="mat-elevation-z8 Statisticalresultlbl"
+          > -->
+          <table
+            mat-table
+            matSort
+            [dataSource]="StatResultsdata"
+            (matSortChange)="sortDataStatvals($event)"
+            class="mat-elevation-z8 Statisticalresultlbl"
+          >
+            <!-- StoreId Column -->
+            <ng-container matColumnDef="VariableName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 40%">
+                <span class="table-header-label" style="padding-left: 157px;">Features </span> &nbsp;<img
+                  class="logo"
+                  src="assets/images/sort-arrow.png"
+                  alt="sort"
+                />
+              </th>
+              <td mat-cell *matCellDef="let row" style="padding-left: 113px;">{{ row.VariableName }}</td>
+            </ng-container>
+
+            <!-- StoreName Column -->
+            
+            <ng-container matColumnDef="PValue">              
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label" style="padding-left: 3px;">Control Store 1 (p-values)</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row" style="padding-left: 49px;">{{ row.control_1 }}</td>
+              </ng-container>
+              <ng-container matColumnDef="PValue1">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label" style="padding-left: 3px;">Control Store 2 (p-values)</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row" style="padding-left: 49px;">{{ row.control_2 }}</td>
+
+              </ng-container>
+              <ng-container matColumnDef="PValue2">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label" style="padding-left: 3px;">Control Store 3 (p-values)</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row" style="padding-left: 49px;">{{ row.control_3 }}</td>
+              </ng-container>
+              <ng-container matColumnDef="PValue3">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label" style="padding-left: 3px;">Control Store 4 (p-values)</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row" style="padding-left: 49px;">{{ row.control_4 }}</td>
+              </ng-container>
+              
+              <ng-container matColumnDef="PValue4">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <span class="table-header-label" style="padding-left: 3px;">Control Store 5 (p-values)</span
+                  ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                </th>
+                <td mat-cell *matCellDef="let row" style="padding-left: 49px;">{{ row.control_5 }}</td>
+              </ng-container>
+              
+
+               
+
+
+            <tr mat-header-row *matHeaderRowDef="displayedColsStatrslts"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColsStatrslts" (click)="selection.toggle(row)"></tr>
+          </table>
+
+          <!-- <div class="row" style="margin-bottom:1rem;">
+            <div class="col-md-10">
+              <pagination-controls
+                (pageChange)="p = $event; paginatestatvals(p)"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+            </div>
+            <div class="col-md-2">
+              <label style="width:43%;float: left;margin-top: 22px;">Per page</label>
+              <select class="form-control" style="width:43%;margin-top: 1rem;" (change)="perpageStatVals($event)">
+                <option value="10"> 10 </option>
+                <option value="25"> 25 </option>
+                <option value="50"> 50 </option>
+              </select>
+            </div>
+          </div> -->
+          <div class="row">
+            <div class="col-md-4">
+              <!-- <button type="button" class="butn reset" (click)="MoveToWizard1()">Reset</button> -->
+              <button type="button" class="butn stponebck" (click)="movebcktostp4()">Back</button>
+            </div>
+
+            <div class="col-md-8">
+              <button type="button" *ngIf="!loaddatas"class="col-md-4 butn analyzefeature-save" (click)="Movetowizard3()">
+                Save & Continue
+              </button>
+               <button type="button" *ngIf="loaddatas"class="col-md-4 butn analyzefeature-save" (click)="Movetowizard3_Save()">
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+    </ng-container>
+  
+</div>

@@ -1,0 +1,696 @@
+     <div class="sidenav">
+      <div class="first stepper">
+        <h5 class="stg1text">Design a Test</h5>      
+      </div>
+        
+      <div class="second stepper">
+        <h5 class="stg2text">Test - Control Matching</h5>  
+      </div>
+    
+    
+      <div class="third stepper stepper-active">
+        <h5 class="stg3text">Impact Analysis</h5>
+        <aw-wizard
+          #wizard3
+          id="w3wizard3"
+          [navBarLayout]="'large-filled'"
+          [navBarLocation] = "'right'"
+          [disableNavigationBar]="true"
+          [defaultStepIndex]="0"
+          style="margin-right: 11vw !important">
+          <aw-wizard-step [stepTitle]="''" [navigationSymbol]="{ symbol: '6' }">
+            <ng-template awWizardStepSymbol *ngIf="CompletedStep6">
+              <i class="fa fa-check"></i>
+            </ng-template>
+          </aw-wizard-step>
+          <aw-wizard-step [stepTitle]="''" [navigationSymbol]="{ symbol: '7' }"> </aw-wizard-step>
+        </aw-wizard>
+      </div>
+    </div>
+
+  <div class="main">
+
+    <div class="col-md-12">
+      <ng-container *ngIf="isShow">
+        <button type="button" class="stponebck" (click)="movebcktostp3()">Back</button>
+      </ng-container>
+      <ng-container *ngIf="!isShow"> </ng-container>
+    </div>
+
+    <ng-container *ngIf="showcnt1">
+      <div class="container">
+        <label style="margin-top: 2rem;">Pre-Period Window </label>
+        <div class="content-border">
+          <div class="row dategrp">
+            <div class="col-md-4">
+              Start Date
+              <form class="form-inline">
+                <div class="form-group">
+                  <div class="input-group">
+                    <input
+                      class="form-control aligndate"
+                      placeholder="yyyy-mm-dd"
+                      readonly
+                      name="prestartdt"
+                      [(ngModel)]="model1"
+                      [minDate] ="this.premindate"
+                      [maxDate] ="this.premaxdate"
+                      [disabled] ="loaddatas"
+                      [placement]="'bottom'"
+                      ngbDatepicker
+                      #d1="ngbDatepicker"
+                      [placement]="'top'"
+                      (dateSelect)="PreStartDate($event)"
+                    />
+                    <div class="input-group-append">
+                      <button
+                        class="btn btn-outline-secondary calendar"
+                        (click)="d1.toggle()"
+                        style="top:8px"
+                        type="button"
+                      ></button>
+                    </div>
+                  </div>
+                </div>
+                <p style="color:red;margin-top: 4px;" [hidden]="startdt_req">* This field is required</p>
+              </form>
+            </div>
+
+            <div class="col-md-4">
+              End Date
+              <form class="form-inline">
+                <div class="form-group">
+                  <div class="input-group">
+                    <input
+                      class="form-control aligndate"
+                      placeholder="yyyy-mm-dd"
+                      readonly
+                      name="preenddt"
+                      [(ngModel)]="model2"
+                      [minDate] ="this.premindate"
+                      [maxDate] ="this.premaxdate"
+                      [disabled] ="loaddatas"
+                      [placement]="'bottom'"
+                      ngbDatepicker
+                      #d2="ngbDatepicker"
+                      [placement]="'top'"
+                      (dateSelect)="PreEndDate($event)"
+                    />
+                    <div class="input-group-append">
+                      <button
+                        class="btn btn-outline-secondary calendar"
+                        (click)="d2.toggle()"
+                        style="top:8px"
+                        type="button"
+                      ></button>
+                    </div>
+                  </div>
+                </div>
+                <p style="color:red;margin-top: 4px;" [hidden]="enddt_req">* This field is required</p>
+              </form>
+            </div>
+            <div class="col-md-4">
+              Duration Of Window (in Weeks)
+              <form class="form-inline">
+                <div class="form-group">
+                  <div class="input-group">
+                    <input
+                      class="form-control aligndate"
+                      [value]="predays"
+                      style="background-color: #E1E1E1;"
+                      readonly
+                      name="duration"
+                    />
+                  </div>
+                </div>
+                <p style="color:red;margin-top: 4px;" [hidden]="date_valid">* Start date must be lesser than end date</p>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <label style="margin-top: 2rem;">Post-Period Window </label>
+        <div class="content-border">
+          <div class="row dategrp">
+            <div class="col-md-4">
+              Start Date
+              <form class="form-inline">
+                <div class="form-group">
+                  <div class="input-group">
+                    <input
+                      class="form-control aligndate"
+                      placeholder="yyyy-mm-dd"
+                      readonly
+                      name="poststartdt"
+                      [(ngModel)]="model3"
+                      ngbDatepicker
+                      #postd1="ngbDatepicker"
+                      [placement]="'bottom'"
+                      [minDate] ="this.postmindate"
+                      [maxDate] ="this.postmaxdate"
+                      [disabled] ="loaddatas"
+                      [placement]="'top'"
+                      (dateSelect)="PostStartDate($event)"
+                    />
+                    <div class="input-group-append">
+                      <button
+                        class="btn btn-outline-secondary calendar"
+                        (click)="postd1.toggle()"
+                        style="top:8px"
+                        type="button"
+                      ></button>
+                    </div>
+                  </div>
+                </div>
+                <p style="color:red;margin-top: 4px;" [hidden]="startdt1_req">* This field is required</p>
+                <p style="color:red;margin-top: 43px;font-size: 13px;position: absolute;" [hidden]="date_valid0">* Start date must be Greater than  Pre Period end date</p>
+              </form>
+            </div>
+
+            <div class="col-md-4">
+              End Date
+              <form class="form-inline">
+                <div class="form-group">
+                  <div class="input-group">
+                    <input
+                      class="form-control aligndate"
+                      placeholder="yyyy-mm-dd"
+                      readonly
+                      name="postenddt"
+                      [(ngModel)]="model4"
+                      ngbDatepicker
+                      [placement]="'bottom'"
+                      #postd2="ngbDatepicker"
+                      [disabled] ="loaddatas"
+                      [minDate] ="this.postmindate"
+                      [maxDate] ="this.postmaxdate"
+                      [placement]="'top'"
+                      (dateSelect)="PostEndDate($event)"
+                    />
+                    <div class="input-group-append">
+                      <button
+                        class="btn btn-outline-secondary calendar"
+                        (click)="postd2.toggle()"
+                        style="top:8px"
+                        type="button"
+                      ></button>
+                    </div>
+                  </div>
+                </div>
+                <p style="color:red;margin-top: 4px;" [hidden]="enddt1_req">* This field is required</p>
+              </form>
+            </div>
+            <div class="col-md-4">
+              Duration Of Window (in Weeks)
+              <form class="form-inline">
+                <div class="form-group">
+                  <div class="input-group">
+                    <input
+                      class="form-control aligndate"
+                      [value]="postdays"
+                      style="background-color: #E1E1E1;"
+                      readonly
+                      name="duration"
+                    />
+                  </div>
+                </div>
+                <p style="color:red;margin-top: 4px;" [hidden]="date_valid1">* Start date must be lesser than end date</p>
+              </form>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="row">
+            <div class="col-md-3" style="margin-top: 2rem">
+              <div class="form-group">
+                <label>Select Measurement Metric</label>
+                <ng-multiselect-dropdown
+                  [placeholder]="'---Select---'"
+                  [data]="MeaurementMetricval"
+                  (onSelect)="onMetricSelect($event)"
+                  (onSelectAll)="onMetricSelectAll($event)"
+                  (onDeSelect)="onMetricDeSelect($event)"
+                  (onDeSelectAll)="onMetricDeSelectAll($event)"
+                  [settings]="MeaurementMetricSet"
+                  [(ngModel)]="Metricmodelid"
+                >
+                </ng-multiselect-dropdown>
+                <p style="color:red;margin-top: 4px;" [hidden]="target_metric_req">* This field is required</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top: -2vw;">
+          <div class="col-md-4">
+            <button type="button" class="butn reset" (click)="resettestmeasure()">Reset</button>
+            <button type="button" class="butn stponebck" (click)="MoveToWizard2()">Back</button>
+          </div>
+
+          <div class="col-md-8">
+            <button type="button" *ngIf="!loaddatas" class="col-md-4 butn analyzefeature-save" (click)="movetostp7()">
+              Lift Measurement
+            </button>
+            <button type="button" *ngIf="loaddatas" class="col-md-4 butn analyzefeature-save" (click)="movetostp7_saved()">
+                Next
+              </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-container *ngIf="showcnt2">
+      <nav class="container-fluid navbar navbar-expand-lg" style="height: 50px;background-color: #343434;">
+        <div class="collapse navbar-collapse" id="navbarColor02">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active" style="margin-left: 75px;">
+              <button
+                [ngClass]="currentres ? 'btntrue' : 'btnfalse'"
+                (click)="currentvr = false; currentres = true; currentssr = false; match_results()"
+              >
+                Test Measurement Results
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                [ngClass]="currentvr ? 'btntrue' : 'btnfalse'"
+                (click)="currentvr = true; currentres = false; currentssr = false; visulaize_results()"
+              >
+                Visualize Results
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                [ngClass]="currentssr ? 'btntrue' : 'btnfalse'"
+                (click)="currentvr = false; currentres = false; currentssr = true;stat_results()"
+              >
+                Statistical Significance Results
+              </button>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+
+      <ng-container *ngIf="show_match_results">
+        <div class="container12" style="margin-left: 17vw;padding: 1vw;">
+        <div style="margin-top: 3rem;" class="row">
+
+        <div class="col-md-5"> 
+        <div class="form-group">
+               <ng-multiselect-dropdown
+                  [placeholder]="'Test Stores'"
+                  [data]="testvscntrl_teststore"
+                  [settings]="TestVscntrlSet"
+                  [(ngModel)]="testvscntrl_testr1"
+                  (onSelect)="ontestSelecttable($event)"
+                  (onDeSelect)="ontestDeSelecttable($event)"    
+                  [disabled] = "loaddatas"              
+                >
+                </ng-multiselect-dropdown>
+            </div> 
+            </div>
+
+           <div class="col-md-3">
+            <input
+              class="form-control  filter-match-result"
+              type="text"
+              (keyup)="FilterLiftanalysis($event.target.value)"
+              placeholder="&#xF002;&nbsp; Store ID" style="width: 209px;"
+            />
+            </div>
+            <button type="button" (click)="downloadCSV()" class="col-md-3 butn dwnld-excel" >
+              Download Result As Excel
+            </button>
+          
+          </div>
+
+          <div class="table-scroll-container mat-elevation-z8">
+            <table
+              id="check"
+              mat-table
+              matSort
+              [dataSource]="
+                LiftAnalysisdata
+                  | paginate: { itemsPerPage: lift_vals_size, currentPage: p, totalItems: LiftAnalysis_DATA.length }
+              "
+              (matSortChange)="sortDataMatchvals($event)"
+              class="Matchresultstbl" style="width: 75%;"
+            >
+              <ng-container matColumnDef="StoreGroup">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <div style="width:100%;display:inline-block;">
+                    <span class="table-header-label">Store Group</span> &nbsp;<img
+                      class="logo"
+                      src="assets/images/sort-arrow.png"
+                      alt="sort"
+                    />
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.StoreGroup }}</td>
+              </ng-container>
+				
+			<ng-container matColumnDef="teststoreNum">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <div style="width:100%;display:inline-block;">
+                    <span class="table-header-label">Test Store ID</span> &nbsp;<img
+                      class="logo"
+                      src="assets/images/sort-arrow.png"
+                      alt="sort"
+                    />
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.TestStore }}</td>
+              </ng-container>
+			  
+              <ng-container matColumnDef="ControlstoreNum">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <div style="width:100%;display:inline-block;">
+                    <span class="table-header-label header-align">Store ID</span> &nbsp;<img
+                      class="logo"
+                      src="assets/images/sort-arrow.png"
+                      alt="sort"
+                    />
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.ControlstoreNum }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Rank_No">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <div style="width:100%;display:inline-block;">
+                    <span class="table-header-label header-align">Rank_No &nbsp;</span
+                    ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.Rank_No }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="StoreName">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <div style="width:100%;display:inline-block;">
+                    <span class="table-header-label header-align">Store Name</span> &nbsp;<img
+                      class="logo"
+                      src="assets/images/sort-arrow.png"
+                      alt="sort"
+                    />
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.StoreName }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Variables">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <div style="width:100%;display:inline-block;">
+                    <span class="table-header-label header-align">Measurement Metric</span> &nbsp;<img
+                      class="logo"
+                      src="assets/images/sort-arrow.png"
+                      alt="sort"
+                    />
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.Variables }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="Pre_Period">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <div style="width:100%;display:inline-block;">
+                    <span class="table-header-label header-align">Pre-Period</span> &nbsp;<img
+                      class="logo"
+                      src="assets/images/sort-arrow.png"
+                      alt="sort"
+                    />
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.Pre_Period }}</td>
+              </ng-container>
+              
+              <ng-container matColumnDef="Post_Period">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <div style="width:100%;display:inline-block;">
+                    <span class="table-header-label header-align">Post-Period</span> &nbsp;<img
+                      class="logo"
+                      src="assets/images/sort-arrow.png"
+                      alt="sort"
+                    />
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.Post_Period }}</td>
+              </ng-container>
+
+              
+
+              <ng-container matColumnDef="Lift">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                  <div style="width:100%;display:inline-block;">
+                    <span class="table-header-label header-align">Percentage Change </span> &nbsp;<img
+                      class="logo"
+                      src="assets/images/sort-arrow.png"
+                      alt="sort"
+                    />
+                  </div>
+                </th>
+                <td mat-cell *matCellDef="let row">{{ row.Lift }}</td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="displayedLiftCols; sticky: true"></tr>
+              <tr mat-row *matRowDef="let row; columns: displayedLiftCols"></tr>
+            </table>
+            <div class="row">
+              <div class="col-md-7">
+                <pagination-controls
+                  (pageChange)="p = $event; paginateLiftvals(p)"
+                  nextLabel=""
+                  previousLabel=""
+                ></pagination-controls>
+              </div>
+              <div class="col-md-4">
+                <label style="width: 18%;float: left;margin-top: 22px;margin-left: 56px;">Per page</label>
+                <select class="form-control" style="width:18%;margin-top: 1rem;" (change)="perpageLiftVals($event)">
+                  <option value="10"> 10 </option>
+                  <option value="25"> 25 </option>
+                  <option value="50"> 50 </option>
+                </select>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-4">
+                <button style="margin: 20px 3px;" type="button" class="butn stponebck" (click)="movebcktostp6()">Back</button>
+              </div>
+            </div>
+          </div>
+          
+          
+        </div>
+      </ng-container>
+
+
+    <ng-container *ngIf="show_statistical_results">
+ <div class="container">
+          <div style="margin-top:4vw">
+			<h6 class="col-md-9" style="float:left;color:#778899;text-align: bold">
+					Note : p-values lower than 0.05 indicate selected test stores perform significantly different than the matched control stores based on measurement metrics selected
+			</h6>
+            <input style="float:right;"
+              class="col-md-2 form-control"
+              type="text"
+              (keyup)="FilterStatVals($event.target.value)"
+              placeholder="&#xF002;&nbsp; Variable Name"
+              style="font-family:Arial, FontAwesome;margin-bottom: 1rem;margin-top: 1rem;left: 4vw !important;position: relative;"
+            />
+          </div>
+          <!-- <table
+            mat-table
+            matSort
+            [dataSource]="
+              StatResultsdata
+                | paginate: { itemsPerPage: stat_vals_size, currentPage: p, totalItems: Stat_Result_Data.length }
+            "
+            (matSortChange)="sortDataStatvals($event)"
+            class="mat-elevation-z8 Statisticalresultlbl"
+          > -->
+          <table
+            mat-table
+            matSort
+            [dataSource]="StatResultsdata"
+            (matSortChange)="sortDataStatvals($event)"
+            class="mat-elevation-z8 Statisticalresultlbl" style="width:100% !important;"
+          >
+            <!-- StoreId Column -->
+            <ng-container matColumnDef="VariableName">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header style="width: 50%">
+                <span class="table-header-label" style="padding-left: 175px;">Variable Name</span> &nbsp;<img
+                  class="logo"
+                  src="assets/images/sort-arrow.png"
+                  alt="sort"
+                />
+              </th>
+              <td mat-cell *matCellDef="let row" style="padding-left: 185px;">{{ row.VariableName }}</td>
+            </ng-container>
+
+            <!-- StoreName Column -->
+            <ng-container matColumnDef="PValue">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                <span class="table-header-label" style="padding-left: 52px;">P-Value &nbsp;</span
+                ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+              </th>
+              <td mat-cell *matCellDef="let row" style="padding-left: 52px;">{{ row.PValue }}</td>
+            </ng-container>
+			
+			 <!-- StoreName Column -->
+            <ng-container matColumnDef="Lift">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                <span class="table-header-label" style="padding-left: 8px;">Lift <br/>(Test vs Control Percentage points difference)&nbsp;</span
+                ><img class="logo" src="assets/images/sort-arrow.png" alt="sort" />
+              </th>
+              <td mat-cell *matCellDef="let row" style="padding-left: 93px;">{{ row.Lift }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColsStatrslts"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColsStatrslts" (click)="selection.toggle(row)"></tr>
+          </table>
+
+          <!-- <div class="row" style="margin-bottom:1rem;">
+            <div class="col-md-10">
+              <pagination-controls
+                (pageChange)="p = $event; paginatestatvals(p)"
+                nextLabel=""
+                previousLabel=""
+              ></pagination-controls>
+            </div>
+            <div class="col-md-2">
+              <label style="width:43%;float: left;margin-top: 22px;">Per page</label>
+              <select class="form-control" style="width:43%;margin-top: 1rem;" (change)="perpageStatVals($event)">
+                <option value="5"> 5 </option>
+                <option value="15"> 15 </option>
+                <option value="25"> 25 </option>
+              </select>
+            </div>
+          </div> -->
+          <div class="row">
+            <div class="col-md-4">
+              <button type="button" class="butn stponebck" (click)="movebcktostp6()">Back</button>
+            </div>
+			<div class="col-md-8">
+
+            <button type="button" *ngIf="!loaddatas" class="col-md-4 butn analyzefeature-save" (click)="downloadfinalreport()">Save & Download Report</button>
+
+             <button type="button" *ngIf="loaddatas" class="col-md-4 butn analyzefeature-save" (click)="downloadreportonly()"> Download Report</button>
+
+          </div>
+          </div>
+        </div>
+
+
+
+      
+
+    </ng-container>
+
+      <div class="container" [hidden]="show_visualize_results">
+        <div class="radiobtn-group" style="margin-top: 3rem;margin-bottom: 2rem;">
+          <mat-radio-group aria-label="Select an option" (change)="radioChange($event)">
+            <mat-radio-button [checked]="true" value="1">Test vs Control Comparison</mat-radio-button>
+            <mat-radio-button value="2">Test Stores Lift Comparison</mat-radio-button>
+          </mat-radio-group>
+        </div>
+
+        <div class="row" style="margin-top: 2rem;" [hidden]="Testvscontrol">
+          <div class="col-md-4">
+            <div class="form-group">
+              <ngx-select
+                [items]="Variabletoanlyze"
+                [(ngModel)]="testvscntrl_var"
+                [noAutoComplete]="true"
+                placeholder="Variable To Analyze"
+                (selectionChanges)="variableSelect($event)"
+              >
+              </ngx-select>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+               <ng-multiselect-dropdown
+                  [placeholder]="'Test Store To Analyze'"
+                  [data]="testvscntrl_teststore"
+                  [settings]="TestVscntrlSet"
+                  [(ngModel)]="testvscntrl_testr"
+                  (onSelect)="ontestSelect($event)"
+                  (onDeSelect)="ontestDeSelect($event)"
+                  [disabled] = "disablestore"
+                >
+                </ng-multiselect-dropdown>
+            </div>
+          </div>
+        </div>
+
+       <div class="row" style="margin-top: 2rem;" [hidden]="Teststorelift">
+          <div class="col-md-4">
+            <div class="form-group">
+              <ngx-select
+                [items]="Variabletoanlyze_lift"
+                [(ngModel)]="teststrlift_var"
+                [noAutoComplete]="true"
+                placeholder="Variable To Analyze"
+                (selectionChanges)="variableSelect1($event)"
+              >
+              </ngx-select>
+            </div>
+          </div>
+         
+        </div>
+
+        <div class="col-md-12" style="padding-top: 2vw;" *ngIf="grapshow">
+          <mat-card class="threat-detection-cart">
+           <mat-card-content style="padding-bottom: 1vw;">
+            <div style="display: block;">
+              <figure class="highcharts-figure">
+                  <div id="liftanalysis" [hidden]="Testvscontrol"></div>
+              </figure>
+              </div>
+              </mat-card-content> 
+            </mat-card> 
+          </div>
+
+        <div class="col-md-12" style="padding-top: 2vw;" *ngIf="grapshow1">
+          <div class="col-md-10" style="float:left">
+            <mat-card class="threat-detection-cart">
+             <mat-card-content style="padding-bottom: 1vw;">
+              <div style="display: block;">
+                <figure class="highcharts-figure">
+                  <div id="teststorecomp" [hidden]="Teststorecomp"></div>
+            </figure>
+          </div>
+          </mat-card-content> 
+        </mat-card> 
+        </div>
+
+        <div class="col-md-2" style="float:right" [hidden]="overall_graph">
+              <mat-card class="threat-detection-cart">
+               <mat-card-content style="padding-bottom: 1vw;">
+                <div style="display: block;">
+                  <figure class="highcharts-figure">
+                    <div id="overallgraph" ></div>
+              </figure>
+            </div>
+            </mat-card-content>
+          </mat-card>
+          </div>
+
+      </div>
+
+        
+          
+      
+
+
+        <div class="row">
+          <div class="col-md-4">
+            <button type="button" class="butn stponebck" (click)="movebcktostp6()">Back</button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+</div>

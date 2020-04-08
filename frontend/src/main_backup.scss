@@ -1,0 +1,425 @@
+/*
+* Entry point of global application style.
+* Component-specific style should not go here and be included directly as part of the components.
+*/
+
+// Theme variables, must be included before the libraries to allow overriding defaults
+@import "theme/theme-variables";
+
+// 3rd party libraries
+@import "~bootstrap/scss/bootstrap";
+@import "~@fortawesome/fontawesome-free-webfonts/scss/fontawesome.scss";
+@import "~@fortawesome/fontawesome-free-webfonts/scss/fa-brands.scss";
+@import "~@fortawesome/fontawesome-free-webfonts/scss/fa-regular.scss";
+@import "~@fortawesome/fontawesome-free-webfonts/scss/fa-solid.scss";
+
+// Theme customization
+@import "theme/theme";
+@import "@angular/material/prebuilt-themes/deeppurple-amber.css";
+
+body {
+  background-color: #ebebeb;
+  overflow-x: hidden !important;
+}
+
+/*Arch wizard Global css*/
+aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li:not(:last-child):before {
+  background-color: #e6e6e6;
+  content: "";
+  position: absolute;
+  height: 1px;
+  width: 206px;
+  top: -30px;
+  left: 85px;
+}
+
+aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li .step-indicator {
+  top: -50px;
+  left: calc(50% - 25px);
+  position: absolute;
+  width: 35px;
+  height: 35px;
+  text-align: center;
+  vertical-align: middle;
+  line-height: 35px;
+  transition: 0.25s;
+  border-radius: 100%;
+  background-color: #a0a0a0;
+}
+
+aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li.current .step-indicator {
+  //background-color: #0073dd;
+}
+/*media queries*/
+@media (min-width: 1281px) {
+  #w1wizard1 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 380px !important;
+  }
+  #w2wizard2 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 458px !important;
+  }
+  #w3wizard3 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 380px !important;
+  }
+  #listbx input[formcontrolname="selectedSearchInput"] {
+    width: 200px;
+    margin-left: 15rem;
+    padding: 0px 0px 0px 35px;
+    display: inline-block;
+    margin-top: 0px;
+  }
+  #filter_search {
+    position: relative;
+    z-index: 1;
+    right: 190px;
+    //top: 1px;
+    color: #7b7b7b;
+    cursor: pointer;
+    width: 0;
+  }
+  .Advncesetting .modal-dialog {
+    max-width: 1200px !important;
+  }
+  #w2wizard2 aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li:not(:last-child):before {
+    background-color: #e6e6e6;
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 155px;
+    top: -30px;
+    left: 51px;
+  }
+  .unselected-filter {
+    font-family: Arial, FontAwesome;
+    left: 40px;
+    max-width: 250px;
+    bottom: 5px;
+    height: 28px;
+  }
+}
+
+@media (min-width: 1025px) and (max-width: 1280px) {
+  #w1wizard1 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 380px !important;
+  }
+
+  #w2wizard2 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 456px !important;
+  }
+
+  #w3wizard3 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 380px !important;
+  }
+  #listbx input[formcontrolname="selectedSearchInput"] {
+    width: 200px;
+    margin-left: 15rem;
+    padding: 0px 0px 0px 35px;
+    display: inline-block;
+    margin-top: 0px;
+  }
+  #filter_search {
+    position: relative;
+    z-index: 1;
+    right: 190px;
+    //top: 1px;
+    color: #7b7b7b;
+    cursor: pointer;
+    width: 0;
+  }
+  .Advncesetting .modal-dialog {
+    max-width: 1200px !important;
+  }
+
+  #w2wizard2 aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li:not(:last-child):before {
+    background-color: #e6e6e6;
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 155px;
+    top: -30px;
+    left: 51px;
+  }
+  .unselected-filter {
+    font-family: Arial, FontAwesome;
+    left: 40px;
+    max-width: 250px;
+    bottom: 5px;
+    height: 28px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  #w1wizard1 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 285px !important;
+  }
+
+  #w2wizard2 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 349px !important;
+  }
+
+  #w3wizard3 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 380px !important;
+  }
+  #w1wizard1 aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li:not(:last-child):before {
+    background-color: #e6e6e6;
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 175px;
+    top: -30px;
+    left: 46px;
+  }
+
+  #w2wizard2 aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li:not(:last-child):before {
+    background-color: #e6e6e6;
+    content: "";
+    position: absolute;
+    height: 1px;
+    width: 110px;
+    top: -30px;
+    left: 50px;
+  }
+
+  #listbx input[formcontrolname="selectedSearchInput"] {
+    width: 160px;
+    margin-left: 205px;
+    padding: 0px 0px 0px 35px;
+    display: inline-block;
+    margin-top: 0px;
+  }
+  #filter_search {
+    position: relative;
+    z-index: 1;
+    right: 150px;
+    color: #7b7b7b;
+    cursor: pointer;
+    width: 0;
+  }
+  .Advncesetting .modal-dialog {
+    max-width: 915px !important;
+  }
+  .unselected-filter {
+    font-family: Arial, FontAwesome;
+    left: 40px;
+    max-width: 176px;
+    bottom: 5px;
+    height: 28px;
+  }
+}
+
+@media screen and (min-width: 600px) and (max-width: 800px) {
+  #w1wizard1 aw-wizard-navigation-bar.horizontal ul.steps-indicator {
+    width: 268px !important;
+  }
+}
+
+/*media queries*/
+
+/*Arch wizard Global css*/
+
+/*Material design-Table,Checkbox,Button,Sort arrow..*/
+.mat-sort-header-arrow {
+  display: none !important;
+}
+
+.mat-checkbox-background,
+.mat-checkbox-frame {
+  background-color: #ebebeb !important;
+}
+
+.mat-checkbox-checked.mat-accent .mat-checkbox-background,
+.mat-checkbox-indeterminate.mat-accent .mat-checkbox-background,
+.mat-accent .mat-pseudo-checkbox-checked,
+.mat-accent .mat-pseudo-checkbox-indeterminate,
+.mat-pseudo-checkbox-checked,
+.mat-pseudo-checkbox-indeterminate {
+  background-color: #3c97ff !important;
+}
+button.edit_button.mat-raised-button {
+  background: transparent !important;
+  box-shadow: none;
+  color: white;
+  position: relative !important;
+  height: 35px;
+  min-width: 0px !important;
+  width: 3vw;
+}
+
+button.mat-raised-button.mat-delete_button {
+  background: transparent !important;
+  box-shadow: none;
+  color: white;
+  position: relative !important;
+  height: 35px;
+  min-width: 0px !important;
+  width: 3vw;
+}
+.pencil {
+  margin-left: -4px;
+}
+
+.bin {
+  margin-left: -4px;
+}
+
+.Matchresultstbl td.mat-cell:last-of-type,
+td.mat-footer-cell:last-of-type,
+th.mat-header-cell:last-of-type {
+  padding-right: 0px !important;
+}
+/*Material design-Table,Checkbox,Sort arrow..*/
+
+/*Pagination*/
+.ngx-pagination .current {
+  background: #fefefe !important;
+  color: #3c97ff !important;
+}
+
+.ngx-pagination {
+  margin-left: 0px !important;
+  margin-top: 1rem !important;
+  padding: 0px !important;
+}
+
+.ngx-pagination .pagination-next a::after,
+.ngx-pagination .pagination-next.disabled::after {
+  font-family: "FontAwesome" !important;
+  content: "\f054" !important;
+  color: #adadad;
+}
+
+.ngx-pagination .pagination-previous a::before,
+.ngx-pagination .pagination-previous.disabled::before {
+  font-family: "FontAwesome" !important;
+  content: "\f053" !important;
+  color: #adadad;
+}
+
+.ngx-pagination a,
+.ngx-pagination button {
+  color: #0a0a0a;
+  display: block;
+  padding: 0.1875rem 0.625rem;
+  border-radius: 0;
+  background: white !important;
+  border-left: 1px solid #ebebeb !important;
+}
+.ngx-pagination li {
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  margin-right: 0.0625rem;
+  border-radius: 0;
+  background: white !important;
+  border-right: 1px solid #ebebeb !important;
+}
+/*Pagination*/
+
+/*DropDown*/
+.multiselect-dropdown .dropdown-down {
+  border-top: 5px solid black !important;
+  border-left: 5px solid transparent !important;
+  border-right: 5px solid transparent !important;
+}
+
+.multiselect-dropdown .dropdown-btn {
+  background-color: white !important;
+}
+
+.dropdown-list {
+  background: #fff !important;
+}
+
+.dropdown-up {
+  border-bottom: 5px solid black !important;
+  border-left: 5px solid transparent !important;
+  border-right: 5px solid transparent !important;
+}
+/*DropDown*/
+
+/*Modal Box*/
+.ViewconsiderFeat .modal-dialog {
+  max-width: 860px !important;
+}
+
+/*Modal Box*/
+
+#listbx .btn {
+  display: block;
+  background-color: #037cff;
+  width: 36px;
+  height: 34px;
+  left: 60px;
+  border-radius: 50%;
+  line-height: 0.5;
+  padding-left: 12px;
+}
+#listbx .glyphicon-chevron-right:before {
+  font-family: "FontAwesome";
+  content: "\f054";
+      font-style: normal;
+  font-weight: 100;
+  color: #ebebeb;
+}
+
+#listbx .glyphicon-chevron-left:before {
+  font-family: "FontAwesome";
+  content: "\f053";
+      font-style: normal;
+  font-weight: 100;
+  color: #ebebeb;
+}
+
+#listbx .atr,
+#listbx .atl {
+  display: none;
+}
+
+#listbx .center-block {
+  margin-top: 8rem;
+}
+
+#listbx h4 .text-center {
+  text-align: left !important;
+  font-size: 18px;
+}
+
+#listbx h4 {
+  visibility: hidden;
+}
+
+#listbx input[formcontrolname="availableSearchInput"] {
+  display: none;
+}
+
+#listbx select[formcontrolname="availableListBox"] {
+  margin-top: 3rem;
+}
+
+.btntrue {
+  height: 50px;
+  width: 240px;
+  //margin-left: 35px;
+  background-color: #02438e;
+  border: none;
+  color: #fff;
+}
+.btnfalse {
+  height: 50px;
+  width: 240px;
+  // margin-left: 35px;
+  background-color: #007bff;
+  border: none;
+  color: #fff;
+}
+
+.toast-success {
+  background-color: #007bff !important;
+}
+
+// .tooltip-inner {
+//     width: 440px;
+// }
+// .metric .dropdown{
+//     width: 275px !important;
+// }
