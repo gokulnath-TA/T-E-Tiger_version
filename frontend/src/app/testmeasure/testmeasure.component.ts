@@ -127,7 +127,11 @@ export class TestMeasureComponent implements OnInit {
     MeaurementMetricSet: any = {};
     testvscntrl_testr: any = []
     testvscntrl_testr1:any =[]
+    parse_postmetrics:any = []
     TestVscntrlSet: any = {};
+    TimeSeriesSet:any = {};
+    Timeseri_metix:any;
+    Timeseries_stores:any;
     TestcntrlLiftSet: any = {};
     MeaurementMetricval: any = [];
     predays: number = 0;
@@ -152,10 +156,12 @@ export class TestMeasureComponent implements OnInit {
     currentssr: boolean = false;
     variable_name: any = []
     show_match_results: boolean = true;
+    TimeSeries:boolean = false
     show_visualize_results: boolean = true;
     show_statistical_results: boolean = false;
     Testvscontrol = false; //chart
     Teststorelift = true;
+    Time_series = true;
     Teststorecomp = true; //chart
     parse_measureTest_data: any = []
     stdate: any;
@@ -178,19 +184,25 @@ export class TestMeasureComponent implements OnInit {
     graphtemp1_store: any = []
     graphtemp12_store:any = []
     disablestore: boolean = true;
+    disablestore_time :boolean = true;
 	storeMap:any
-
+    vistest_modelid: any = [];
     grapshow:boolean =false;
     grapshow1:boolean =false;
     premindate:any
     premaxdate:any
+    no_of_cntrl: any ;
+    weekendDate: any = []
+    TimeSeries_metic:any;
     loaddatas:boolean = false;
+    Timeseri_teststore:any;
     postmindate:any
     postmaxdate:any
     metrix1:any;
     delta1:any;
     Stat_Result_Data: Stat_Result_Data[] = [];
     temp_measuredata:any =[]
+    arr2: any = [];
 
     LiftAnalysis_DATA: Liftanalysisvalues[] = [];
     overall_graph:boolean=true;
@@ -204,6 +216,16 @@ export class TestMeasureComponent implements OnInit {
 
     @ViewChild(WizardComponent)
     public wizard: WizardComponent;
+    public VisResTeststr: any[] = [{
+            vistest_id: 1,
+            vistest_name: 'Test Store 1'
+        },
+        {
+            vistest_id: 2,
+            vistest_name: 'Test Store 2'
+        }
+    ];
+
 
     displayedColumns: string[] = ['TestStore', 'State', 'StoreType', 'Locality'];
     displayedLiftCols: string[] = [
@@ -211,7 +233,6 @@ export class TestMeasureComponent implements OnInit {
 		'teststoreNum',
         'ControlstoreNum',
         'Rank_No',
-        'StoreName',
         'Variables',
         'Pre_Period',
         'Post_Period',
@@ -271,16 +292,16 @@ export class TestMeasureComponent implements OnInit {
 
 
         this.MeaurementMetricval = [{
-                mmid: 1,
-                mmtext: 'Transaction_Count'
+                mmid: 3,
+                mmtext: 'Transaction Count'
             },
             {
                 mmid: 2,
-                mmtext: 'Gross_Sales'
+                mmtext: 'Gross Sales'
             },
             {
-                mmid: 3,
-                mmtext: 'Net_Sales'
+                mmid: 1,
+                mmtext: 'Net Sales'
             }
         ];
 
@@ -290,7 +311,7 @@ export class TestMeasureComponent implements OnInit {
             idField: 'mmid',
             textField: 'mmtext',
             selectAllText: 'Select All',
-            unSelectAllText: 'UnSelect All',
+            unSelectAllText: 'Unselect All',
             itemsShowLimit: 1,
             enableCheckAll: true,
             allowSearchFilter: false
@@ -301,11 +322,23 @@ export class TestMeasureComponent implements OnInit {
             idField: 'id',
             textField: 'text',
             selectAllText: 'Select All',
-            unSelectAllText: 'UnSelect All',
+            unSelectAllText: 'Unselect All',
             itemsShowLimit: 1,
             enableCheckAll: true,
             allowSearchFilter: true
         };
+
+         this.TimeSeriesSet = {
+            singleSelection: true,
+            idField: 'id',
+            textField: 'text',
+            selectAllText: 'Select All',
+            unSelectAllText: 'Unselect All',
+            itemsShowLimit: 1,
+            enableCheckAll: false,
+            allowSearchFilter: true
+        };
+
 
 
         this.TestcntrlLiftSet = {
@@ -313,7 +346,7 @@ export class TestMeasureComponent implements OnInit {
             idField: 'id',
             textField: 'text',
             selectAllText: 'Select All',
-            unSelectAllText: 'UnSelect All',
+            unSelectAllText: 'Unselect All',
             itemsShowLimit: 1,
             enableCheckAll: false,
             allowSearchFilter: false
@@ -394,13 +427,12 @@ export class TestMeasureComponent implements OnInit {
                                         if (temp_teststore.find((x: any) => x.id == this.temp_measuredata[i].storeID)) {} else {
                                             temp_teststore.push({
                                                 "id": this.temp_measuredata[i].testStores,
-                                                "text": this.temp_measuredata[i].testStores +'_'+ this.temp_measuredata[i].storeName
+                                                "text": this.temp_measuredata[i].testStores 
                                             });
                                         }
                                     }
                                 }
-
-                                this.testvscntrl_teststore = temp_teststore
+                                this.testvscntrl_teststore = temp_teststore                                
                                 this.testvscntrl_testr1 = temp_teststore
                                 this.liftcomparison = parseData2.deltagraph
                                 this.Variabletoanlyze = this.variable_name
@@ -471,6 +503,8 @@ export class TestMeasureComponent implements OnInit {
 
     onMetricSelectAll(metricval:any)
     {
+        this.metirc_array =[];
+
         for (var i = 0 ; i <=metricval.length -1 ; i++) {                    
          this.metirc_array.push({"mmid":metricval[i].mmid ,"mmtext":metricval[i].mmtext});          
         }
@@ -546,45 +580,21 @@ export class TestMeasureComponent implements OnInit {
     }
 
     MoveToWizard2() {
-        var myObject = {
+         var myObject = {
             w2stepval: 2
         };
         var myObjectJson = JSON.stringify(myObject);
         sessionStorage.setItem('w2index', myObjectJson);
 
-        combineLatest(this.route.params, this.route.queryParams).pipe(map(results => ({
-            params: results[0],
-            query: results[1]
-        }))).subscribe(results => {
 
-            if(results)
-               {
-                   if(results.query)
-                   {
-                       if(results.query.trial)
-                       {
-                           let navigationExtras = {
-                                queryParams: {
-                                    "trial": results.query.trial,                           
-                                }
-                            };
-                            this.router.navigate(['./controlstore'],navigationExtras);
-                        }
-                        else
-                        {
-                                this.router.navigate(['./controlstore']);            
-                        }
-                    }
-                    else
-                    {
-                        this.router.navigate(['./controlstore']);            
-                    }
+        localStorage.setItem('backto','5')
+        let trial_name =  localStorage.getItem('trial_name')
+           let navigationExtras = {
+                queryParams: {
+                    "trial": trial_name,                           
                 }
-                else
-                {
-                    this.router.navigate(['./controlstore']);            
-                }
-            })
+            };
+            this.router.navigate(['./controlstore'],navigationExtras);
         
     }
 
@@ -592,7 +602,27 @@ export class TestMeasureComponent implements OnInit {
         this.wizard.goToPreviousStep();
         this.showcnt1 = true;
         this.showcnt2 = false;
+        this.TimeSeries = false;
         this.CompletedStep6 = false;
+    }
+
+    Filterdatafor_Testore(salesdata: any) {
+        this.parse_postmetrics = salesdata;
+        var resArr: any = [];
+
+        const map = new Map();
+        for (const item of this.parse_postmetrics) {
+            if (!map.has(item.testStores)) {
+                map.set(item.testStores, true);
+                resArr.push({
+                    id: item.testStores,
+                    name: item.testStores
+                });
+            }
+        }
+
+        this.VisResTeststr = resArr;
+        return this.VisResTeststr;
     }
 
     movetostp7() {
@@ -689,8 +719,7 @@ export class TestMeasureComponent implements OnInit {
 
                     this.parse_measureTest_data = JSON.parse(apiresponse.data.measureTest);
 					this.liftcomparison = JSON.parse(apiresponse.data.deltagraph)
-					console.log(this.parse_measureTest_data)
-                    this.variable_name = apiresponse.data.variable
+					this.variable_name = apiresponse.data.variable
                     let metric = apiresponse.data.metric
                     this.metrix1 = apiresponse.data.metric
                     this.delta1 = apiresponse.data.delta
@@ -703,7 +732,7 @@ export class TestMeasureComponent implements OnInit {
 							"TestStore": this.parse_measureTest_data[i].testStores,							
                             "ControlstoreNum": this.parse_measureTest_data[i].storeID,
                             "Rank_No": this.parse_measureTest_data[i].rank,
-                            "StoreName": this.parse_measureTest_data[i].storeName,
+                            // "StoreName": this.parse_measureTest_data[i].storeName,
                             "Variables": this.parse_measureTest_data[i].metric,
                             "Post_Period": this.parse_measureTest_data[i].post_period,
                             "Pre_Period": this.parse_measureTest_data[i].pre_period,
@@ -742,7 +771,7 @@ export class TestMeasureComponent implements OnInit {
                             if (temp_teststore.find((x: any) => x.id == this.parse_measureTest_data[i].storeID)) {} else {
                                 temp_teststore.push({
                                     "id": this.parse_measureTest_data[i].testStores,
-                                    "text": this.parse_measureTest_data[i].testStores +'_'+ this.parse_measureTest_data[i].storeName
+                                    "text": this.parse_measureTest_data[i].testStores
                                 });
                             }
                         }
@@ -759,6 +788,13 @@ export class TestMeasureComponent implements OnInit {
                     this.reportlist = temp_lift
                     this.LiftAnalysis_DATA = temp_lift
                     this.LiftAnalysisdata = this.LiftAnalysis_DATA;
+
+                    this.parse_postmetrics = JSON.parse(apiresponse.data.postmetrics);
+                    this.no_of_cntrl = apiresponse.data.rank;
+                    // this.Filterdatafor_Testore(this.parse_postmetrics);
+                    // this.vistest_modelid = this.VisResTeststr[0].id;
+                    // this.arr2 = []
+                    // this.GetChartdata(this.vistest_modelid, this.parse_postmetrics)
 
 
                     this.wizard.goToNextStep();
@@ -793,7 +829,7 @@ export class TestMeasureComponent implements OnInit {
                     "TestStore": this.temp_measuredata[i].testStores,                         
                     "ControlstoreNum": this.temp_measuredata[i].storeID,
                     "Rank_No": this.temp_measuredata[i].rank,
-                    "StoreName": this.temp_measuredata[i].storeName,
+                    // "StoreName": this.temp_measuredata[i].storeName,
                     "Variables": this.temp_measuredata[i].metric,
                     "Post_Period": this.temp_measuredata[i].post_period,
                     "Pre_Period": this.temp_measuredata[i].pre_period,
@@ -836,7 +872,6 @@ export class TestMeasureComponent implements OnInit {
             /*step 5*/
         };
         var stringified_data = JSON.stringify(data);
-        console.log(stringified_data)
         this.wizard3service.SaveStageThree(stgandtrial, stringified_data).subscribe((apiresponse: any) => {
             if (apiresponse.status == 'ok') {
                 
@@ -889,7 +924,7 @@ export class TestMeasureComponent implements OnInit {
         for (var i = 0; i <= this.parse_measureTest_data.length - 1; i++) {
 
             if ((this.parse_measureTest_data[i].storeGroup == "TEST") && (this.parse_measureTest_data[i].metric == this.testvscntrl_var)) {
-                if (this.testvscntrl_testr.find((x: any) => x.text == this.parse_measureTest_data[i].testStores +'_'+ this.parse_measureTest_data[i].storeName)) {
+                if (this.testvscntrl_testr.find((x: any) => x.text == this.parse_measureTest_data[i].testStores)) {
                     temp_lift.push(this.parse_measureTest_data[i].lift)
                 }
             }
@@ -937,7 +972,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Test Store",
                     "y": finaltestlift,
                     "drilldown": "Test Store",
-                    "color": '#45a7ef'
+                    "color": '#343434'
         });
 
         if(temp_liftc1.length>0)
@@ -950,7 +985,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 1",
                     "y": finalc1lift,
                     "drilldown": "Control Store 1",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc2.length>0)
@@ -963,7 +998,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 2",
                     "y": finalc2clift,
                     "drilldown": "Control Store 2",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc3.length>0)
@@ -976,7 +1011,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 3",
                     "y": finalc3clift,
                     "drilldown": "Control Store 3",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc4.length>0)
@@ -989,7 +1024,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 4",
                     "y": finalc4clift,
                     "drilldown": "Control Store 4",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc5.length>0)
@@ -1002,7 +1037,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 5",
                     "y": finalc5clift,
                     "drilldown": "Control Store 5",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
 
@@ -1032,7 +1067,7 @@ export class TestMeasureComponent implements OnInit {
                             "TestStore": this.parse_measureTest_data[i].testStores,                         
                             "ControlstoreNum": this.parse_measureTest_data[i].storeID,
                             "Rank_No": this.parse_measureTest_data[i].rank,
-                            "StoreName": this.parse_measureTest_data[i].storeName,
+                            // "StoreName": this.parse_measureTest_data[i].storeName,
                             "Variables": this.parse_measureTest_data[i].metric,
                             "Post_Period": this.parse_measureTest_data[i].post_period,
                             "Pre_Period": this.parse_measureTest_data[i].pre_period,
@@ -1056,7 +1091,7 @@ export class TestMeasureComponent implements OnInit {
                             "TestStore": this.parse_measureTest_data[i].testStores,                         
                             "ControlstoreNum": this.parse_measureTest_data[i].storeID,
                             "Rank_No": this.parse_measureTest_data[i].rank,
-                            "StoreName": this.parse_measureTest_data[i].storeName,
+                            // "StoreName": this.parse_measureTest_data[i].storeName,
                             "Variables": this.parse_measureTest_data[i].metric,
                             "Post_Period": this.parse_measureTest_data[i].post_period,
                             "Pre_Period": this.parse_measureTest_data[i].pre_period,
@@ -1068,6 +1103,34 @@ export class TestMeasureComponent implements OnInit {
             this.LiftAnalysis_DATA = temp_lift
             this.LiftAnalysisdata = this.LiftAnalysis_DATA;
     }
+
+    ontestDeSelectAll(event:any)
+    {
+        let temp_lift:any = []; 
+        this.LiftAnalysis_DATA = temp_lift
+        this.LiftAnalysisdata = this.LiftAnalysis_DATA;
+    }
+
+    ontestSelectAll(event:any)
+    {
+         let temp_lift:any = []; 
+         for (var i = 0; i <= this.parse_measureTest_data.length - 1; i++) {   
+            temp_lift.push({
+                            "StoreGroup": this.parse_measureTest_data[i].storeGroup,
+                            "TestStore": this.parse_measureTest_data[i].testStores,                         
+                            "ControlstoreNum": this.parse_measureTest_data[i].storeID,
+                            "Rank_No": this.parse_measureTest_data[i].rank,
+                            "Variables": this.parse_measureTest_data[i].metric,
+                            "Post_Period": this.parse_measureTest_data[i].post_period,
+                            "Pre_Period": this.parse_measureTest_data[i].pre_period,
+                            "Lift": this.parse_measureTest_data[i].lift                         
+                })               
+            }
+        this.LiftAnalysis_DATA = temp_lift
+        this.LiftAnalysisdata = this.LiftAnalysis_DATA;         
+    }
+
+
     ontestSelect(event: any) {
         this.graphtemp_store = []
         this.graphtemp_control =[]
@@ -1081,7 +1144,7 @@ export class TestMeasureComponent implements OnInit {
         for (var i = 0; i <= this.parse_measureTest_data.length - 1; i++) {
 
             if ((this.parse_measureTest_data[i].storeGroup == "TEST") && (this.parse_measureTest_data[i].metric == this.testvscntrl_var)) {
-                if (this.testvscntrl_testr.find((x: any) => x.text == this.parse_measureTest_data[i].testStores +'_'+ this.parse_measureTest_data[i].storeName)) {
+                if (this.testvscntrl_testr.find((x: any) => x.text == this.parse_measureTest_data[i].testStores)) {
                     temp_lift.push(this.parse_measureTest_data[i].lift)
                 }
             }
@@ -1130,7 +1193,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Test Store",
                     "y": finaltestlift,
                     "drilldown": "Test Store",
-                    "color": '#45a7ef'
+                    "color": '#343434'
         });
 
         if(temp_liftc1.length>0)
@@ -1143,7 +1206,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 1",
                     "y": finalc1lift,
                     "drilldown": "Control Store 1",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc2.length>0)
@@ -1156,7 +1219,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 2",
                     "y": finalc2clift,
                     "drilldown": "Control Store 2",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc3.length>0)
@@ -1169,7 +1232,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 3",
                     "y": finalc3clift,
                     "drilldown": "Control Store 3",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc4.length>0)
@@ -1182,7 +1245,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 4",
                     "y": finalc4clift,
                     "drilldown": "Control Store 4",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc5.length>0)
@@ -1195,7 +1258,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 5",
                     "y": finalc5clift,
                     "drilldown": "Control Store 5",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         setTimeout(() => {
@@ -1257,7 +1320,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Test Store",
                     "y": finaltestlift,
                     "drilldown": "Test Store",
-                    "color": '#45a7ef'
+                    "color": '#343434'
                 });
         if(temp_liftc1.length>0)
         {
@@ -1269,7 +1332,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 1",
                     "y": finalc1lift,
                     "drilldown": "Control Store 1",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc2.length>0)
@@ -1282,7 +1345,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 2",
                     "y": finalc2clift,
                     "drilldown": "Control Store 2",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc3.length>0)
@@ -1295,7 +1358,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 3",
                     "y": finalc3clift,
                     "drilldown": "Control Store 3",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc4.length>0)
@@ -1308,7 +1371,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 4",
                     "y": finalc4clift,
                     "drilldown": "Control Store 4",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         if(temp_liftc5.length>0)
@@ -1321,7 +1384,7 @@ export class TestMeasureComponent implements OnInit {
                     "name": "Control Store 5",
                     "y": finalc5clift,
                     "drilldown": "Control Store 5",
-                    "color": '#ffa04f'
+                    "color": '#f3aa50'
                 });
         }
         this.testvscntrl_testr = this.testvscntrl_teststore
@@ -1335,7 +1398,6 @@ export class TestMeasureComponent implements OnInit {
         // this.ngZone.run(()=> {
 
             let variables = event[0].value
-            console.log(variables)
             this.graphtemp_store = []
             this.graphtemp_control = []
             this.graphtemp1_store = []
@@ -1483,8 +1545,8 @@ export class TestMeasureComponent implements OnInit {
             // }
 
             let datas = {
-                "start" : this.model3,
-                "end"   : this.model2
+                "start" : this.model2,
+                "end"   : this.model3
             }
             this.wizard3service.GetWeeks(datas).subscribe(
             (apiresponse: any) => {
@@ -1650,12 +1712,437 @@ export class TestMeasureComponent implements OnInit {
             showLabels: true,
             showTitle: true,
             useBom: true,
-            headers: ['Store Group', 'Test Store ID' ,'Store ID','Rank', 'Store Name', 'Measurement Metric','Post Period', 'Pre Period','Lift']
+            headers: ['Store Group', 'Test Store ID' ,'Store ID','Rank', 'Measurement Metric','Pre Period', 'Post Period','Percentage Change (%)']
         };
         new Angular5Csv(this.reportlist,  trai_name+'_lift analysis report', options);
     }
 
     /*download csv*/
+
+    PlostSeries()
+    {
+        Highcharts.chart('TimePlot', {
+            chart: {
+                type: 'spline',
+                scrollablePlotArea: {
+                    minWidth: 1200
+                },
+                backgroundColor: '#FFFFFF'
+            },
+            credits: {
+                enabled: false
+            },
+            title: {
+                text: ''
+            },
+            /*subtitle: {
+                            text: 'Source: thesolarfoundation.com'
+                        },*/
+            xAxis: {
+                type: 'category',
+                categories: this.weekendDate,
+                gridLineDashStyle: 'LongDash',
+                gridLineColor: '#FAFAFA',
+                gridLineWidth: 2,
+                labels: {
+                    rotation: -90,
+                    style: {
+                        fontSize: '12px',
+                        fontFamily: 'Arial'
+
+                    }
+                },
+                title: {
+                    text: 'Week End Date',
+                    style: {
+                        top: '20px',
+                        color: '#778899',
+                        fontSize: '14px',
+                        fill: '#778899',
+                        fontFamily: 'Arial'
+
+                    }
+                }
+            },
+            yAxis: {
+                gridLineWidth: 2,
+                gridLineDashStyle: 'LongDash',
+                gridLineColor: '#FAFAFA',
+                title: {
+                    text: this.TimeSeries_metic,
+                    style: {
+                        color: '#778899',
+                        fontSize: '14px',
+                        fill: '#778899',
+                        fontFamily: 'Arial',
+                    }
+                }
+            },
+            legend: {
+                layout: 'horizontal',
+                align: 'center',
+                verticalAlign: 'bottom',
+                margin:20,
+                itemStyle: {
+                    color: '#778899',
+                    fontFamily: 'Arial',
+                }
+            },
+            exporting: {
+                enabled: false
+            },
+            plotOptions: {
+                series: {
+                    label: {
+                        connectorAllowed: false
+                    },
+                    marker: {
+                        enabled: false
+                    }
+                    // pointStart: 2010
+                }
+            },
+
+            series: this.arr2,
+            responsive: {
+                rules: [{
+                    condition: {
+                        maxWidth: 1200
+                    },
+                    chartOptions: {
+                        legend: {
+                            layout: 'horizontal',
+                            align: 'center',
+                            verticalAlign: 'bottom'
+                        }
+                    }
+                }]
+            }
+        });
+    }
+
+    TimeSeriesmetric(event:any)
+    {
+        this.disablestore_time = false
+        var metric  = event[0].value   
+        this.TimeSeries_metic= metric
+        if(this.Timeseri_teststore)
+        {
+            this.TimeSeries = true
+            var teststoreid = this.Timeseri_teststore;                     
+            this.PlotSeriesFunction(teststoreid,metric)
+        }
+    }
+
+    TimeSeriesstor(event:any) {
+        var teststoreid = event[0].value
+        this.Timeseri_teststore = teststoreid
+        if(this.TimeSeries_metic)
+        {            
+            this.TimeSeries = true 
+            var metric  = this.Timeseri_metix
+            this.PlotSeriesFunction(teststoreid,metric)
+        }
+                   
+    }
+
+    PlotSeriesFunction(teststoreid:any,metric:any)
+    {
+        const groupBy = (key: any) => (array: any) =>
+            array.reduce((objectsByKeyValue: any, obj: any) => {
+                const value = obj[key];
+                objectsByKeyValue[value] = (objectsByKeyValue[value] || []).concat(obj);
+                return objectsByKeyValue;
+            }, {});
+
+        var chart_arr = this.parse_postmetrics;
+        const groupByTest = groupBy('testStores');
+        var Chart_results = groupByTest(chart_arr);
+        var chartkeys: any = Object.keys(Chart_results);
+        var chartlen = chartkeys.length;
+        var Final_Chart: any = [];
+        var teststores_sales = []
+
+        if (this.no_of_cntrl == 1) {
+            var temp_controlstore1 = []
+
+            for (var i = 0; i <= Chart_results[teststoreid].length - 1; i++) {
+                this.weekendDate.push(moment(Chart_results[teststoreid][i].wkEndDate).format("DDMMMYYYY"))
+                if(metric == 'Gross Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Gross_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Gross_Sales_control1)                    
+                }
+                if(metric == 'Transaction Count')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Transaction_Count_test)
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Transaction_Count_control1)                    
+                }
+                if(metric == 'Net Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Net_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Net_Sales_control1)                 
+                }                
+            }
+
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].testStores + " (Test Store)",
+                "data": teststores_sales,
+                "color": '#0070ff'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_1 + " (Control Store 1)",
+                "data": temp_controlstore1,
+                "color": '#ff7800'
+            })
+        }
+
+
+        if (this.no_of_cntrl == 2) {
+            var temp_controlstore1 = [];
+            var temp_controlstore2 = [];
+
+            for (var i = 0; i <= Chart_results[teststoreid].length - 1; i++) {
+                this.weekendDate.push(moment(Chart_results[teststoreid][i].wkEndDate).format("DDMMMYYYY"))
+                if(metric == 'Gross Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Gross_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Gross_Sales_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Gross_Sales_control2)
+                }
+                if(metric == 'Transaction Count')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Transaction_Count_test)
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Transaction_Count_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Transaction_Count_control2)
+                }
+                if(metric == 'Net Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Net_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Net_Sales_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Net_Sales_control2)                   
+                }
+            }
+
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].testStores + " (Test Store)",
+                "data": teststores_sales,
+                "color": '#0070ff'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_1 + " (Control Store 1)",
+                "data": temp_controlstore1,
+                "color": '#ff7800'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_2 + " (Control Store 2)",
+                "data": temp_controlstore2,
+                "color": '#69d420'
+            })
+
+        }
+
+        if (this.no_of_cntrl == 3) {
+            var temp_controlstore1 = [];
+            var temp_controlstore2 = [];
+            var temp_controlstore3 = [];
+
+            for (var i = 0; i <= Chart_results[teststoreid].length - 1; i++) {
+                this.weekendDate.push(moment(Chart_results[teststoreid][i].wkEndDate).format("DDMMMYYYY"))
+                if(metric == 'Gross Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Gross_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Gross_Sales_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Gross_Sales_control2)
+                    temp_controlstore3.push(Chart_results[teststoreid][i].Gross_Sales_control3)
+
+                }
+                if(metric == 'Transaction Count')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Transaction_Count_test)
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Transaction_Count_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Transaction_Count_control2)
+                    temp_controlstore3.push(Chart_results[teststoreid][i].Transaction_Count_control3)  
+                      
+                }
+                if(metric == 'Net Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Net_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Net_Sales_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Net_Sales_control2)
+                    temp_controlstore3.push(Chart_results[teststoreid][i].Net_Sales_control3)  
+                }
+
+            }
+
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].testStores + " (Test Store)",
+                "data": teststores_sales,
+                "color": '#0070ff'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_1 + " (Control Store 1)",
+                "data": temp_controlstore1,
+                "color": '#ff7800'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_2 + " (Control Store 2)",
+                "data": temp_controlstore2,
+                "color": '#69d420'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_3 + " (Control Store 3)",
+                "data": temp_controlstore3,
+                "color": '#c128f6'
+            })
+
+        }
+
+        if (this.no_of_cntrl == 4) {
+            var temp_controlstore1 = [];
+            var temp_controlstore2 = [];
+            var temp_controlstore3 = [];
+            var temp_controlstore4 = [];
+
+            for (var i = 0; i <= Chart_results[teststoreid].length - 1; i++) {
+                this.weekendDate.push(moment(Chart_results[teststoreid][i].wkEndDate).format("DDMMMYYYY"))
+                if(metric == 'Gross Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Gross_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Gross_Sales_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Gross_Sales_control2)
+                    temp_controlstore3.push(Chart_results[teststoreid][i].Gross_Sales_control3)
+                    temp_controlstore4.push(Chart_results[teststoreid][i].Gross_Sales_control4)
+
+                }
+                if(metric == 'Transaction Count')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Transaction_Count_test)
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Transaction_Count_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Transaction_Count_control2)
+                    temp_controlstore3.push(Chart_results[teststoreid][i].Transaction_Count_control3) 
+                    temp_controlstore4.push(Chart_results[teststoreid][i].Transaction_Count_control4) 
+                      
+                }
+                if(metric == 'Net Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Net_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Net_Sales_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Net_Sales_control2)
+                    temp_controlstore3.push(Chart_results[teststoreid][i].Net_Sales_control3) 
+                    temp_controlstore4.push(Chart_results[teststoreid][i].Net_Sales_control4) 
+                }
+
+            }
+
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].testStores + " (Test Store)",
+                "data": teststores_sales,
+                "color": '#0070ff'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_1 + " (Control Store 1)",
+                "data": temp_controlstore1,
+                "color": '#ff7800'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_2 + " (Control Store 2)",
+                "data": temp_controlstore2,
+                "color": '#69d420'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_4 + " (Control Store 3)",
+                "data": temp_controlstore3,
+                "color": '#c128f6'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_5 + " (Control Store 4)",
+                "data": temp_controlstore4,
+                "color": '#f4ff45'
+            })
+
+        }
+        if (this.no_of_cntrl == 5) {
+            var temp_controlstore1 = [];
+            var temp_controlstore2 = [];
+            var temp_controlstore3 = [];
+            var temp_controlstore4 = [];
+            var temp_controlstore5 = [];
+
+            for (var i = 0; i <= Chart_results[teststoreid].length - 1; i++) {
+                this.weekendDate.push(moment(Chart_results[teststoreid][i].wkEndDate).format("DDMMMYYYY"))
+                if(metric == 'Gross Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Gross_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Gross_Sales_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Gross_Sales_control2)
+                    temp_controlstore3.push(Chart_results[teststoreid][i].Gross_Sales_control3)
+                    temp_controlstore4.push(Chart_results[teststoreid][i].Gross_Sales_control4)
+                    temp_controlstore5.push(Chart_results[teststoreid][i].Gross_Sales_control5)
+
+                }
+                if(metric == 'Transaction Count')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Transaction_Count_test)
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Transaction_Count_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Transaction_Count_control2)
+                    temp_controlstore3.push(Chart_results[teststoreid][i].Transaction_Count_control3) 
+                    temp_controlstore4.push(Chart_results[teststoreid][i].Transaction_Count_control4) 
+                    temp_controlstore5.push(Chart_results[teststoreid][i].Transaction_Count_control5)
+                      
+                }
+                if(metric == 'Net Sales')
+                {
+                    teststores_sales.push(Chart_results[teststoreid][i].Net_Sales_test)  
+                    temp_controlstore1.push(Chart_results[teststoreid][i].Net_Sales_control1)
+                    temp_controlstore2.push(Chart_results[teststoreid][i].Net_Sales_control2)
+                    temp_controlstore3.push(Chart_results[teststoreid][i].Net_Sales_control3) 
+                    temp_controlstore4.push(Chart_results[teststoreid][i].Net_Sales_control4)
+                    temp_controlstore5.push(Chart_results[teststoreid][i].Net_Sales_control5) 
+                }
+
+            }
+
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].testStores + " (Test Store)",
+                "data": teststores_sales,
+                "color": '#0070ff'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_1 + " (Control Store 1)",
+                "data": temp_controlstore1,
+                "color": '#ff7800'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_2 + " (Control Store 2)",
+                "data": temp_controlstore2,
+                "color": '#69d420'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_3 + " (Control Store 3)",
+                "data": temp_controlstore3,
+                "color": '#c128f6'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_4 + " (Control Store 4)",
+                "data": temp_controlstore4,
+                "color": '#f4ff45'
+            })
+            Final_Chart.push({
+                "name": Chart_results[teststoreid][0].controlStores_5 + " (Control Store 5)",
+                "data": temp_controlstore5,
+                "color": '#009999'
+            })
+        }
+
+        this.arr2 = Final_Chart;
+        this.TimeSeries =true;
+
+        setTimeout(()=>{
+            this.PlostSeries()    
+        },300)
+
+    }
 
 
     match_results() {
@@ -1672,7 +2159,7 @@ export class TestMeasureComponent implements OnInit {
 
     showgraps() {
         var arr:any=[];
-         var test_cntrl = arr.concat(this.graphtemp_store, this.graphtemp_control);
+         // var test_cntrl = arr.concat(this.graphtemp_store, this.graphtemp_control);
         // Create the chart
         Highcharts.chart('liftanalysis', {
             chart: {
@@ -1708,8 +2195,8 @@ export class TestMeasureComponent implements OnInit {
                         fontSize: '18px',
                         fontFamily: 'arial',
                          color: '#778899',
-                    }
-                    // align:'right'
+                    },
+                    align:'left'
                 },
 
                 title: {
@@ -1775,15 +2262,15 @@ export class TestMeasureComponent implements OnInit {
             series: [{
                     type: undefined,
                     name: 'Test Store',
-                    color: '#45a7ef',
-                    data: test_cntrl
+                    color: '#343434',
+                    data: this.graphtemp_store
                 },
-                // {
-                //     type: undefined,
-                //     name: 'Control Store',
-                //     color: '#ffa04f',
-                //     data: this.graphtemp_control
-                // }
+                {
+                    type: undefined,
+                    name: 'Control Store',
+                    color: '#f3aa50',
+                    data: this.graphtemp_control
+                }
             ]            
         });         
 
@@ -1881,14 +2368,14 @@ export class TestMeasureComponent implements OnInit {
             series: [{
                 type: undefined,
                 name: 'Test Store',
-                color: '#45a7ef',
+                color: '#343434',
                 data: this.graphtemp1_store
             }
             // ,
             // {
             //   type: undefined,
             //   name: 'Overall Average Test Store Lift',
-            //   color: '#FFA04F',
+            //   color: '#f3aa50',
             //   data: this.graphtemp12_store
             // }
         ]
@@ -1932,12 +2419,12 @@ export class TestMeasureComponent implements OnInit {
                 type: undefined,
                 name: '',
                 data: this.graphtemp12_store,
-                color: '#ffa04f'                
+                color: '#f3aa50'                
             }]
         });
         }
 
-
+   
 
     stat_results() {
         this.show_match_results = false;
@@ -1951,12 +2438,17 @@ export class TestMeasureComponent implements OnInit {
             //this.show_uploadstore=true;
             this.Testvscontrol = false;
             this.Teststorelift = true;
+            this.Time_series = true
+            this.TimeSeries = false
             this.Teststorecomp = true;
             this.grapshow1 = false
             this.teststrlift_var = null
-        } else {
+            this.TimeSeries = false;
+        } else if($event.source.value === '2') {
             //this.show_uploadstore=false;
             this.Testvscontrol = true;
+            this.Time_series = true
+            this.TimeSeries = false
             this.grapshow = false
             this.testvscntrl_var = null
             this.testvscntrl_testr = []
@@ -1964,6 +2456,25 @@ export class TestMeasureComponent implements OnInit {
             this.Teststorecomp = false;
             this.overall_graph=false;
             this.overallgraph();
+            this.TimeSeries = false;
+        }
+        else
+        {
+            this.Timeseri_metix = ""
+            this.Timeseries_stores = ""
+            this.TimeSeries_metic = ""
+            this.Timeseri_teststore =""
+            this.TimeSeries = false
+            this.Time_series = false
+            this.Testvscontrol = true;
+            this.grapshow = false
+            this.grapshow1 = false
+            this.testvscntrl_var = null
+            this.testvscntrl_testr = []
+            this.Teststorelift = true;
+            this.Teststorecomp = false;
+            this.overall_graph=false;  
+            this.TimeSeries = false;          
         }
     }
 

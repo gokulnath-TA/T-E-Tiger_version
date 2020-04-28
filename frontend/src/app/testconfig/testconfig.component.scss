@@ -29,12 +29,11 @@ div.contentdiv {
   margin-top: 3rem;
 }
 
-
 .content-border {
   height: 125px;
   width: 100%;
   border: 1px solid #d7d7d7;
-  margin-top :5vw;
+  margin-top: 5vw;
 }
 
 label {
@@ -45,33 +44,29 @@ label {
 
 .sidenav {
   height: 92%;
-  width: 217px;
+  width: 158px;
   position: absolute;
   z-index: 1;
   left: 0;
   overflow-x: visible;
-  
 }
-
 
 .main {
   margin-left: 160px; /* Same as the width of the sidenav */
   padding: 0px 10px;
 }
 
-
-
 /*Common*/
 /*---------------------------Arch wizard custom-------------------*/
 /*First stepper stage1*/
 .first.stepper {
-  height: 17vw;
+  height: 20vw;
   background: #ffffff;
   color: #ffff;
   position: relative;
   text-align: center;
-  line-height: 40px; 
-  margin-bottom:1vw;
+  line-height: 40px;
+  margin-bottom: 1vw;
 }
 
 /*.first.stepper:after {
@@ -88,28 +83,26 @@ label {
 .stg1text {
   font-size: 1.25rem;
   position: relative;
-  top: 10px;
+  top: 1vw;
 }
 
 /*First stepper stage1*/
 /*Second stepper stage2*/
 .second.stepper {
-  height: 11vw;
+  height: 9vw;
   background: #ffffff;
   color: #fff;
   text-align: center;
   line-height: 40px;
   position: relative;
   margin-bottom: 1vw;
-
 }
 
-td tbody{
-  width:120%;
-  display:table;
-  text-align:left;
+td tbody {
+  width: 120%;
+  display: table;
+  text-align: left;
 }
-
 
 .second.stepper:before {
   content: "";
@@ -117,8 +110,8 @@ td tbody{
   width: 0;
   height: 0;
   top: -7vw;
-  left: 1.8vw;
-  border: 113px solid #ffff;
+  left: 0.8vw;
+  border: 82px solid #ffff;
   border-left: 46px solid transparent;
   -webkit-transform: rotate(89deg);
   transform: rotate(90deg);
@@ -127,11 +120,11 @@ td tbody{
 .second.stepper:after {
   content: "";
   position: absolute;
-  height: 0;  
+  height: 0;
   width: 0;
-  left: 11%;
-  top: 9vw;
-  border: 107px solid transparent;
+  left: 8%;
+  top: 7.9vw;
+  border: 79px solid transparent;
   border-left: 50px solid #fff;
   z-index: 1;
   -webkit-transform: rotate(88deg);
@@ -141,14 +134,13 @@ td tbody{
 .stg2text {
   font-size: 1.25rem;
   position: relative;
-  bottom:  -3vw;
   color: #000000;
 }
 
 /*Second stepper stage2*/
 /*Third stepper stage3*/
 .third.stepper {
-  height: 9.4vw;
+  height: 9vw;
   background: #ffffff;
   color: #fff;
   position: relative;
@@ -157,19 +149,18 @@ td tbody{
   top: 4vw;
 }
 
-
 .third.stepper:after {
-    content: "";
-    position: absolute;
-    height: 0;
-    width: 0;
-    left: 12%;
-    top: 7.3vw;
-    border: 110px solid transparent;
-    border-left: 50px solid #fff;
-    z-index: 1;
-    -webkit-transform: rotate(88deg);
-    transform: rotate(90deg);
+  content: "";
+  position: absolute;
+  height: 0;
+  width: 0;
+  left: 9%;
+  top: 7.9vw;
+  border: 80px solid transparent;
+  border-left: 50px solid #fff;
+  z-index: 1;
+  -webkit-transform: rotate(88deg);
+  transform: rotate(90deg);
 }
 
 .third.stepper:before {
@@ -177,20 +168,42 @@ td tbody{
   position: absolute;
   width: 0;
   height: 0;
-  top: -7vw;
-  left: 1.2vw;
-  border: 117px solid #ffff;
+  top: -6.5vw;
+  left: 1vw;
+  border: 79px solid #ffff;
   border-left: 50px solid transparent;
   -webkit-transform: rotate(90deg);
   transform: rotate(90deg);
-
 }
 
+::ng-deep .my-custom-class0 .tooltip-inner {
+  // background-color: #00acd6;
+  // color: #fff;
+  max-width: 770px !important;
+  margin-left: 14vw;
+}
+
+::ng-deep .my-custom-class .tooltip-inner {
+  // background-color: #00acd6;
+  // color: #fff;
+  max-width: 640px !important;
+}
+
+::ng-deep .my-custom-class1 .tooltip-inner {
+  // background-color: #00acd6;
+  // color: #fff;
+  max-width: 550px !important;
+}
+
+::ng-deep .my-custom-class4 .tooltip-inner {
+  max-width: 550px !important;
+  margin-left: -7vw;
+}
 
 .stg3text {
   font-size: 1.25rem;
   position: relative;
-  bottom:  -3vw;
+  bottom: -3vw;
   color: #000000;
 }
 
@@ -284,7 +297,7 @@ td tbody{
 .md-stepper-horizontal .md-step .md-step-bar-left {
   left: 0;
   right: 50%;
-  display:none;
+  display: none;
   margin-right: 20px;
 }
 
@@ -330,7 +343,7 @@ td tbody{
   margin-top: -1rem;
   margin-left: 1rem;
   color: white;
-  background-color: #0386ff;
+  background-color: #343434;
   width: 100px;
   border-radius: 0;
 }
@@ -502,39 +515,42 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-
-.highcharts-figure, .highcharts-data-table table {
-    min-width: 360px; 
-    max-width: 800px;
-    margin: 1em auto;
+.highcharts-figure,
+.highcharts-data-table table {
+  min-width: 360px;
+  max-width: 800px;
+  margin: 1em auto;
 }
 
 .highcharts-data-table table {
   font-family: Verdana, sans-serif;
   border-collapse: collapse;
-  border: 1px solid #EBEBEB;
+  border: 1px solid #ebebeb;
   margin: 10px auto;
   text-align: center;
   width: 100%;
   max-width: 500px;
 }
 .highcharts-data-table caption {
-    padding: 1em 0;
-    font-size: 1.2em;
-    color: #555;
+  padding: 1em 0;
+  font-size: 1.2em;
+  color: #555;
 }
 .highcharts-data-table th {
   font-weight: 600;
-    padding: 0.5em;
+  padding: 0.5em;
 }
-.highcharts-data-table td, .highcharts-data-table th, .highcharts-data-table caption {
-    padding: 0.5em;
+.highcharts-data-table td,
+.highcharts-data-table th,
+.highcharts-data-table caption {
+  padding: 0.5em;
 }
-.highcharts-data-table thead tr, .highcharts-data-table tr:nth-child(even) {
-    background: #f8f8f8;
+.highcharts-data-table thead tr,
+.highcharts-data-table tr:nth-child(even) {
+  background: #f8f8f8;
 }
 .highcharts-data-table tr:hover {
-    background: #f1f7ff;
+  background: #f1f7ff;
 }
 
 /*File Upload*/
@@ -550,6 +566,17 @@ input[type="number"] {
   }
 }
 
+@media (min-width: 1280px) and (max-width: 1980px) {
+  #w1wizard1 {
+    margin-left: -32vw;
+    margin-top: 2vw;
+  }
+
+  table#esti_Table {
+    height: 33.5vw !important;
+  }
+}
+
 @media (min-width: 1025px) and (max-width: 1280px) {
   .filter-selecstr {
     left: 0px;
@@ -559,6 +586,106 @@ input[type="number"] {
     font-family: Arial, FontAwesome;
     margin-bottom: 1rem;
     width: 222px;
+  }
+
+  #w1wizard1 {
+    margin-left: -61vw !important;
+    margin-top : 2vw;
+  }
+
+  .first.stepper {
+    height: 25vw !important;
+  }
+  .second.stepper
+  {
+    height: 6vw;
+    background: #ffffff;
+    color: #fff;
+    text-align: center;
+    line-height: 40px;
+    position: relative;
+    margin-bottom: 1vw;
+  }
+
+  .second.stepper:after {
+    top: 4.5vw !important;
+    content: "";
+    position: absolute;
+    height: 0;
+    width: 0;
+    left: 7.8%;
+    border: 82px solid transparent;
+    border-left: 50px solid #fff;
+    z-index: 1;
+    -webkit-transform: rotate(88deg);
+    transform: rotate(90deg);
+  }
+  .second.stepper:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: -7.7vw;
+    left: 0.72vw;
+    border: 84px solid #ffff;
+    border-left: 46px solid transparent;
+    -webkit-transform: rotate(89deg);
+    transform: rotate(90deg);
+  }
+
+  .third.stepper:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: -5.75vw;
+    left: 1vw;
+    border: 80px solid #ffff;
+    border-left: 50px solid transparent;
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+  }
+
+  .stg2text
+  {
+    bottom:1vw;
+  }
+  .stg3text
+  {
+    font-size: 1.25rem;
+    position: relative;
+    bottom: -1vw;
+    color: #000000;
+  }
+
+  .third.stepper:after {
+    top: 5.5vw !important;
+    content: "";
+    position: absolute;
+    height: 0;
+    width: 0;
+    left: 5%;
+    border: 84px solid transparent;
+    border-left: 50px solid #fff;
+    z-index: 1;
+    -webkit-transform: rotate(88deg);
+    transform: rotate(90deg);
+  }
+
+  .third.stepper
+  {
+      height: 7vw;
+      background: #ffffff;
+      color: #fff;
+      position: relative;
+      text-align: center;
+      line-height: 40px;
+      top: 4vw;
+  }
+
+
+  table#esti_Table {
+    height: 37.5vw !important;
   }
 }
 
@@ -583,4 +710,112 @@ input[type="number"] {
 }
 
 @media screen and (min-width: 600px) and (max-width: 800px) {
+}
+
+@media screen and (min-width: 1130px) and (max-width: 1380px) {
+  #w1wizard1 {
+    margin-left: -50vw !important;
+  }
+}
+
+@media screen and (min-width: 1480px) and (max-width: 1550px) {
+  aw-wizard#w1wizard1 {
+    margin-top: 2vw !important;
+  }
+}
+
+@media screen and (min-width: 1800px) and (max-width: 1980px) {
+  #w1wizard1 {
+    margin-left: -31vw !important;
+    margin-top: 2vw;
+  }
+
+  .second.stepper:before {
+    content: "";
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: -7vw;
+    left: 0.6vw;
+    border: 83px solid #ffff;
+    border-left: 46px solid transparent;
+    -webkit-transform: rotate(89deg);
+    transform: rotate(90deg);
+  }
+
+  .second.stepper {
+    height: 4vw;
+    background: #ffffff;
+    color: #fff;
+    text-align: center;
+    line-height: 40px;
+    position: relative;
+    margin-bottom: 1vw;
+  }
+  .second.stepper:after {
+    content: "";
+    position: absolute;
+    height: 0;
+    width: 0;
+    left: 8%;
+    top: 2.9vw;
+    border: 80px solid transparent;
+    border-left: 50px solid #fff;
+    z-index: 1;
+    -webkit-transform: rotate(88deg);
+    transform: rotate(90deg);
+  }
+
+  .third.stepper:before {
+    position: absolute;
+    width: 0;
+    height: 0;
+    top: -5.5vw;
+    left: 0.7vw;
+    border: 79px solid #ffff;
+    border-left: 50px solid transparent;
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg);
+  }
+
+  .third.stepper {
+    height: 3vw;
+    background: #ffffff;
+    color: #fff;
+    position: relative;
+    text-align: center;
+    line-height: 40px;
+    top: 4vw;
+  }
+  .third.stepper:after {
+    content: "";
+    position: absolute;
+    height: 0;
+    width: 0;
+    left: 9%;
+    top: 1.9vw;
+    border: 80px solid transparent;
+    border-left: 50px solid #fff;
+    z-index: 1;
+    -webkit-transform: rotate(88deg);
+    transform: rotate(90deg);
+  }
+
+  .stg3text {
+    font-size: 1.25rem;
+    position: relative;
+    bottom: 1vw;
+    color: #000000;
+  }
+
+  .stg2text {
+    font-size: 1.25rem;
+    position: relative;
+    color: #000000;
+    bottom: 1vw;
+  }
+
+  table#esti_Table {
+    height: 33vw !important;
+  }
 }

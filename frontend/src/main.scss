@@ -43,6 +43,10 @@ aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li:not(:last
   background : #343434 !important;
 }
 
+/*aw-wizard-navigation-bar.vertical
+{
+  margin-top:2vw !important;
+}*/
 
 
 aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator li .step-indicator {
@@ -338,7 +342,7 @@ aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator
 /*Pagination*/
 .ngx-pagination .current {
   background: #fefefe !important;
-  color: #343434 !important;
+  color: #f3aa50 !important;
 }
 
 .ngx-pagination {
@@ -474,13 +478,18 @@ aw-wizard-navigation-bar.horizontal.large-filled ul.steps-indicator
   height: 50px;
   width: 240px;
   // margin-left: 35px;
-  background-color: #007bff;
+  background-color: #343434;
   border: none;
   color: #fff;
 }
 
 .toast-success {
-  background-color: #007bff !important;
+  background-color: #343434 !important;
+}
+
+aw-wizard-navigation-bar.vertical.large-filled ul.steps-indicator li.editing .step-indicator
+{
+  background-color: #f3aa50;
 }
 
 // .tooltip-inner {

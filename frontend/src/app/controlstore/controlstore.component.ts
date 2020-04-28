@@ -90,6 +90,8 @@ import { NgxUiLoaderService } from 'ngx-ui-loader';
 
 import {SnackbarControlComponent} from '../snackbar-control/snackbar-control.component'
 
+import { environment} from '../../environments/environment'
+
 HC_exporting(Highcharts);
 import * as moment from 'moment';
 declare var require: any;
@@ -251,7 +253,9 @@ export class ControlStoreComponent implements OnInit {
     file_add_req: boolean = true;
     date_valid: boolean = true;
     sample_array: any = [];
+    testvscntrl_testr1:any =[]
 	reportcolumns :any =[]
+    testvscntrl_teststore: any = [];
 	reportdata :any =[]
     catmembers: SelectItem[] = [];
     prductmembers: Productlist[] = [];
@@ -279,6 +283,7 @@ export class ControlStoreComponent implements OnInit {
     selecteditems: any = [];
     Advancedsettingdata: any;
     MatchResultsdata: any;
+    TestVscntrlSet: any = {};
     StatResultsdata: any;
     CompletedStep3: any = false;
     CompletedStep4: any = false;
@@ -308,6 +313,7 @@ export class ControlStoreComponent implements OnInit {
     Teststorelbl: boolean = false;
     weekendDate: any = []
     Additional_Features_data: any;
+    Fulltablevalue:any = [] 
     parse_sales_data: any = []
     adv_teststoreobj: any = []
     final_settings: any = []
@@ -425,6 +431,7 @@ export class ControlStoreComponent implements OnInit {
     /*--------------------SELECT ALL PUSH VALUES----------------------------*/
 
     selectedall($event: any, Selectedstoredata: any) {
+        this. AdvSettingDatasrc.data = this.AdvanceData
         if ($event.checked) {
             this.adv_teststore_id = [];
             for (var i = 0; i < this.AdvSettingDatasrc.data.length; i++) {
@@ -608,6 +615,7 @@ export class ControlStoreComponent implements OnInit {
         this.StatResultsdata = temp;
     }
 
+
     /*------------Filter Tables---------------*/
     constructor(
         private wizard2service: ControlStoreService,
@@ -675,9 +683,9 @@ export class ControlStoreComponent implements OnInit {
             idField: 'item_id',
             textField: 'item_text',
             selectAllText: 'Select All',
-            unSelectAllText: 'UnSelect All',
+            unSelectAllText: 'Unselect All',
             itemsShowLimit: 1,
-            enableCheckAll: false,
+            enableCheckAll: true,
             allowSearchFilter: true
         };
         this.ProductCategorySettings = {
@@ -685,11 +693,23 @@ export class ControlStoreComponent implements OnInit {
             idField: 'prdid',
             textField: 'prdtext',
             selectAllText: 'Select All',
-            unSelectAllText: 'UnSelect All',
+            unSelectAllText: 'Unselect All',
             itemsShowLimit: 1,
-            enableCheckAll: false,
+            enableCheckAll: true,
+            allowSearchFilter: true
+        };    
+
+        this.TestVscntrlSet = {
+            singleSelection: false,
+            idField: 'id',
+            textField: 'text',
+            selectAllText: 'Select All',
+            unSelectAllText: 'Unselect All',
+            itemsShowLimit: 1,
+            enableCheckAll: true,
             allowSearchFilter: true
         };
+
 
         setTimeout(() => {
             this.MatchValuesDatasrc.sort = this.sort;
@@ -778,8 +798,40 @@ export class ControlStoreComponent implements OnInit {
         
     }    
     });
+    let getback:any = localStorage.getItem('backto')
+    
+    if(getback=='5')
+    {
+    setTimeout(() => {
+        this.chnages()
+    },1000)
+
 
     }
+    }
+
+    chnages()
+    {        
+     this.wizard.goToNextStep();
+     this.CompletedStep3 = true;
+     setTimeout(() => {
+        this.schnage1()
+    },1000)
+
+    }
+
+    schnage1()
+    {
+        this.showcnt1 =false
+        this.showcnt3 = false
+        this.showcnt3 =true
+        this.CompletedStep4 =true;
+        this.wizard.goToNextStep();
+        this.movetostp4_saved()
+        this.movetostp5_saved()
+        localStorage.removeItem('backto')
+    }
+    
 
     /*API FOR HIER,PRODUCTCAT,PRODUCTS*/
     Gethierarchy() {
@@ -835,6 +887,7 @@ export class ControlStoreComponent implements OnInit {
                     }
                 }
                 this.catmembers = this.ProductCat;
+                this.catmembers = this.catmembers.sort()
 
 
             } else {
@@ -968,7 +1021,25 @@ export class ControlStoreComponent implements OnInit {
         this.productcount = this.product_array.length
     }
 
-    onCatSelectAll(allcategories: any) {}
+    
+    onCatSelectAll(categories:any)
+    {
+        this.category_array = []
+        for (var i = categories.length - 1; i >= 0; i--) {
+        this.category_array.push(categories[i].prdtext);    
+        }
+        
+        setTimeout(()=>{
+            this.GetProducts()
+        },500)
+
+    }
+
+    onCatDeSelectAll()
+    {        
+        this.category_array =[]
+        this.GetProducts()
+    }
 
     onPrdSelect(products: any) {
 
@@ -976,8 +1047,31 @@ export class ControlStoreComponent implements OnInit {
         this.productcount = this.product_array.length
     }
 
-    onPrdSelectAll(allproducts: any) {}
+    onPrdSelectAll(allproducts: any) {
 
+        this.product_array = []
+        for (var i = allproducts.length - 1; i >= 0; i--) {
+        this.product_array.push(allproducts[i].item_text);    
+        }
+        this.productcount = this.product_array.length
+    }
+
+    onPrdDeSelectAll()
+    {
+        this.product_array=[]
+        this.productcount = 0
+
+    }
+
+    featuresample()
+    {
+        window.location.href = environment.ExcelPath + "additional_features.xlsx"
+    }
+
+    excludesample()
+    {
+     window.location.href = environment.ExcelPath + "control_store_to_exclude.xlsx"   
+    }
     /*-------------------Pagination------------------------*/
     paginatestore(event: any) {
         this.pageIndex = event;
@@ -1030,93 +1124,39 @@ export class ControlStoreComponent implements OnInit {
     }
     /*Wizard Navigations*/
     MoveToWizard1(val:any) {
+        
         var myObject = {
-            stepval: 1
+            w2stepval: 2
         };
         var myObjectJson = JSON.stringify(myObject);
-        sessionStorage.setItem('index', myObjectJson);
+        sessionStorage.setItem('w2index', myObjectJson);
 
 
-        if(val==1)
-        {
-        combineLatest(this.route.params, this.route.queryParams).pipe(map(results => ({
-            params: results[0],
-            query: results[1]
-        }))).subscribe(results => {
-            if(results)
-               {                
-                   if(results.query)
-                   {
-                       if(results.query.trial)
-                       {
-                           let navigationExtras = {
-                                queryParams: {
-                                    "trial": results.query.trial,                           
-                                }
-                            };
-                            this.router.navigate(['./testconfig'],navigationExtras);
-                            this.currentres = true;
-                            this.currentvr = false;
-                            this.currentssr = false;
-                            this.show_match_results = true;
-                            this.show_visualize_results = true;
-                            this.show_statistical_results = false;
-                            this._snackBar.dismiss();
-                            this.submit_visible = true;
-                            this.featurevalue = '';
-                            this.submitcntrl_visible = true;
-                            this.file_exclude = ''; 
-
-                       }                        
-                   else
-                   {
-                    console.log(results.query)
-                    this.router.navigate(['./testconfig']);
-                    this.currentres = true;
-                    this.currentvr = false;
-                    this.currentssr = false;
-                    this.show_match_results = true;
-                    this.show_visualize_results = true;
-                    this.show_statistical_results = false;
-                    this._snackBar.dismiss();
-                    this.submit_visible = true;
-                    this.featurevalue = '';
-                    this.submitcntrl_visible = true;
-                    this.file_exclude = ''; 
-                   }
-                   
-               }   
-            }                      
-    });
-            
-    }
-    else
-    {
-        this.router.navigate(['./testconfig']);
-        this.currentres = true;
-        this.currentvr = false;
-        this.currentssr = false;
-        this.show_match_results = true;
-        this.show_visualize_results = true;
-        this.show_statistical_results = false;
-        this._snackBar.dismiss();
-        this.submit_visible = true;
-        this.featurevalue = '';
-        this.submitcntrl_visible = true;
-        this.file_exclude = '';  
-    }
-
+        localStorage.setItem('backto','3')
+        let trial_name =  localStorage.getItem('trial_name')
+           let navigationExtras = {
+                queryParams: {
+                    "trial": trial_name,                           
+                }
+            };
+            this.router.navigate(['./testconfig'],navigationExtras);
+       
     }
 
     Resetanalysis()
     {
-        
-        this.testmetricmodelid = ""
+        this.testmetricmodelid = ''
+        this.noteshow = false
         this.hiermodelid =""
+        this.target_metric_req =false
         this.PrdCatmodelid = ""
-        this.product_array = ""
         this.model1 = null
         this.model2 = null
+        this.categorycount =0;
+        this.metrixnote =""
+        this.productcount = 0;
+        this.category_array= []
+        this.product_array = []
         this.days = 0
         this.featurevalue =""
         this.myFiles1=[]
@@ -1159,7 +1199,7 @@ export class ControlStoreComponent implements OnInit {
     }
     MetricSelect(metric: any) {
         if (this.testmetricmodelid != '') {
-            this.target_metric_req = true;
+            this.target_metric_req = true;            
 			if(this.testmetricmodelid == 1)
 				this.metrixnote = "Wt Avg Price"
 			else
@@ -1238,11 +1278,13 @@ export class ControlStoreComponent implements OnInit {
             additional_features: this.highlight_additionlfeat,
             extraFeatures: this.Additional_Features_data
         };
-
-    
-        if (this.testmetricmodelid != '') {
+        if ((this.testmetricmodelid != '')) {
             this.target_metric_req = true;
-        } else {
+        } 
+        else if (this.testmetricmodelid==null) {
+            this.target_metric_req = false
+        }
+        else {
             this.target_metric_req = false;
         }
 
@@ -1261,7 +1303,7 @@ export class ControlStoreComponent implements OnInit {
         } else {
             this.prd_req = false;
         }
-
+        
         if (this.stdate) {
             this.startdt_req = true;
         } else {
@@ -1284,11 +1326,9 @@ export class ControlStoreComponent implements OnInit {
         // this.showcnt2 = true;
         // this.showcnt3 = false;
         // this.CompletedStep3 = true;
-
+    
         if (
             this.testmetricmodelid &&
-            this.testmetricmodelid &&
-            this.hiermodelid &&
             this.prdcat_req &&
             this.prd_req &&
             this.startdt_req &&
@@ -1308,7 +1348,6 @@ export class ControlStoreComponent implements OnInit {
                     let temp_selected:any;
                     this.seleceted =[]                    
                     temp_selected = JSON.parse(apiresponse.features)
-                    console.log(temp_selected)
                     for (i=0 ;i<=temp_selected.length-1;i++)
                     {
                         this.seleceted.push(temp_selected[i].features)
@@ -1326,11 +1365,30 @@ export class ControlStoreComponent implements OnInit {
                         });
                     }
                     this.Advancedsettingdata = this.AdvanceData;
+                    this.AdvSettingDatasrc.data  = this.AdvanceData;
+                    
+                    let temp:any =[]
+                    for (var i = 0;i<= apiresponse.teststores.length-1; i++) {
+                        temp.push(parseInt(apiresponse.teststores[i]))
+                    }
+                    
+                    temp.sort((a:any,b:any) => 0 - (a > b ? -1 : 1));
+                    let temp_teststore:any =[]
+                    for (var i = 0; i <= temp.length -1; i++) {
+                        temp_teststore.push({
+                        "id": temp[i],
+                        "text": temp[i] 
+                    });
+                    }
+
+                    this.testvscntrl_teststore = temp_teststore;
+                    this.testvscntrl_testr1  = temp_teststore;
 
                     // this.highlight_additionlfeat = [];
                     this.adjustedval = this.getFlooredFixed(apiresponse.rSquared, 3);
                     this.analystringify = apiresponse
                     
+                    this.duration_weekss = this.days
 
                 }
                 else
@@ -1843,8 +1901,10 @@ export class ControlStoreComponent implements OnInit {
                         })
 
                     }
+
                     this.MatchValues_DATA = Final_Match;
                     this.MatchResultsdata = Final_Match;
+                    this.Fulltablevalue = Final_Match
                     // for(var i=0;i< 100;i++)
                     // {
                     //  match_arr.push({'TestStore':this.identify_cntrl.matches[i].teststore,'Controlstore':this.identify_cntrl.matches[i].control_store,
@@ -1920,6 +1980,64 @@ export class ControlStoreComponent implements OnInit {
         }
     }
 
+     ontestSelecttable(event:any)
+    { 
+        let temp_lift:any = []; 
+        for (var i = 0; i <= this.Fulltablevalue.length - 1; i++) {
+                if (this.testvscntrl_testr1.find((x: any) => x.id == this.Fulltablevalue[i].TestStore)) {
+                    temp_lift.push({
+                             "TestStore": this.Fulltablevalue[i].TestStore,
+                            "Controlstore": this.Fulltablevalue[i].Controlstore,
+                            "Similarval": this.Fulltablevalue[i].Similarval,
+                            "Salescorrelation": this.Fulltablevalue[i].Salescorrelation                      
+                        })
+                }
+            }
+
+            this.MatchValues_DATA = temp_lift;
+            this.MatchResultsdata = temp_lift;
+    }
+
+
+    ontestDeSelecttable(event:any)
+    {    
+        let temp_lift:any = []; 
+        for (var i = 0; i <= this.Fulltablevalue.length - 1; i++) {
+                if (this.testvscntrl_testr1.find((x: any) => x.id == this.Fulltablevalue[i].TestStore)) {
+                    temp_lift.push({
+                        "TestStore": this.Fulltablevalue[i].TestStore,
+                            "Controlstore": this.Fulltablevalue[i].Controlstore,
+                            "Similarval": this.Fulltablevalue[i].Similarval,
+                            "Salescorrelation": this.Fulltablevalue[i].Salescorrelation                      
+                        })
+                }
+            }
+            this.MatchValues_DATA = temp_lift;
+            this.MatchResultsdata = temp_lift;
+    }
+
+    ontestDeSelectAll(event:any)
+    {
+        let temp_lift:any = []; 
+         this.MatchValues_DATA = temp_lift;
+         this.MatchResultsdata = temp_lift;
+    }
+
+    ontestSelectAll(event:any)
+    {
+         let temp_lift:any = []; 
+         for (var i = 0; i <= this.Fulltablevalue.length - 1; i++) {                
+            temp_lift.push({
+                "TestStore": this.Fulltablevalue[i].TestStore,
+                    "Controlstore": this.Fulltablevalue[i].Controlstore,
+                    "Similarval": this.Fulltablevalue[i].Similarval,
+                    "Salescorrelation": this.Fulltablevalue[i].Salescorrelation                      
+                })               
+            }
+
+         this.MatchValues_DATA = temp_lift;
+         this.MatchResultsdata = temp_lift;
+    }
     movetostp5_saved()
     {
         this.n_control_required = false;
@@ -2496,6 +2614,11 @@ export class ControlStoreComponent implements OnInit {
         });
     }
 
+    toYMD(date :Date)
+    {
+        return moment(date).format("MMM d, YYYY")
+    }
+
     Movetowizard3() {
         var market_id = localStorage.getItem('market_id');
         var trial = localStorage.getItem('trial');
@@ -2514,6 +2637,8 @@ export class ControlStoreComponent implements OnInit {
             prd: this.product_array,
             Startdt: this.stdate,
             Enddt: this.enddate,
+            fe_Startdt: this.toYMD(this.analystartdate),
+            fe_Enddt: this.toYMD(this.analyenddate),
             Analystartdate :  this.analystartdate,
             Analyenddate :  this.analyenddate,
             duration_window: this.days,

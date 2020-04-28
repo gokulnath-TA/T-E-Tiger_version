@@ -28,7 +28,7 @@ from sklearn.preprocessing import StandardScaler, normalize
 
 from .gower_function import gower_distances as gf
 from .helpers import mkdir, chmod, getFeatures, reduce, logs, datetime, init
-from .helpers import  storeChar, config, storeKeys, constrainCols, analyseFeatureCols, identifyControlCols, liftAnalysisCols, logIndex,trendCols
+from .helpers import  storeChar, config, storeKeys, constrainCols, sampleSizeCols, analyseFeatureCols, identifyControlCols, liftAnalysisCols, logIndex,trendCols
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -247,6 +247,7 @@ def Get_category(request):
 		Category_data = GetLeveloneSerializer(getcategory,many=True)	
 	elif(hierarchy_id==2):
 		getcategory = ProductMstr.objects.filter(market_id=market_id,is_deleted=False,is_active=True).values('leveltwo_cate').distinct()
+		getcategory = getcategory. order_by('leveltwo_cate')
 		Category_data = GetLeveltwoSerializer(getcategory,many=True)	
 	elif(hierarchy_id==3):
 		getcategory = ProductMstr.objects.filter(market_id=market_id,is_deleted=False,is_active=True).values('levelthree_cate').distinct()
@@ -283,6 +284,7 @@ def Get_products(request):
 	else:
 		return json.Response('Invalid Hierarchy Id',False)
 
+	getproducts = getproducts. order_by('menu_item_bk')
 	product_item = GetproductSerializer(getproducts,many=True)
 	try:	
 		return json.Response(product_item.data,True)
@@ -330,24 +332,24 @@ def GetMatchingTestStore(request):
 			MatchStore_id = []
 			UnMatch_id = []
 			for i in data.columns:
-				if(data.columns[0]!="Test Store ID (store_sk)"):
+				if(data.columns[0]!="Test Store ID"):
 					return json.Response("Invalid file input! Please upload again",False)
 			for i in data.index:
-				if(data['Test Store ID (store_sk)'][i]==None):
+				if(data['Test Store ID'][i]==None):
 					break;
 				else:
 					try:
-						check_store = StoreMstr.objects.filter(store_sk=data['Test Store ID (store_sk)'][i],is_deleted=False,is_active=True).count()
+						check_store = StoreMstr.objects.filter(store_sk=data['Test Store ID'][i],is_deleted=False,is_active=True).count()
 						if(check_store>0):
-							MatchStore_id.append(data['Test Store ID (store_sk)'][i])
+							MatchStore_id.append(data['Test Store ID'][i])
 						else:
-							UnMatch_id.append(data['Test Store ID (store_sk)'][i])
+							UnMatch_id.append(data['Test Store ID'][i])
 					except ValueError:
-						UnMatch_id.append(data['Test Store ID (store_sk)'][i])
+						UnMatch_id.append(data['Test Store ID'][i])
 
 			temp_filename = randomString() + ".xlsx"
 			path = default_storage.save(temp_filename, ContentFile(filename.read()))
-			tmp_file = os.path.join(settings.TESTSTORES_DIR, path)
+			# tmp_file = os.path.join(settings.TESTSTORES_DIR, path)
 
 			GetMatchStore = StoreMstr.objects.filter(store_sk__in=MatchStore_id,is_active=True,is_deleted=False).order_by('store_sk')
 			Store_data  = MatchTestStoreSerializer(GetMatchStore,many=True)
@@ -383,31 +385,31 @@ def UploadTestControlStore(request):
 				data = pd.read_excel(filename)
 			temp_filename = randomString()+".xlsx"
 			path = default_storage.save(temp_filename, ContentFile(filename.read()))
-			tmp_file = os.path.join(settings.TESTCONTROLSTORES_DIR, path)
+			# tmp_file = os.path.join(settings.TESTCONTROLSTORES_DIR, path)
 			MatchStore_id = []
 			UnMatch_id = []
 			MatchStore_id1 = []
 			UnMatch_id1 = []
 			
-			if(data.columns[0]!="Test store ID (store_sk)"):
+			if(data.columns[0]!="Test Store ID"):
 				return json.Response("Invalid file input! Please upload again",False)
-			if (data.columns[1] != "Control store ID (store_sk)"):
+			if (data.columns[1] != "Control Store ID"):
 				return json.Response("Invalid file input! Please upload again", False)
 			if (data.columns[2] != "Rank"):
 				return json.Response("Rank Column missing! Please upload again", False)
 			
 			testStores =[]
 			for i in data.index:
-				if(data['Test store ID (store_sk)'][i]==None):
+				if(data['Test Store ID'][i]==None):
 					break;
 				else:
-					check_store = StoreMstr.objects.filter(store_sk=data['Test store ID (store_sk)'][i],is_deleted=False,is_active=True).count()
+					check_store = StoreMstr.objects.filter(store_sk=data['Test Store ID'][i],is_deleted=False,is_active=True).count()
 					if(check_store>0):
-						GetControlMatchStore = StoreMstr.objects.get(store_sk=data['Test store ID (store_sk)'][i],is_active=True,is_deleted=False)
+						GetControlMatchStore = StoreMstr.objects.get(store_sk=data['Test Store ID'][i],is_active=True,is_deleted=False)
 						Store_data1  = MatchTestStoreSerializer(GetControlMatchStore).data
-						check_store1 = StoreMstr.objects.filter(store_sk=data['Control store ID (store_sk)'][i],is_deleted=False,is_active=True).count()
+						check_store1 = StoreMstr.objects.filter(store_sk=data['Control Store ID'][i],is_deleted=False,is_active=True).count()
 						if(check_store1>0):
-							GetControlMatchStore1 = StoreMstr.objects.get(store_sk=data['Control store ID (store_sk)'][i],is_active=True,is_deleted=False)
+							GetControlMatchStore1 = StoreMstr.objects.get(store_sk=data['Control Store ID'][i],is_active=True,is_deleted=False)
 							Store_data2  = MatchTestStoreSerializer(GetControlMatchStore1).data
 							testStores.append({"teststore_id":Store_data1['store_sk'],"teststore_name":Store_data1['store_name'],"controlstore_id":Store_data2['store_sk'],"controlstore_name":Store_data2['store_name'],"rank" : int(data['Rank'][i])})
 
@@ -443,22 +445,22 @@ def ExcludeControlStore(request):
 			MatchStore_id = []
 			UnMatch_id = []
 			for i in data.columns:
-				if(data.columns[0]!="control store id (store_sk)"):
+				if(data.columns[0]!="Control Store ID"):
 					return json.Response("Invalid file input! Please upload again",False)
 			for i in data.index:
-				if(data['control store id (store_sk)'][i]==None):
+				if(data['Control Store ID'][i]==None):
 					break;
 				else:
 					try:
-						check_store = StoreMstr.objects.filter(store_sk=data['control store id (store_sk)'][i],is_deleted=False,is_active=True).count()
+						check_store = StoreMstr.objects.filter(store_sk=data['Control Store ID'][i],is_deleted=False,is_active=True).count()
 						if(check_store>0):
-							if (data['control store id (store_sk)'][i] not in MatchStore_id):
-								MatchStore_id.append(data['control store id (store_sk)'][i])
+							if (data['Control Store ID'][i] not in MatchStore_id):
+								MatchStore_id.append(data['Control Store ID'][i])
 						else:
-							if (data['control store id (store_sk)'][i] not in UnMatch_id):
-								UnMatch_id.append(data['control store id (store_sk)'][i])
+							if (data['Control Store ID'][i] not in UnMatch_id):
+								UnMatch_id.append(data['Control Store ID'][i])
 					except ValueError:
-						UnMatch_id.append(data['control store id (store_sk)'][i])
+						UnMatch_id.append(data['Control Store ID'][i])
 			GetMatchStore = StoreMstr.objects.filter(store_sk__in=MatchStore_id,is_active=True,is_deleted=False).order_by('store_sk')
 			Store_data  = MatchTestStoreSerializer(GetMatchStore,many=True)
 			results = {
@@ -500,6 +502,7 @@ def UploadTestStore(request):
 							state_short                     = data['state'][i],
 							state_long                      = data['state'][i],
 							store_type                      = data['store_type'][i],
+							locality_description   			= data['locality_description'][i],
 							created_on						= int(time.time()),
 							is_deleted 						= False,
 							is_active						= True
@@ -531,7 +534,7 @@ def UploadItemMapping(request):
 					menu_item_desc                 	= data['itemDes'][i],
 					# size_code                       = data['size_code'][i],
 					# levelone_cate                  	= data['hierarchy1'][i],
-					leveltwo_cate                  	= data['hierarchy2'][i],
+					leveltwo_cate                  	= data['categories'][i],
 					# levelthree_cate                	= data['hierarchy3'][i],
 					# levelfour_cate                	= data['hierarchy4'][i],
 					)
@@ -563,25 +566,25 @@ def Check_additionalFeature(request):
 			feature_name =[]
 			unmatchted_feature =[]
 			for i in data.columns:
-				if(i=="store_sk"):
+				if(i=="Store ID"):
 					pass
 				else:
 					feature_name.append(i)
-				if(data.columns[0]!="store_sk"):
+				if(data.columns[0]!="Store ID"):
 					return json.Response("Invalid file input! Please upload again",False)
 			for i in data.index:
-				if(data['store_sk'][i]==None):
+				if(data['Store ID'][i]==None):
 					break;
 				else:
 					try:
 						checkall_store = StoreMstr.objects.filter(is_deleted=False,is_active=True).count()
-						check_store = StoreMstr.objects.filter(store_sk=data['store_sk'][i],is_deleted=False,is_active=True).count()
+						check_store = StoreMstr.objects.filter(store_sk=data['Store ID'][i],is_deleted=False,is_active=True).count()
 						if(check_store>0):
-							MatchStore_id.append(data['store_sk'][i])
+							MatchStore_id.append(data['Store ID'][i])
 						else:
-							UnMatch_id.append(data['store_sk'][i])
+							UnMatch_id.append(data['Store ID'][i])
 					except ValueError:
-						UnMatch_id.append(data['store_sk'][i])
+						UnMatch_id.append(data['Store ID'][i])
 			for val in feature_name:
 				checkfeature = FeatureTbl.objects.filter(feature_name = val,is_deleted=False, is_active=True).count()
 				if(checkfeature>0):
@@ -652,8 +655,10 @@ def Check_additionalFeature(request):
 def UploadFeatures(request):
 	filename = request.FILES['feature_data']
 	data = pd.read_excel(filename)
-	feat_id = FeatureMstr.objects.get(is_active=True,is_deleted=False,feat_id=4)
+	feat_id = FeatureMstr.objects.get(is_active=True,is_deleted=False,feat_id=3)
+	
 	for i in data.index:
+		
 		FeatureMst = FeatureTbl(
 			feature_name   = data['feature_name'][i],
 			feat_id   	= feat_id,
@@ -662,7 +667,7 @@ def UploadFeatures(request):
 			is_active	= True
 			)
 		FeatureMst.save()	
-	return True
+	return json.Response("File Uploaded")
 
 
 def SaveStage(request):
@@ -783,6 +788,8 @@ class Downloadreport(ListView):
 
 		# First Sheet Summary
 		worksheet = workbook.add_worksheet('Summary')
+		worksheet.hide_gridlines(1)
+
 		row = 0
 		col = 0
 		market = stores_json['market_id']
@@ -794,59 +801,74 @@ class Downloadreport(ListView):
 			pass
 		worksheet.write(row, col, "Market -" + market_name)
 		worksheet.write(row+2, col, "Trial -" +  stores_json['test_name'] + " Summary")
-		worksheet.write(row+4, col, "Total " + str(checkall_store) + " Store Considered for analysis. " + str(len(teststores)) + " test stores")
-		worksheet.write(row+6, col, "Data table used to build pipeline")
-		worksheet.write(row+7, col, "Store Charachteristics")
-		worksheet.write(row+8, col, "Demographics")
-		worksheet.write(row+9, col, "Weekly Pmix")
-		worksheet.write(row+10, col, "Weekly sales and gcs")
-		worksheet.write(row+11, col, "Weekly financials")
+		worksheet.write(row+4, col, "Total " + str(checkall_store) + " Store Considered for analysis.")
+		worksheet.write(row+5, col, str(len(teststores)) + " test stores. (Please refer  to Test Store list tab for details) ")
+		worksheet.write(row+7, col, "Data table used to build pipeline")
+		worksheet.write(row+8, col, "Store Charachteristics")
+		worksheet.write(row+9, col, "Demographics")
+		worksheet.write(row+10, col, "Weekly Pmix")
+		worksheet.write(row+11, col, "Weekly sales and gcs")
+		worksheet.write(row+12, col, "Weekly financials")
 		worksheet.write(row+ 13, col, "Store excluded due to insufficient data ") # to do exclude test stores
 		if(target_metric=='1'):
 			target_name = "Wt Avg price"
 		else:
 			target_name = "% Sales"
-		worksheet.write(row + 13, col, "Target Metric for Feature Identification is "+target_name +" for " + str(len(load_jsons['prd'])) +" Products listed under " +
+		worksheet.write(row + 15, col, "Target Metric for Feature Identification is "+target_name +" for " + str(len(load_jsons['prd'])) +" Products listed under " +
 						str(len(load_jsons['prd_cat'])) +" Product categories in Hierachy Level " + str(load_jsons['Hierarchy']))
 
-		worksheet.write(row + 15, col, "Feature Selection Window - Start Date " + str(load_jsons['Startdt']) + "/ End Date " + str(load_jsons['Enddt']) + " Duration of the window in weeks - " +
+		worksheet.write(row + 17, col, "Feature Selection Window - Start Date " + str(load_jsons['fe_Startdt']) + "/ End Date " + str(load_jsons['fe_Enddt']) + " Duration of the window in weeks - " +
 						str(load_jsons['duration_window'])) #
 
-		worksheet.write(row + 17, col, "List of Considered Continuous " + str(len(categor_features)) + " and Categorical " + str(len(contiue_features)))
+		worksheet.write(row + 19, col, "List of Considered Continuous Variables " + str(len(contiue_features)) +" (Please refer to Continuous Variables tab for details)")
+		worksheet.write(row + 20 ,col, "List of Considered Categorical Variables " + str(len(categor_features)) +" (Please refer to Categorical Variables tab for details) ")
 
-		worksheet.write(row + 19, col,"List of Additional Features user input ") # to do additional features
+		worksheet.write(row + 22, col,"List of Additional Features user input ") # to do additional features
 
-		worksheet.write(row + 21, col, "Selected Features Top 7 Features - by Descending information Gain with values")
-		worksheet.write(row + 21, col, "Selected Features")
-		worksheet.write(row + 21, col+1, "Information Gain")
-		worksheet.write(row + 21, col+2, "Forced Variable Flag")
+		worksheet.write(row + 23, col, "Selected Features Top 7 Features - by Descending information Gain with values")
+		worksheet.write(row + 23, col, "Selected Features")
+		worksheet.write(row + 23, col+1, "Information Gain")
+		worksheet.write(row + 23, col+2, "Forced Variable Flag")
 
-		row = 22
+		row = 24
 		col = 0
-		for stores in load_jsons['selected_feat']:
-			worksheet.write(row, col, stores)
+		gain = load_jsons['analystring']['features']
+		gain = j.loads(gain)
+
+		for stores in gain:
+			worksheet.write(row, col, stores['features'])
+			worksheet.write(row,col+1,stores['gain'])
+			if(stores['gain'] is None):
+				worksheet.write(row,col+2,'True')
+			else:
+				worksheet.write(row,col+2,'False')
 			row += 1
 
-		worksheet.write(row+2 , col, "Model Adjusted R-Squared " + load_jsons['adjusted_r_squared'])
+		worksheet.write(row+2 , col, "Model R-Squared " + load_jsons['adjusted_r_squared'])
 
-		worksheet.write(row +4, col, "Match "+ str(load_jsons['no_of_cntrl']) + " control stores for each test stores")
+		worksheet.write(row +4, col, "Match "+ str(load_jsons['no_of_cntrl']) + " control store(s) for each test stores")
 
-		worksheet.write(row + 6, col, "Control Stores to exclude ") ### to do exclude test stores
+		worksheet.write(row + 6, col, "Control Stores to be excluded") ### to do exclude test stores
+		row = row +7
+		col = 0
+		for exclude in load_jsons['analystring']['remove_stores']:
+			worksheet.write(row, col, exclude)
+			row+= 1
 
-		worksheet.write(row + 8, col, "Matched Results - Hypothesis testing")
+		worksheet.write(row + 2, col, "Matched Results - Hypothesis testing (Please refer to Match Results tab for details) ")
 
-		worksheet.write(row + 9, col, "Higher p-values indicate tes(t stores and matched control stores are similar based on the top features selected.")
+		worksheet.write(row + 3, col, "Higher p-values indicate test stores and matched control stores are similar based on the top features selected.")
 
-		worksheet.write(row + 12, col, "Variable Name")
+		worksheet.write(row + 5, col, "Selected Features")
 
 		col=1
 		for cou in range(int(load_jsons['no_of_cntrl'])):
-			worksheet.write(row+12, col, "Control -" + str(col) + " p-value (avg p-value of control -" + str(col) +" stores)")
+			worksheet.write(row+5, col, "Control -" + str(col) + " p-value (avg p-value of control -" + str(col) +" stores)")
 			col += 1
 
 		variable_name = load_jsons['stat_results']
 
-		row = row +11
+		row = row +7
 		col = 0
 		for value in variable_name:
 			worksheet.write(row, col, value['VariableName'])
@@ -872,27 +894,36 @@ class Downloadreport(ListView):
 				worksheet.write(row, col + 1, value['control_1'])
 			row +=1
 
-		worksheet.write(row+1, col, "Test Measurement - Hypothesis Testing")
-		worksheet.write(row +2 , col, "Lower p-values indicate selected test stores perform significantly better than the matched control stores based on measurement metrics selected")
+		controlstring = load_jsons['controlstring']
+		meanSimilarity = controlstring['data']['meanSimilarity']
+		UniqueControls = controlstring['data']['UniqueControls']
 
-		worksheet.write(row + 5, col,"Measurement metric")
-		worksheet.write(row + 5, col+1, "P -value")
-		worksheet.write(row + 5, col+2, "Lift")
+		worksheet.write(row + 1, col, "Overall Similarity Score - " + str(meanSimilarity))
+		worksheet.write(row + 2, col, "Total " +  str(len(teststores)) +" unique control store are matched for " + str(UniqueControls) +" test stores")
 
-		row = row + 6
+		worksheet.write(row + 4, col, "Test Measurement - Hypothesis Testing")
+		worksheet.write(row + 5 , col, "Lower p-values indicate selected test stores perform significantly better than the matched control stores based on measurement metrics selected")
 
+		worksheet.write(row + 7, col,"Measurement metric")
+		worksheet.write(row + 7, col+1, "P -value")
+		worksheet.write(row + 7, col+2, "Lift")
 
+		row = row + 8
+
+		u=0
 		for metri in load_jsons1['variable']:
 			worksheet.write(row, col, metri)
-			worksheet.write(row, col+1, load_jsons1['metric'][col])
-			worksheet.write(row, col+2, load_jsons1['delta'][col])
+			worksheet.write(row, col+1, load_jsons1['metric'][u])
+			worksheet.write(row, col+2, load_jsons1['delta'][u])
 			row += 1
+			u +=1
 
 		# Second Sheet Test Store IDS
 
 		worksheet = workbook.add_worksheet('Test Store List')
-		row = 0
+		row = 1
 		col = 0
+		worksheet.write(0, 0, 'Test Store_sk')
 
 		for stores in teststores:
 			worksheet.write(row, col, stores)
@@ -924,11 +955,11 @@ class Downloadreport(ListView):
 
 		## Fourth Sheet continues Variable
 
-		worksheet = workbook.add_worksheet('Continues Variable Considered')
+		worksheet = workbook.add_worksheet('Continuous Variables')
 		row = 1
 		col = 0
 
-		worksheet.write(0, 0, 'Continous Variables considered for feature selection')
+		worksheet.write(0, 0, 'Continuous Variables considered for feature selection')
 
 		for category in contiue_features:
 			worksheet.write(row, col, category)
@@ -937,7 +968,7 @@ class Downloadreport(ListView):
 
 		## Fifth Sheet Categorical Variable
 
-		worksheet = workbook.add_worksheet('Categorical Variable Considered')
+		worksheet = workbook.add_worksheet('Categorical Variables')
 		row = 1
 		col = 0
 
@@ -967,8 +998,8 @@ class Downloadreport(ListView):
 			worksheet.write(0, 3, 'Locality')
 
 			for constaints in constaints_check:
-				worksheet.write(row, col, constaints['store_sk'])
-				worksheet.write(row, col + 1, constaints['state_short'])
+				worksheet.write(row, col, constaints['storeID'])
+				worksheet.write(row, col + 1, constaints['state'])
 				worksheet.write(row, col + 2, constaints['store_type'])
 				worksheet.write(row, col + 3, constaints['locality_description'])
 				row += 1
@@ -979,14 +1010,18 @@ class Downloadreport(ListView):
 		controlstring = load_jsons['controlstring']
 		control_datas = controlstring['data']['matches']
 
-		matches_data = pd.DataFrame(eval(control_datas))
-		# worksheet = workbook.add_worksheet('Match Results')
-		workbook.close()
+		try:
 
-		writer = pd.ExcelWriter(report_name, engine='openpyxl', mode='a')
-		writer.book = load_workbook(report_name)  # here is the difference
-		matches_data.to_excel(writer, sheet_name='Match Results',index=False)
-		writer.close()
+			matches_data = pd.DataFrame(eval(control_datas))
+			# worksheet = workbook.add_worksheet('Match Results')
+			workbook.close()
+
+			writer = pd.ExcelWriter(report_name, engine='openpyxl', mode='a')
+			writer.book = load_workbook(report_name)  # here is the difference
+			matches_data.to_excel(writer, sheet_name='Match Results',index=False)
+			writer.close()
+		except:
+			workbook.close()
 
 		## Nineth Sheet Measurement results
 
@@ -1001,7 +1036,7 @@ class Downloadreport(ListView):
 
 		shutil.move(os.path.join('', report_name), os.path.join(config['pathConfig']['trialpath'] ,'trial_'+str(pk) , report_name))
 
-		tempdest = os.path.join('/usr/share/nginx/temp/')
+		tempdest = os.path.join('/home/ubuntu/project/backend/datas/reports/')
 		shutil.copyfile(os.path.join(config['pathConfig']['trialpath'] + '/trial_' + str(pk) + "/", report_name),
 						tempdest + report_name)
 
@@ -1021,56 +1056,87 @@ def sampleSize(request):
 	effectSize  = datas['effectSize']
 	ratio   	= datas['ratio']
 	alpha     	= datas['alpha']
+	trial 		= datas['trial']
 
-	if(variable=='Lift'):		
-		variable = 'gross'		
-	elif(variable=='Sales'):
+	if(variable=='Sales'):
 		variable = 'sales'
 	else:
-		variable = 'margin'
+		variable = 'gross'
 
-	variables = {
-		'sales' : 'TotNet',
-		'gross' : 'TotNet',
-		'margin' : 'TotNet'
-	}
-
-	variable = variables[variable]
-	powers = np.arange(0.3,1,0.1).round(2)
-	effectSizes = np.arange(0.1,1.05,0.05).round(2)
-	sampleSizes = pd.DataFrame(index= effectSizes, columns= powers)
-	analysis = TTestIndPower().solve_power
-
-	if dataStore[variable].dtype not in [int,float]:
-		return 0
+	trial = str(trial)
+	try:
+		logdf = logs("read",trial = trial)
+		logdf.loc[trial,sampleSizeCols] = [None]* len(sampleSizeCols)
+	except Exception as e:
+		return json.Response("Can't able to create logs",False)        
     
-	data = dataStore[ storeKeys + ['wkEndDate',variable] ]
-	data = data[data[variable] > 0]
+	table = None
+	sampleSizes = None
 
-	data['YoY'] = data.groupby(by= storeKeys)[variable].shift(52)
-	data = data.dropna(subset= ['YoY'])
-	data['YoY'] = (data[variable] / data['YoY']) - 1
-	std = data.groupby(by= storeKeys)['YoY'].median().std()
-
-	effectSize = effectSize/std
-
-	def solveSample(row):
-		return pd.Series([analysis(effect_size= row.name, nobs1= None, alpha= alpha, power= power, ratio= ratio) for power in row.index.values]).astype('int')
-
-	sampleSizes[powers]= sampleSizes.apply(solveSample, axis= 1)
-
-	table = sampleSizes.loc[effectSize * std].reset_index().rename(columns={'index' : 'power', effectSize*std : 'sampleSize'})
+	try: 
+		variables = {
+			'sales' : 'Net Sales',
+			'gross' : 'Gross Sales',
+		}
 
 
-	finalsampleSizes = sampleSizes.reset_index().to_json(orient='records')
-	finaltable = table.reset_index().to_json(orient='records')
+		variable = variables[variable]
+		powers = list(np.arange(0.3,1,0.1).round(2))
+		effectSizes = list(np.arange(0.1,1.05,0.05).round(2))
 
-	results =  {
+		# sampleSizeCols = trial,variable,effectSize,ratio,alpha,ssStatus,ssAlert
+		logdf.loc[trial,sampleSizeCols[:-2]] = [variable, effectSize, ratio, alpha]
+
+		# sampleSizes = pd.DataFrame(index= effectSizes, columns= powers)
+		sampleSizes = pd.DataFrame(index= [effectSize/100] + effectSizes, columns= powers)
+		analysis = TTestIndPower().solve_power
+
+		if dataStore[variable].dtype not in [int,float]:
+			return 0
+        
+		data = dataStore[ storeKeys + ['wkEndDate',variable] ]
+		data = data[data[variable] > 0]
+
+		data['YoY'] = data.groupby(by= storeKeys)[variable].shift(52)
+		data = data.dropna(subset= ['YoY'])
+		data['YoY'] = (data[variable] / data['YoY']) - 1
+		std = data.groupby(by= storeKeys)['YoY'].median().std()
+
+		alpha = alpha/100
+		# effectSize = effectSize/(100 * std) # divide by 100 to get as it is in percentage
+
+		def solveSample(row):
+			return pd.Series([analysis(effect_size= row.name, nobs1= None, alpha= alpha, power= power, ratio= ratio) for power in row.index.values]).astype('int')
+
+		sampleSizes[powers]= sampleSizes.apply(solveSample, axis= 1)
+		sampleSizes.columns = (sampleSizes.columns.values * 100).astype('int')
+		sampleSizes.index = (sampleSizes.index.values * 100).astype('int')
+
+		sampleSizes = sampleSizes.loc[~sampleSizes.index.duplicated()]
+		table = sampleSizes.loc[int(effectSize)].reset_index().rename(columns={'index' : 'power', int(effectSize) : 'sampleSize'})
+		sampleSizes = sampleSizes.drop(index= effectSize)
+		
+		logdf.loc[trial,sampleSizeCols[-2]] = success
+		logs("save",logdf=logdf)
+
+
+		finalsampleSizes = sampleSizes.reset_index().to_json(orient='records')
+		finaltable = table.reset_index().to_json(orient='records')
+
+		results =  {
 			"table" :   finaltable,
 			"plot"  : 	finalsampleSizes
 		}
 
-	return json.Response(results,True)
+		return json.Response(results,True)
+
+	except Exception as e:
+		_,_, exc_tb = sys.exc_info()
+		error =[exc_tb.tb_lineno,os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]]
+		logdf.loc[trial,sampleSizeCols[-2:]] = [e,error]
+		logs("save",logdf = logdf.copy())
+		return json.Response("Can't able to estimate",False)
+
 
 def analyseFeatures(request):
 	"""
@@ -1138,12 +1204,18 @@ def analyseFeatures(request):
 		extraFeatures = None
 
 	global dataStore
-
+	rSquared= None
+	rSquaredAdj= None
+	mape =None
+	mdape= None
+	features = None
+	otherFeatures= None
+	
 	try:
-		logdf = logs("read", trial=trial)
-		logdf.loc[trial, analyseFeatureCols] = [None] * len(analyseFeatureCols)
+		logdf = logs("read",trial = trial)
+		logdf.loc[trial,analyseFeatureCols] = [None]* len(analyseFeatureCols)
 	except Exception as e:
-		return json.Response("Can't able to read log", False)
+		return json.Response("Can't able to create logs",False) 
 
 	try:
 		startDate = datetime.strptime(startDate, '%Y-%m-%d') 
@@ -1152,21 +1224,22 @@ def analyseFeatures(request):
 
 		# NOTE: setting the store x week as index
 		data = data.set_index(storeKeys+['wkEndDate'])
-        
-        # analyseFeatureCols = [testStores, numTeststores, metric, startDate, endDate, numWeeks, hierarchy, numCategories, numProducts, numProductSelected, extraFeatureShape, extraFeatureFiltered, dataInsufficient, multiCorr, modelData.shape, features, gain, pvalues, rSquared, rSquaredAdj, mape, mdape, analyseFeatureStatus, afAlert]
+
+		# analyseFeatureCols = [testStores, numTeststores, metric, startDate, endDate, numWeeks, hierarchy, numCategories, numProducts, numProductSelected, extraFeatureShape, extraFeatureFiltered, dataInsufficient, multiCorr, modelData.shape, features, gain, pvalues, rSquared, rSquaredAdj, mape, mdape, analyseFeatureStatus, afAlert]
 		logdf.loc[trial,analyseFeatureCols[:8]] = [testStores, len(testStores), metric, startDate, endDate, len(data.reset_index().wkEndDate.unique()), hierarchy, len(hierarchy['categories'])]
 
 		modelData, target, extraFlag, numFeatures, catFeatures, logdf, removeStores  = getFeatures(trial= trial, testStores= testStores, dataStore= data, metric= metric, hierarchy= hierarchy, itemList= itemList, extraFeatures= extraFeatures, logdf= logdf.copy())
 		if modelData is None:
 			return rSquared, rSquaredAdj, mape, mdape, features, otherFeatures, extraFlag, numFeatures, catFeatures, removeStores
-        
+	    
 		features = pd.DataFrame(columns= ['features', 'gain'])
 		features['features'] = modelData.columns.values
 
 		modelData[['target']] = target
 
 		# Scale
-		values = StandardScaler().fit_transform(modelData)
+		scaler = StandardScaler().fit(modelData)
+		values = scaler.transform(modelData)
 		x,y = values[:, :-1],values[:, -1]
 
 		# model
@@ -1183,20 +1256,23 @@ def analyseFeatures(request):
 
 		model.fit(x_,y)
 		yHat = model.predict(x_)
+		yHat_ = scaler.inverse_transform(np.concatenate((x, yHat.reshape(1,-1).T),axis= 1))[:, -1]
+		y_ = target.target.values
 
-		absError = np.abs(y - yHat)
-		ape = np.divide(absError,y) * 100
+		error = np.abs(y_ - yHat_)
+		ape = np.abs(np.divide(error,y_) * 100)
 		mape = np.mean(ape)
 		mdape = np.median(ape)
 
-		yMean = y.mean()
-		sst = np.square(y - yMean).sum()
-		sse = np.square(y - yHat).sum()
+		yMean = y_.mean()
+		sst = np.square(y_ - yMean).sum()
+		sse = np.square(y_- yHat_).sum()
 		rSquared = 1- (sse/sst)
 		rSquaredAdj = 1 - (((1-rSquared) * (len(y)-1)) / (len(y) - len(x_[0]) - 1)) # 1- ((1-r2) * (n-1) / (n-k-1))
 
 		otherFeatures = features.iloc[n_features:]['features'].sort_index().values
 		features = features.iloc[:n_features]
+		features['gain'] = features['gain'].round(4)
 
 		pValues = None
 
@@ -1210,14 +1286,9 @@ def analyseFeatures(request):
 				dataStore.to_csv(fileName)
 				chmod(fileName)
 			extraFlag = extraFlag.sort_values(by=['comments'])
-
-			forcedCols = [col for col in modelData.columns if '_trend' in col and col not in extraFeatures.columns and col not in features.features.values]
-		else:
-			forcedCols = [col for col in modelData.columns if '_trend' in col and col not in features.features.values]
-        
-		features = pd.DataFrame({features.columns.values[0]: forcedCols},columns= features.columns).append(features)
+	    
 		otherFeatures = [feature for feature in otherFeatures if feature not in features.features.values]
-        
+
 		# analyseFeatureCols = [testStores, numTeststores, metric, startDate, endDate, numWeeks, hierarchy, numCategories, numProducts, numProductSelected, extraFeatureShape, extraFeatureFiltered, dataInsufficient, multiCorr, modelData.shape, features, gain, pvalues, rSquared, rSquaredAdj, mape, mdape, analyseFeatureStatus, afAlert]
 		logdf.loc[trial,analyseFeatureCols[-9:]] = [[[col] for col in features.features.values], [[col] for col in features['gain'].values], pValues, rSquared, rSquaredAdj, mape, mdape, success,None]
 
@@ -1324,162 +1395,167 @@ def identifyControls(request):
 	except:
 		return json.Response("Can't able to read log", False)
 
-	# try:
-	trial = str(trial)
-	selectedFeatures = list(selectedFeatures)
-	ex = None
-	if len(excludeControls) > 0:
-		ex = [[con] for con in excludeControls]
-        # ex = excludeControls
-    # identifyControlCols = selectedFeatures, storesWithSettings, numStoresWithSettings, nControls, excludeControls, excludeControls.len, identifyControlStatus, icAlert
-	logdf.loc[trial,['selectedFeatures', 'nControls', 'excludeControls', 'excludeControls.len']] = np.array([selectedFeatures, n_controls, ex, len(excludeControls)])
+	try:
+		trial = str(trial)
+		selectedFeatures = list(selectedFeatures)
+		ex = None
+		if len(excludeControls) > 0:
+			ex = [[con] for con in excludeControls]
+            # ex = excludeControls
+        # identifyControlCols = selectedFeatures, storesWithSettings, numStoresWithSettings, nControls, excludeControls, excludeControls.len, identifyControlStatus, icAlert
+		logdf.loc[trial,['selectedFeatures', 'nControls', 'excludeControls', 'excludeControls.len']] = np.array([selectedFeatures, n_controls, ex, len(excludeControls)])
 
-	modelData = pd.read_csv(os.path.join(config['pathConfig']['trialPath'],trial, config['fileConfig']['modelData']))
-	modelData[storeKeys] = modelData[storeKeys].astype('str')
-	modelData = modelData.set_index(storeKeys)
-	modelData = modelData[selectedFeatures]
+		modelData = pd.read_csv(os.path.join(config['pathConfig']['trialPath'],trial, config['fileConfig']['modelData']))
+		modelData[storeKeys] = modelData[storeKeys].astype('str')
+		modelData = modelData.set_index(storeKeys)
+		modelData = modelData[selectedFeatures]
 
-	gower = pd.DataFrame(gf(modelData), index= modelData.index.values, columns= modelData.index.values)
-	gower = gower.loc[~gower.index.isin(testStores+excludeControls), testStores]
+		gower = pd.DataFrame(gf(modelData), index= modelData.index.values, columns= modelData.index.values)
+		gower = gower.loc[~gower.index.isin(testStores+excludeControls), testStores]
 
-	global storeChar
-    # from scipy.spatial.distance import pdist, squareform
-    # eucl = pd.DataFrame(squareform(pdist(normalize(modelData))), index= modelData.index.values, columns= modelData.index.values)
-    # eucl = eucl.loc[~eucl.index.isin(testStores+excludeControls), testStores]
+		global storeChar
+		# from scipy.spatial.distance import pdist, squareform
+		# eucl = pd.DataFrame(squareform(pdist(normalize(modelData))), index= modelData.index.values, columns= modelData.index.values)
+		# eucl = eucl.loc[~eucl.index.isin(testStores+excludeControls), testStores]
 
-	if settings is not None:
-		settings = settings[storeKeys+constrainCols].set_index(storeKeys)
-		storesWithSettings = settings.dropna(axis=0,how='all').index.values
-		logdf.loc[trial,['storesWithSettings','numStoresWithSettings']] = [storesWithSettings, len(storesWithSettings)]
+		if settings is not None:
+			settings = settings[storeKeys+constrainCols].set_index(storeKeys)
+			storesWithSettings = settings.dropna(axis=0,how='all').index.values
+			logdf.loc[trial,['storesWithSettings','numStoresWithSettings']] = [storesWithSettings, len(storesWithSettings)]
 
-		factors = settings.columns.values
-		settings[factors] = np.where(settings[factors] == 1, storeChar.loc[settings.index, factors], settings[factors])
-		storeChar_ = storeChar.loc[~storeChar.index.isin(testStores+excludeControls), factors]
+			factors = settings.columns.values
+			settings[factors] = np.where(settings[factors] == 1, storeChar.loc[settings.index, factors], settings[factors])
+			storeChar_ = storeChar.loc[~storeChar.index.isin(testStores+excludeControls), factors]
+
+			def constraints(row):
+				rowCols = row.dropna().index.values.tolist()
+				storeFactors = storeChar_[rowCols]
+				storeFactors[rowCols] = np.where(np.equal(storeFactors[rowCols], row.loc[rowCols]), storeFactors[rowCols], None)
+				return storeFactors[rowCols].dropna().index.values
+
+			settings['possibleMatch'] = settings.apply(constraints, axis= 1)
+			# settings['controlStores'] = settings.apply(lambda test, eucl= gower, n_controls= n_controls: eucl.loc[test['possibleMatch'], test.name].sort_values().index.values[:n_controls], axis= 1)
+			settings['controlStores'] = settings.apply(lambda test, eucl= gower: eucl.loc[test['possibleMatch'], test.name].sort_values().index.values[:20], axis= 1)
+			settings = settings.reset_index()
+			matches = settings[storeKeys+['controlStores']]
+		else:
+			matches = pd.DataFrame(testStores, columns= storeKeys)
+			matches['controlStores'] = matches.apply(lambda test, eucl= gower, n_controls= n_controls: eucl[test[storeKeys[0]]].sort_values().index.values[:n_controls], axis= 1)
+			# matches['controlStores'] = matches.apply(lambda test, eucl= gower: eucl[test[storeKeys[0]]].sort_values().index.values[:20], axis= 1)
+
+		matches = matches.explode('controlStores')
+		matches = matches.reset_index(drop= True)
+		matches['similarity'] = matches.apply(lambda pair, dist= gower: 1-dist.loc[pair['controlStores'], pair[storeKeys[0]]], axis= 1)
+
+		trialSales = pd.read_csv(os.path.join(config['pathConfig']['trialPath'], trial, config['fileConfig']['trialSales']))
+		trialSales[storeKeys] = trialSales[storeKeys].astype('str')
+		trialSales = trialSales.set_index(['wkEndDate'])
+
+		def salesCorr(row):
+			test = trialSales.loc[trialSales[storeKeys[0]] == row[storeKeys[0]], 'Net Sales'].reset_index()
+			control = trialSales.loc[trialSales[storeKeys[0]] == row['controlStores'], 'Net Sales'].reset_index()
+			return test['Net Sales'].corr(control['Net Sales'])
+
+		matches['salesCorrelation'] = matches.apply(salesCorr, axis= 1)
+
+		matches['rank'] = matches.groupby(storeKeys).cumcount() +1
+		matches = matches.loc[matches['rank'] <= n_controls]
+
+		allStores = pd.DataFrame(list(matches[storeKeys[0]].unique()) + list(matches.controlStores.unique()), columns= storeKeys)
+		allStores = allStores.merge(trialSales.groupby(by= storeKeys).mean(),on= storeKeys).rename(columns={'Net Sales' : 'storeSales'})
+		allStores = allStores.set_index(storeKeys)
+
+		trialSales['Net Sales'] = trialSales.groupby(by= storeKeys).transform(lambda sales: (sales - sales.mean())/sales.std())
+
+		trialSales = trialSales.reset_index()
+		trialSales = trialSales.pivot_table(index=['wkEndDate'],columns=storeKeys)['Net Sales']
+		trialSales = trialSales.round(2)
+		columns = ['testStores','sales']+reduce(lambda a,b:a+b,[['control_'+str(i+1),'controlSales_'+str(i+1)] for i in range(n_controls)])
+		storeCols = ['testStores']+[col for col in columns if col.startswith('control_')]
+		salesCols = ['sales']+[col for col in columns if col.startswith('controlSales_')]
+		sales = pd.DataFrame(columns= columns)
+		sales.index.name = 'wkEndDate'
+		tempdf = pd.DataFrame(index= trialSales.index,columns=columns)
+		for testStore in testStores:
+			stores = [testStore] + matches.loc[matches[storeKeys[0]] == testStore, 'controlStores'].values.tolist()
+			# tempdf.loc[:, storeCols] = (storeChar.loc[stores, 'storeName'].astype('str').index + '_' + storeChar.loc[stores, 'storeName'].astype('str')).values
+			tempdf.loc[:,storeCols] = stores
+			tempdf.loc[:, salesCols] = trialSales[stores].values
+			sales = sales.append(tempdf)
         
-		def constraints(row):
-			rowCols = row.dropna().index.values.tolist()
-			storeFactors = storeChar_[rowCols]
-			storeFactors[rowCols] = np.where(np.equal(storeFactors[rowCols], row.loc[rowCols]), storeFactors[rowCols], None)
-			return storeFactors[rowCols].dropna().index.values
+        # filtering the modelData for the required test and control stores and the selected features - with the test & control mapping
+		testControl = matches.copy()
+		testControl = pd.melt(testControl, id_vars = ['rank'])
+		testControl.columns = ['rank','testControl']+ storeKeys
+		testControl = pd.merge(testControl,modelData[selectedFeatures].reset_index(), how= 'left',on= storeKeys)
+		# transpose to get the metrics in a single column
+		testControl = testControl.set_index(storeKeys + ['testControl','rank']).stack().reset_index()
+		testControl.columns = storeKeys + ['testControl','rank','metric','metric_value']
 
-		settings['possibleMatch'] = settings.apply(constraints, axis= 1)
-		# settings['controlStores'] = settings.apply(lambda test, eucl= gower, n_controls= n_controls: eucl.loc[test['possibleMatch'], test.name].sort_values().index.values[:n_controls], axis= 1)
-		settings['controlStores'] = settings.apply(lambda test, eucl= gower: eucl.loc[test['possibleMatch'], test.name].sort_values().index.values[:20], axis= 1)
-		settings = settings.reset_index()
-		matches = settings[storeKeys+['controlStores']]
-	else:
-		matches = pd.DataFrame(testStores, columns= storeKeys)
-		# matches['controlStores'] = matches.apply(lambda test, eucl= gower, n_controls= n_controls: eucl[test[storeKeys[0]]].sort_values().index.values[:n_controls], axis= 1)
-		matches['controlStores'] = matches.apply(lambda test, eucl= gower: eucl[test[storeKeys[0]]].sort_values().index.values[:20], axis= 1)
+		# calculating the p-value for each metric
+		dict1={}
+		for j in testControl['rank'].unique().tolist() :
+			dict2={}
+			for i in selectedFeatures :
+				_, p = ttest_ind(testControl[(testControl['testControl'] == 'controlStores') & (testControl['metric'] == i) & (testControl['rank'] == j)]['metric_value'],testControl[(testControl['testControl'] == storeKeys[0]) & (testControl['metric'] == i)]['metric_value'], equal_var = False)
+				dict2[i]=p
+			dict1[j]=dict2
+		metric_pvalue = pd.DataFrame.from_dict(dict1).reset_index().rename(columns={"index":"features"})
+		metric_pvalue.columns = ['features']+['control_'+str(i+1) for i in range(n_controls)]
 
-	matches = matches.explode('controlStores')
-	matches = matches.reset_index(drop= True)
-	matches['similarity'] = matches.apply(lambda pair, dist= gower: 1-dist.loc[pair['controlStores'], pair[storeKeys[0]]], axis= 1)
-    
-	trialSales = pd.read_csv(os.path.join(config['pathConfig']['trialPath'], trial, config['fileConfig']['trialSales']))
-	trialSales[storeKeys] = trialSales[storeKeys].astype('str')
-	trialSales = trialSales.set_index(['wkEndDate'])
+		matches = matches.rename(columns= {storeKeys[0]: 'testStores'})
+		matches['testStores'] = matches['testStores'].astype(int)
+		matches = matches.sort_values(['testStores'])
+		matches['testStores'] = matches['testStores'].astype(str)
+		matches = matches.round(2)
 
-	def salesCorr(row):
-		test = trialSales.loc[trialSales[storeKeys[0]] == row[storeKeys[0]], 'TotNet'].reset_index()
-		control = trialSales.loc[trialSales[storeKeys[0]] == row['controlStores'], 'TotNet'].reset_index()
-		return test['TotNet'].corr(control['TotNet'])
+		tests = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storeChar.loc[testStores,constrainCols],modelData.loc[testStores,selectedFeatures],allStores]).reset_index().rename(columns={storeKeys[0]:'testStores'})
+		controls = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storeChar.loc[matches.controlStores.unique(),constrainCols], modelData.loc[matches.controlStores.unique(),selectedFeatures], allStores]).reset_index().rename(columns={storeKeys[0]:'controlStores'})
+		tests.columns= ['testStores']+[col+'_test' for col in tests.columns if col!='testStores']
+		controls.columns= ['controlStores']+[col+'_control' for col in controls.columns if col!='controlStores']
 
-	matches['salesCorrelation'] = matches.apply(salesCorr, axis= 1)
-		# matches = matches[~((matches['salesCorrelation'] < 0) & (matches['nextPositive'] < 0.1))]
-		# matches = matches[matches['salesCorrelation'] > 0] 
-	matches['rank'] = matches.groupby(storeKeys).cumcount() +1
-	matches = matches.loc[matches['rank'] <= n_controls]
+		order = tests.columns.tolist() + controls.columns.tolist() + [col for col in matches.columns if col not in ['testStores','controlStores']]
+		matches = matches.merge(tests,on=['testStores']).merge(controls,on=['controlStores'])[order]
 
-	allStores = pd.DataFrame(list(matches[storeKeys[0]].unique()) + list(matches.controlStores.unique()), columns= storeKeys)
-	allStores = allStores.merge(trialSales.groupby(by= storeKeys).mean(),on= storeKeys).rename(columns={'TotNet' : 'storeSales'})
-	allStores = allStores.set_index(storeKeys)
+		fileName = os.path.join(config['pathConfig']['trialPath'], trial, config['fileConfig']['matches'])
+		matches.to_csv(fileName, index=False)
+		chmod(fileName)
 
-	trialSales['TotNet'] = trialSales.groupby(by= storeKeys).transform(lambda sales: (sales - sales.mean())/sales.std())
+		nUniqueControls = matches.controlStores.unique().shape[0]
+		meanSimilarity = matches.similarity.mean()
 
-	trialSales = trialSales.reset_index()
-	trialSales = trialSales.pivot_table(index=['wkEndDate'],columns=storeKeys)['TotNet']
-	trialSales = trialSales.round(2)
-	columns = ['testStores','sales']+reduce(lambda a,b:a+b,[['control_'+str(i+1),'controlSales_'+str(i+1)] for i in range(n_controls)])
-	storeCols = ['testStores']+[col for col in columns if col.startswith('control_')]
-	salesCols = ['sales']+[col for col in columns if col.startswith('controlSales_')]
-	sales = pd.DataFrame(columns= columns)
-	sales.index.name = 'wkEndDate'
-	tempdf = pd.DataFrame(index= trialSales.index,columns=columns)
-	for testStore in testStores:
-		stores = [testStore] + matches.loc[matches[storeKeys[0]] == testStore, 'controlStores'].values.tolist()
-		tempdf.loc[:, storeCols] = (storeChar.loc[stores, 'storeName'].astype('str').index + '_' + storeChar.loc[stores, 'storeName'].astype('str')).values
-		# tempdf.loc[:,storeCols] = stores
-		tempdf.loc[:, salesCols] = trialSales[stores].values
-		sales = sales.append(tempdf)
-    
-	# filtering the modelData for the required test and control stores and the selected features - with the test & control mapping
-	testControl = matches.copy()
-	testControl = pd.melt(testControl, id_vars = ['rank'])
-	testControl.columns = ['rank','testControl']+ storeKeys
-	testControl = pd.merge(testControl,modelData[selectedFeatures].reset_index(), how= 'left',on= storeKeys)
-	# transpose to get the metrics in a single column
-	testControl = testControl.set_index(storeKeys + ['testControl','rank']).stack().reset_index()
-	testControl.columns = storeKeys + ['testControl','rank','metric','metric_value']
+		# matches['testStores'] = (storeChar.loc[matches['testStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[matches['testStores'], 'storeName'].astype('str')).values
+		# matches['controlStores'] = (storeChar.loc[matches['controlStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[matches['controlStores'], 'storeName'].astype('str')).values
+		sales = sales.reset_index()
+		sales['testStores'] = sales['testStores'].astype(int)
+		sales = sales.sort_values(['testStores'])
+		sales['testStores'] = sales['testStores'].astype(str)       
+		metric_pvalue = metric_pvalue.round(2)
 
-	# calculating the p-value for each metric
-	dict1={}
-	for j in testControl['rank'].unique().tolist() :
-		dict2={}
-		for i in selectedFeatures :
-			_, p = ttest_ind(testControl[(testControl['testControl'] == 'controlStores') & (testControl['metric'] == i) & (testControl['rank'] == j)]['metric_value'],testControl[(testControl['testControl'] == storeKeys[0]) & (testControl['metric'] == i)]['metric_value'], equal_var = False)
-			dict2[i]=p
-		dict1[j]=dict2
-	metric_pvalue = pd.DataFrame.from_dict(dict1).reset_index().rename(columns={"index":"features"})
-	metric_pvalue.columns = ['features']+['control_'+str(i+1) for i in range(n_controls)]
+		logdf.loc[trial,identifyControlCols[-2:]] = [success, None]
+		logs("save",logdf=logdf)
 
-	matches = matches.rename(columns= {storeKeys[0]: 'testStores'})
-	matches = matches.round(2)
+		finalmatches = matches.round(2).to_json(orient='records')
+		finalsales = sales.reset_index().to_json(orient='records')
+		# finalmatchresults = matchResults.to_json(orient='records')
+		# finalcolumns = columns.to_json(orient='records')
+		results = {
+		"matches": finalmatches,
+		# "reports": finalmatchresults,
+		"columns": matches.columns.tolist(),
+		"sales": finalsales,
+		"metric": metric_pvalue.round(2).to_dict(),
+		"UniqueControls" :nUniqueControls,
+		"meanSimilarity" :meanSimilarity
+		}
 
-	tests = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storeChar.loc[testStores,constrainCols],modelData.loc[testStores,selectedFeatures],allStores]).reset_index().rename(columns={storeKeys[0]:'testStores'})
-	controls = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storeChar.loc[matches.controlStores.unique(),constrainCols], modelData.loc[matches.controlStores.unique(),selectedFeatures], allStores]).reset_index().rename(columns={storeKeys[0]:'controlStores'})
-	tests.columns= ['testStores']+[col+'_test' for col in tests.columns if col!='testStores']
-	controls.columns= ['controlStores']+[col+'_control' for col in controls.columns if col!='controlStores']
-
-	order = tests.columns.tolist() + controls.columns.tolist() + [col for col in matches.columns if col not in ['testStores','controlStores']]
-	matches = matches.merge(tests,on=['testStores']).merge(controls,on=['controlStores'])[order]
-
-	fileName = os.path.join(config['pathConfig']['trialPath'], trial, config['fileConfig']['matches'])
-	matches.to_csv(fileName, index=False)
-	chmod(fileName)
-
-	nUniqueControls = matches.controlStores.unique().shape[0]
-	meanSimilarity = matches.similarity.mean()
-
-	matches['testStores'] = (storeChar.loc[matches['testStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[matches['testStores'], 'storeName'].astype('str')).values
-	matches['controlStores'] = (storeChar.loc[matches['controlStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[matches['controlStores'], 'storeName'].astype('str')).values
-	sales = sales.reset_index()
-	metric_pvalue = metric_pvalue.round(2)
-
-	logdf.loc[trial,identifyControlCols[-2:]] = [success, None]
-	logs("save",logdf=logdf)
-
-	finalmatches = matches.round(2).to_json(orient='records')
-	finalsales = sales.reset_index().to_json(orient='records')
-	# finalmatchresults = matchResults.to_json(orient='records')
-	# finalcolumns = columns.to_json(orient='records')
-	results = {
-	"matches": finalmatches,
-	# "reports": finalmatchresults,
-	"columns": matches.columns.tolist(),
-	"sales": finalsales,
-	"metric": metric_pvalue.round(2).to_dict(),
-	"UniqueControls" :nUniqueControls,
-	"meanSimilarity" :meanSimilarity
-	}
-
-	return json.Response(results)
-	# except Exception as e:
-	# 	_, _, exc_tb = sys.exc_info()
-	# 	error = [exc_tb.tb_lineno, os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]]
-	# 	logdf.loc[trial, identifyControlCols[-2:]] = [e, error]
-	# 	logs("save", logdf=logdf.copy())
-	# 	return json.Response("Can't able to analyse", False)
+		return json.Response(results)
+	except Exception as e:
+		_, _, exc_tb = sys.exc_info()
+		error = [exc_tb.tb_lineno, os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]]
+		logdf.loc[trial, identifyControlCols[-2:]] = [e, error]
+		logs("save", logdf=logdf.copy())
+		return json.Response("Can't able to analyse", False)
 
 
 
@@ -1538,21 +1614,25 @@ def liftAnalysis(request):
 	except:
 		return json.Response("Can't able to read log", False)
 
+	measureTest = None
+	metric_pvalue = None
+	delta = None
 
 	# try:
 	trial = str(trial)
-    # liftAnalysisCols = prePeriod, postPeriod, metrics, liftAnalysisStatus, laAlert
-    
+	# liftAnalysisCols = prePeriod, postPeriod, metrics, liftAnalysisStatus, laAlert
+
 	logdf.loc[trial,liftAnalysisCols[:2]] = [preTest, postTest]
 	if storeMap is None:
 		storeMap = pd.read_csv(os.path.join(config['pathConfig']['trialPath'], trial, config['fileConfig']['matches']))
 		storeMap['testStores'] = storeMap['testStores'].astype('str')
-		storeMap['controlStores'] = storeMap['controlStores'].astype('str')           
+		storeMap['controlStores'] = storeMap['controlStores'].astype('str')
+       
 	else:
 		storeMap = pd.DataFrame(eval(storeMap))
 		storeMap = pd.DataFrame.from_dict(storeMap, orient='columns')
-		storeMap['testStores'] = storeMap['Test store ID (storeID)'].astype('str')
-		storeMap['controlStores'] = storeMap['Control store ID (storeID)'].astype('str')
+		storeMap['testStores'] = storeMap['Test store ID'].astype('str')
+		storeMap['controlStores'] = storeMap['Control store ID'].astype('str')
 		storeMap['rank'] = storeMap['Rank']
 
 	storeMap = storeMap[['testStores','controlStores','rank']]
@@ -1568,23 +1648,20 @@ def liftAnalysis(request):
 	# replacing the nans in the mapping columns for test stores with test id
 	trialData[storeKeys[0]] = trialData.apply(lambda x : x['testStores'] if x['storeGroup'] == 'TEST' else x['controlStores'], axis= 1)
 	trialData = trialData.drop(columns=['controlStores'])
-    
-    # mapping the metric to the actual name in the table 
+
+	# mapping the metric to the actual name in the table 
 	metricsMap = {
-        1 : 'TotNet',
-        2 : 'gross_sales',
-        3 : 'unit_count_adj',
-        4 : 'total_txns',
-        5 : 'gp_percent'
+        1 : 'Net Sales',
+        2 : 'Gross Sales',
+        3 : 'Transaction Count',
+        4 : 'Unit Sales'
     }
 
-	metricsName = {
-        'total_txns'        : 'Transaction_Count',
-        'gross_sales'       : 'Gross_Sales',
-        'TotNet'            : 'Net_Sales',
-        'gp_percent'        : 'Gp_Percent',
-        'unit_count_adj'    : 'Unit_Count'
-    }
+    # metricsName = {
+    #     'total_txns'        : 'Transaction count',
+    #     'gross_sales'       : 'Gross Sales',
+    #     'Net Sales'            : 'Netsales'
+    # }
     
 	metrics = [metricsMap[metric] for metric in metrics]
 	logdf.loc[trial,liftAnalysisCols[2]] = [metrics]
@@ -1596,54 +1673,73 @@ def liftAnalysis(request):
 	postEndDate = datetime.strptime(postTest['endDate'], '%Y-%m-%d') 
 
 	# Fetching data from dataStore - read the pre_test and post_test start to end weeks data from the dataStore
-	global dataStore
-
+	global dataStore, storeChar
+    
 	# Getting the list of  all the test and control stores - to pull from dataStore
 	testStores = storeMap['testStores'].unique().tolist()
 	controlStores = storeMap['controlStores'].unique().tolist()
 	# from the dataStore - pull the corresponding test and control store ids and filter the datastore for these ids & metric colums selected
 	measureTest = dataStore[dataStore[storeKeys[0]].isin(testStores + controlStores)][[storeKeys[0], 'wkEndDate'] + metrics ].reset_index(drop= True)
+
+	rank = int(storeMap['rank'].max())
+	storeMap['rank'] = storeMap['rank'].astype('str')
+	storeMap = storeMap.set_index(['testStores', 'rank']).unstack()
+	storeMap.columns = ["_".join(col) for col in storeMap.columns]
+	storeMap = storeMap.reset_index()
+	# allStores = measureTest[measureTest['prepost']=='post_period'].set_index(['storeID', 'wkEndDate'])[metrics].round(4).reset_index()
+	allStores = measureTest.copy().set_index(['storeID', 'wkEndDate'])[metrics].round(4).reset_index()
+	allStores = allStores[((allStores['wkEndDate'] >= preStartDate) & (allStores['wkEndDate'] <= preEndDate)) | ((allStores['wkEndDate'] >= postStartDate) & (allStores['wkEndDate'] <= postEndDate))].reset_index(drop= True)
+	postMetrics = allStores.loc[allStores['storeID'].isin(storeMap.testStores.unique())]
+	order = [col+'_test' for col in postMetrics.columns if col not in ['storeID', 'wkEndDate']]
+	postMetrics.columns = ['testStores', 'wkEndDate']+ order
+	order = ['wkEndDate', 'testStores'] + order
+	rename = ['wkEndDate','testStores'] + ["_".join(metric.split(" "))+"_test" for metric in metrics]
+	postMetrics = postMetrics[order]
+	postMetrics = postMetrics.merge(storeMap, on= 'testStores')
+	# postMetrics['testStores'] = (storeChar.loc[postMetrics['testStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[postMetrics['testStores'], 'storeName'].astype('str')).values
+
+	for ind in range(rank):
+		controldf = allStores.loc[allStores['storeID'].isin(storeMap['controlStores_'+str(ind+1)].unique())]
+		controldf.columns = ['controlStores_'+str(ind+1), 'wkEndDate'] + [col+'_control'+str(ind+1) for col in controldf.columns if col not in ['storeID', 'wkEndDate']]
+		postMetrics = postMetrics.set_index(['wkEndDate', 'controlStores_'+str(ind+1)]).merge(controldf.set_index(['wkEndDate', 'controlStores_'+str(ind+1)]), on= ['wkEndDate', 'controlStores_'+str(ind+1)]).reset_index()
+		order = order+ ['controlStores_'+str(ind+1)] + [metric+'_control'+str(ind+1) for metric in metrics]
+		rename = rename + ['controlStores_'+str(ind+1)] + ["_".join(metric.split( ))+'_control'+str(ind+1) for metric in metrics]
+        # postMetrics['controlStores_'+str(ind+1)] = (storeChar.loc[postMetrics['controlStores_'+str(ind+1)], 'storeName'].astype('str').index + '_' + storeChar.loc[postMetrics['controlStores_'+str(ind+1)], 'storeName'].astype('str')).values
+
+	postMetrics = postMetrics[order]
+	postMetrics.columns = rename
+
+	# measureTest = measureTest.rename(columns= metricsName)
+	# metrics = [metricsName[metric] for metric in metrics]
 	for metric in metrics:
 		measureTest['YoY_'+metric] = measureTest.groupby(by=storeKeys)[metric].shift(52)
 		measureTest[metric] = (measureTest[metric] / measureTest['YoY_'+metric]) - 1
 
-    # filter for the required time period
+	# filter for the required time period
 	measureTest = measureTest[((measureTest['wkEndDate'] >= preStartDate) & (measureTest['wkEndDate'] <= preEndDate)) | ((measureTest['wkEndDate'] >= postStartDate) & (measureTest['wkEndDate'] <= postEndDate))].reset_index(drop= True)
-    
-    # label by period into pre and post window
-	measureTest['prepost'] = np.where(((measureTest['wkEndDate'] >= preStartDate) & (measureTest['wkEndDate'] <= preEndDate)), 'pre_period', 'post_period')
-    
-    # aggregate metrics to store level pre and post period  - taking average
-    # measureTest = measureTest.groupby([storeKeys[0], 'prepost']).agg('mean')[metrics].reset_index()
-	measureTest = measureTest.groupby([storeKeys[0], 'prepost']).agg('mean').reset_index()
 
-    # pdb.set_trace()
-	for metric in metrics:
-		measureTest[metric] = (measureTest[metric] - measureTest['YoY_'+metric])
-    
+	# label by period into pre and post window
+	measureTest['prepost'] = np.where(((measureTest['wkEndDate'] >= preStartDate) & (measureTest['wkEndDate'] <= preEndDate)), 'pre_period', 'post_period')
+
+	# aggregate metrics to store level pre and post period  - taking average
+	measureTest = measureTest.groupby([storeKeys[0], 'prepost']).agg('mean')[metrics].reset_index()
+
 	# transpose and get pre and post into columns and metric into rows
 	measureTest = measureTest.set_index([storeKeys[0], 'prepost']).stack().reset_index()
 	measureTest.columns = [storeKeys[0], 'prepost', 'metric', 'metric_value']
-	measureTest = measureTest.replace(metricsName)
 	measureTest = pd.pivot_table(measureTest, index= [storeKeys[0], 'metric'], columns= 'prepost', values= 'metric_value').reset_index()
 	measureTest = pd.merge(trialData, measureTest, on= storeKeys, how= 'left')
-
-	# standardising the metrics by the range of the test pre and post periods
-	# measureTest['pre_period'] =  measureTest['pre_period']/ round(((preEndDate - preStartDate).days)/7)
-	# measureTest['post_period'] =  measureTest['post_period']/ round(((postEndDate - postStartDate).days)/7)
-
-	global storeChar
-    # calcualte the lift
 	measureTest['lift'] = (measureTest['post_period']/measureTest['pre_period']-1)*100
+
 	delta = measureTest.loc[measureTest['storeGroup'] == 'CONTROL'].groupby(["testStores","metric"])["lift"].mean().reset_index()
 	delta = pd.merge(delta, measureTest.loc[measureTest['storeGroup'] == 'TEST',['testStores','metric','lift']],on= ['testStores','metric'])
 	delta['delta'] = delta['lift_y'] - delta['lift_x']
 	delta.drop(['lift_x','lift_y'],axis=1,inplace=True)
-	delta['testStores'] = (storeChar.loc[delta['testStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[delta['testStores'], 'storeName'].astype('str')).values
+	# delta['testStores'] = (storeChar.loc[delta['testStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[delta['testStores'], 'storeName'].astype('str')).values
 	delta = delta.sort_values(by=['delta'])
 	metric_pvalue = pd.DataFrame(columns = ['measureMetric','pValue','delta'])
 	metric_pvalue['measureMetric'] = metrics
-	metric_pvalue = metric_pvalue.replace(metricsName)
+	# metric_pvalue = metric_pvalue.replace(metricsName)
 	# calcualte the p-value 
 	measureTest = measureTest.dropna(subset=['lift'])
 	for i in measureTest.metric.unique() :
@@ -1652,13 +1748,16 @@ def liftAnalysis(request):
 		delta.loc[len(delta)] = ['average',i,diff]
 		metric_pvalue.loc[metric_pvalue["measureMetric"]==i,["pValue","delta"]] = [p, diff] 
 
-	measureTest['storeName'] = (storeChar.loc[measureTest[storeKeys[0]], 'storeName'].astype('str')).values
+	# measureTest['storeName'] = (storeChar.loc[measureTest[storeKeys[0]], 'storeName'].astype('str')).values
+	measureTest['testStores'] = measureTest['testStores'].astype(int)
+	measureTest = measureTest.sort_values(['testStores'])
+	measureTest['testStores'] = measureTest['testStores'].astype(str)
 	measureTest = measureTest.round(2)
-	# metric_pvalue = metric_pvalue.round(4)
+	metric_pvalue = metric_pvalue.round(4)
 	delta = delta.round(4)
 
-	# liftAnalysisCols = prePeriod, postPeriod, metrics, pValue, delta, liftAnalysisStatus, laAlert
-
+    # liftAnalysisCols = prePeriod, postPeriod, metrics, pValue, delta, liftAnalysisStatus, laAlert
+    
 	logdf.loc[trial,liftAnalysisCols[-4:]] = [metric_pvalue[metric_pvalue.columns.values[1]].values, metric_pvalue[metric_pvalue.columns.values[-1]].values, success,None]
 
 	logs("save",logdf=logdf)
@@ -1681,9 +1780,12 @@ def liftAnalysis(request):
 
 	finalmeasureTest = measureTest.round(2).reset_index().to_json(orient='records')
 	finaldelta = delta.round(4).reset_index().to_json(orient='records')
+	finalpostMetrics = postMetrics.reset_index().to_json(orient='records')
 
 	results = {
 		"measureTest": finalmeasureTest,
+		"postmetrics" : finalpostMetrics,
+		"rank" : rank,
 		"variable" : variable,
 		"metric": metric,
 		"delta" : deltas,

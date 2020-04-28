@@ -71,12 +71,11 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 ALLOWED_HOSTS = ['*']
 
-TESTSTORES_DIR = 'C:/Users/mc91606/TnE-sharedFolder/test&execute/backend/datas/test_stores/'
-TESTCONTROLSTORES_DIR = "datas/testcontrol_stores/"
-REPORT_PATH =  "C:/Users/mc91606/TnE-sharedFolder/test&execute/backend/datas/reports/"
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10242880
 
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+
 
 DATABASES = {
     'default': {

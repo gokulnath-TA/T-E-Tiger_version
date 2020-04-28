@@ -13,6 +13,7 @@ import { NgMultiSelectDropDownModule } from 'ng-multiselect-dropdown';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatInputModule } from '@angular/material/input';
+import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { MatTableModule, MatSelectModule } from '@angular/material';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -30,6 +31,7 @@ import {MatCardModule} from '@angular/material/card';
     SharedModule,
     NgxPaginationModule,
     MatButtonModule,
+    NgbModule,
     MatIconModule,
     MatSelectModule,
     TestconfigRoutingModule,

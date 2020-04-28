@@ -1,6 +1,6 @@
      <div class="sidenav">
       <div class="first stepper">
-        <h5 class="stg1text">Design a Test</h5>      
+        <h5 class="stg1text">Design <br>Test</h5>      
       </div>
         
       <div class="second stepper">
@@ -9,7 +9,7 @@
     
     
       <div class="third stepper stepper-active">
-        <h5 class="stg3text">Impact Analysis</h5>
+        <h5 class="stg3text">Impact <br> Analysis</h5>
         <aw-wizard
           #wizard3
           id="w3wizard3"
@@ -243,13 +243,13 @@
 
         <div class="row" style="margin-top: -2vw;">
           <div class="col-md-4">
-            <button type="button" class="butn reset" (click)="resettestmeasure()">Reset</button>
+            <button type="button" *ngIf="!loaddatas" class="butn reset" (click)="resettestmeasure()">Reset</button>
             <button type="button" class="butn stponebck" (click)="MoveToWizard2()">Back</button>
           </div>
 
           <div class="col-md-8">
             <button type="button" *ngIf="!loaddatas" class="col-md-4 butn analyzefeature-save" (click)="movetostp7()">
-              Lift Measurement
+              Analyze Impact
             </button>
             <button type="button" *ngIf="loaddatas" class="col-md-4 butn analyzefeature-save" (click)="movetostp7_saved()">
                 Next
@@ -294,31 +294,36 @@
 
       <ng-container *ngIf="show_match_results">
         <div class="container12" style="margin-left: 17vw;padding: 1vw;">
-        <div style="margin-top: 3rem;" class="row">
-
-        <div class="col-md-5"> 
+        <div style="margin-top: 3rem;margin-bottom: 1vw" class="row">
+        <div class="col-md-6"> 
         <div class="form-group">
+           <label style="float: left;top: .9vw;">Test Stores </label>
                <ng-multiselect-dropdown
+                  class="col-md-8"
+                  style="float:left;margin-bottom: 1vw"
                   [placeholder]="'Test Stores'"
                   [data]="testvscntrl_teststore"
                   [settings]="TestVscntrlSet"
                   [(ngModel)]="testvscntrl_testr1"
                   (onSelect)="ontestSelecttable($event)"
-                  (onDeSelect)="ontestDeSelecttable($event)"    
-                  [disabled] = "loaddatas"              
+                  (onDeSelect)="ontestDeSelecttable($event)" 
+                  (onSelectAll)="ontestSelectAll($event)"   
+                  (onDeSelectAll)="ontestDeSelectAll($event)"                     
+                  [disabled] = "loaddatas"  
+                  style="width:23vw;margin-left: 1vw;float: left;"            
                 >
                 </ng-multiselect-dropdown>
             </div> 
             </div>
 
-           <div class="col-md-3">
+           <!-- div class="col-md-3">
             <input
               class="form-control  filter-match-result"
               type="text"
               (keyup)="FilterLiftanalysis($event.target.value)"
               placeholder="&#xF002;&nbsp; Store ID" style="width: 209px;"
             />
-            </div>
+            </div> -->
             <button type="button" (click)="downloadCSV()" class="col-md-3 butn dwnld-excel" >
               Download Result As Excel
             </button>
@@ -386,7 +391,7 @@
                 <td mat-cell *matCellDef="let row">{{ row.Rank_No }}</td>
               </ng-container>
 
-              <ng-container matColumnDef="StoreName">
+              <!-- <ng-container matColumnDef="StoreName">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
                   <div style="width:100%;display:inline-block;">
                     <span class="table-header-label header-align">Store Name</span> &nbsp;<img
@@ -397,7 +402,7 @@
                   </div>
                 </th>
                 <td mat-cell *matCellDef="let row">{{ row.StoreName }}</td>
-              </ng-container>
+              </ng-container> -->
 
               <ng-container matColumnDef="Variables">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
@@ -443,7 +448,7 @@
               <ng-container matColumnDef="Lift">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header>
                   <div style="width:100%;display:inline-block;">
-                    <span class="table-header-label header-align">Percentage Change </span> &nbsp;<img
+                    <span class="table-header-label header-align">Percentage Change (%) </span> &nbsp;<img
                       class="logo"
                       src="assets/images/sort-arrow.png"
                       alt="sort"
@@ -488,16 +493,16 @@
     <ng-container *ngIf="show_statistical_results">
  <div class="container">
           <div style="margin-top:4vw">
-			<h6 class="col-md-9" style="float:left;color:#778899;text-align: bold">
+			<h6 class="col-md-12" style="float:left;color:#778899;text-align: justify;">
 					Note : p-values lower than 0.05 indicate selected test stores perform significantly different than the matched control stores based on measurement metrics selected
 			</h6>
-            <input style="float:right;"
+            <!-- input style="float:right;"
               class="col-md-2 form-control"
               type="text"
               (keyup)="FilterStatVals($event.target.value)"
               placeholder="&#xF002;&nbsp; Variable Name"
               style="font-family:Arial, FontAwesome;margin-bottom: 1rem;margin-top: 1rem;left: 4vw !important;position: relative;"
-            />
+            /> -->
           </div>
           <!-- <table
             mat-table
@@ -592,12 +597,14 @@
           <mat-radio-group aria-label="Select an option" (change)="radioChange($event)">
             <mat-radio-button [checked]="true" value="1">Test vs Control Comparison</mat-radio-button>
             <mat-radio-button value="2">Test Stores Lift Comparison</mat-radio-button>
+            <mat-radio-button value="3">Time Series View</mat-radio-button>
           </mat-radio-group>
         </div>
 
         <div class="row" style="margin-top: 2rem;" [hidden]="Testvscontrol">
           <div class="col-md-4">
             <div class="form-group">
+              <label style="margin-left: 3px">Variable To Analyze</label>
               <ngx-select
                 [items]="Variabletoanlyze"
                 [(ngModel)]="testvscntrl_var"
@@ -611,6 +618,7 @@
 
           <div class="col-md-4">
             <div class="form-group">
+              <label style="margin-left: 3px">Test Store To Analyze</label>
                <ng-multiselect-dropdown
                   [placeholder]="'Test Store To Analyze'"
                   [data]="testvscntrl_teststore"
@@ -628,6 +636,7 @@
        <div class="row" style="margin-top: 2rem;" [hidden]="Teststorelift">
           <div class="col-md-4">
             <div class="form-group">
+              <label style="margin-left: 3px">Variable To Analyze</label>
               <ngx-select
                 [items]="Variabletoanlyze_lift"
                 [(ngModel)]="teststrlift_var"
@@ -640,6 +649,37 @@
           </div>
          
         </div>
+
+        <div class="row" style="margin-top: 2rem;" [hidden]="Time_series">
+          <div class="col-md-4">
+            <div class="form-group">
+              <label style="margin-left: 3px">Variable To Analyze</label>
+              <ngx-select
+                [items]="Variabletoanlyze"
+                [(ngModel)]="Timeseri_metix"
+                [noAutoComplete]="true"
+                placeholder="Variable To Analyze"
+                (selectionChanges)="TimeSeriesmetric($event)"
+              >
+              </ngx-select>
+            </div>
+          </div>
+
+          <div class="col-md-4">
+            <div class="form-group">
+              <label style="margin-left: 3px">Test Store To Analyze</label>
+               <ngx-select
+                  placeholder="Test Store To Analyze"
+                  [items]="testvscntrl_teststore"
+                  [(ngModel)]="Timeseries_stores"                  
+                  [disabled] = "disablestore_time"
+                  (selectionChanges)="TimeSeriesstor($event)"
+                >
+                </ngx-select>
+            </div>
+          </div>
+        </div>
+
 
         <div class="col-md-12" style="padding-top: 2vw;" *ngIf="grapshow">
           <mat-card class="threat-detection-cart">
@@ -677,8 +717,20 @@
             </mat-card-content>
           </mat-card>
           </div>
-
       </div>
+
+        <div class="col-md-12" style="padding-top: 2vw;" *ngIf="TimeSeries">
+        <mat-card class="threat-detection-cart">
+         <mat-card-content style="padding-bottom: 1vw;">
+          <div style="display: block;">
+            <figure class="highcharts-figure">
+            <div id="TimePlot"></div>
+            </figure>
+          </div>
+         </mat-card-content> 
+     </mat-card> 
+        </div>
+        
 
         
           

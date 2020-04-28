@@ -1,7 +1,7 @@
 
   <div class="sidenav">    
       <div class="first stepper">
-        <h5 class="stg1text">Design a Test</h5>
+        <h5 class="stg1text">Design <br> Test</h5>
         <!-- <div class="col-md-12">
           <div class="md-stepper-horizontal">
             <div class="md-step done">
@@ -67,7 +67,7 @@
 
     
       <div class="third stepper">
-        <h5 class="stg3text">Impact Analysis</h5>
+        <h5 class="stg3text">Impact <br> Analysis</h5>
         <!-- <div class="col-md-12">
           <div class="md-stepper-horizontal">
             <div class="md-step">
@@ -142,6 +142,8 @@
                 [data]="catmembers"
                 [settings]="ProductCategorySettings"
                 (onSelect)="onCatSelect($event)"
+                (onSelectAll)="onCatSelectAll($event)"
+                (onDeSelectAll)="onCatDeSelectAll($event)"
                 [disabled]="loaddatas"
                 (onDeSelect)="onCatDeSelect($event)"
                 [(ngModel)]="PrdCatmodelid"
@@ -160,6 +162,8 @@
                 [settings]="ProductSettings"
                 (onSelect)="onPrdSelect($event)"
                 (onDeSelect)="onPrdDeSelect($event)"
+                (onSelectAll)="onPrdSelectAll($event)"
+                (onDeSelectAll)="onPrdDeSelectAll($event)"
                 [(ngModel)]="product_array"
                 [disabled]="loaddatas"
               >
@@ -168,16 +172,16 @@
             </div>
           </div>
 		  <ng-container *ngIf="noteshow">
-			<h6 style="margin-left:1vw;color:#778899"> Note:  Target Metric for feature identification is {{metrixnote}} for {{productcount}}  {{products_text}} listed under {{categorycount}} Product {{category_text}}</h6>
+			<h6 style="margin-left:1vw;color:#778899"> Note:  Target Metric for feature selection is {{metrixnote}} for {{productcount}}  {{products_text}} listed under {{categorycount}} Product {{category_text}}</h6>
 		  </ng-container>
         </div>
 
         <ng-template #htmlContent3 style="min-width:550px !important">
-                If the start date and end date selected do not fall on Monday and Sunday respectively
-                <ul style="text-align: left;">
+                Time period selected will be used as the window of consideration for selecting features
+                <!-- <ul style="text-align: left;">
                   <li>Start Date will be moved to the preceding Monday irrespective of date selected</li>
                   <li>End Date will be moved to the preceding Sunday irrespective of date selected</li>
-                </ul>
+                </ul> -->
               </ng-template>
 
         <label style="margin-top: 2rem;">Feature Selection Window </label>
@@ -320,7 +324,7 @@
               <ng-template #htmlContent>
                 Additional variables should be uploaded at a store level for all active stores in market, the data will be validated for
                 <ul style="text-align: left;">
-                  <li>Feature names will be checked against existing datastore feature names for duplicates</li>
+                  <li>Feature names will be checked against existing feature names for duplicates</li>
                   <li>Data Quality - Missing values</li>
                   <li>Multicollinearity</li>
                   <li>Correlation with target metric</li>
@@ -356,24 +360,25 @@
                   <button type="submit" [hidden]="submit_visible" class="submit btn">Submit</button>
                 </div>
               </div>
+              <a (click)="featuresample()" style="cursor: pointer;text-decoration: underline;color: #f3aa50">Sample Additional Feature.xlsx</a>
               <ng-container *ngIf="show_fileextnerror_feature">
                 <span style="color:red;margin-top: -1rem;">* Allowed File Types-.csv,.xls,.xlsx </span>
               </ng-container>
               <p style="color:red;margin-top: 4px;" [hidden]="file_add_req">* This field is required</p>
             </div>
           </div>
-          <div class="row" style="margin-top: -4vw">
+          <div class="row">
             <div class="col-md-6">
              <!-- <button type="button" class="butn reset" (click)="MoveToWizard1(0)">Home</button>-->
               
-                <button type="button" class="butn stponebck" (click)="Resetanalysis()">Reset</button>
+                <button type="button" *ngIf="!loaddatas" class="butn stponebck" (click)="Resetanalysis()">Reset</button>
                 <button type="button" class="butn stponebck" (click)="MoveToWizard1(1)">Back</button>
               
             </div>
             
             <div class="col-md-6">
               <button type="button" *ngIf="!loaddatas" class="col-md-4 butn analyzefeature-save" (click)="movetostp4()">
-                Analyze Features
+                Select Features
               </button>
               <button type="button" *ngIf="loaddatas" class="col-md-4 butn analyzefeature-save" (click)="movetostp4_saved()">
                 Next
@@ -387,8 +392,8 @@
 
     <ng-container *ngIf="showcnt2">
       <div class="container">
-        <div class="row">
-          <div class="col-md-5" style="margin-top:15px">
+        <div class="row">          
+          <div class="col-md-7" style="margin-top:15px">
             <div class="input-group" style="top:35px">
               <label style="top: 4px;">R-squared value:</label>
               <input
@@ -401,11 +406,9 @@
                 [(ngModel)]="adjustedval"
               />
             </div>
-          </div>
+             <h6 style="margin-top: 4vw;color:#778899">Note : R-Squared value includes only features selected by XGBoost model.</h6>
+          </div>        
 
-          <div class="row" style="margin-top: 3vw;">
-          <h6 style="margin-left:1.5vw;color:#778899">Note : R-Squared only includes features selected by XGBoost and does not include any user forced-in variables</h6>
-          </div>
           <div class="col-md-12">
 
             <div cdkDropListGroup class="row" style="background: none;">
@@ -413,7 +416,10 @@
               <ng-template #htmlContent2>
                 
                 <ul style="text-align: left;">
-                  <li>Features highlighted in blue under the selected features list are default forced-in features which were not selected by the XGBoost model</li>
+                  <li>Features Selected will be used to calculate similarity scores between Test and Control </li>
+                  <li>
+                    Features highlighted in green under the selected features list are user forced features which were not selected by the XG Boost model
+                  </li>
                 </ul>
               </ng-template>
 
@@ -424,7 +430,7 @@
                     (click)="tooltip()"
                     tooltipClass="my-custom-class1"
                     [ngbTooltip]="htmlContent2"
-                    aria-hidden="true" style="left:152px"
+                    aria-hidden="true" style="left:157px"
                   ></i>
                   </h4>
                
@@ -574,6 +580,7 @@
                   <button type="submit" [hidden]="submitcntrl_visible" class="submit btn">Submit</button>
                 </div>
               </div>
+              <a (click)="excludesample()" style="cursor: pointer;text-decoration: underline;color: #f3aa50">Sample Exclude Control Stores.xlsx</a>
               <ng-container *ngIf="show_fileextnerror_excludematching">
                 <span style="color:red;margin-top: -1rem;">* Allowed File Types-.csv,.xls,.xlsx </span>
               </ng-container>
@@ -581,12 +588,26 @@
           </div>
         </form>
         <div class="row">
-          <div class="col-md-4">
-            <div><label class="testname-label">Number of Control Store Matches</label></div>
+          <div class="col-md-5">
+            <div><label class="testname-label"> Number of Control Store Matches for a Test Store</label></div>
             <input type="text" #textbox numbersOnly maxlength="1"   (keyup)="restrictNumeric($event, textbox.value, 1, 5)" [(ngModel)]="no_of_cntrl"  [disabled]="loaddatas" (ngModelChange)="inputcheck()" class="form-control" />
+                <ng-template #settingContent>
+                  Use the Advanced Settings option to limit matching of Control stores within same State/Store Type/Locality of the Test Store
+              </ng-template>
+                <i
+                    class="fa fa-info-circle unselected-tooltip"
+                    placement="top"
+                    (click)="tooltip()"
+                    tooltipClass="my-custom-classss"
+                    [ngbTooltip]="settingContent"
+                    aria-hidden="true"
+                    style="margin-left: 16vw !important"
+                  ></i>
+
             <ng-container *ngIf="n_control_required">
             <span style="color:red;margin-top: -1rem;">* This field is required </span>
             </ng-container>
+            <h6 style="color:#778899;margin-top: 1vw">Note: Accepted values - Minimum :1, Maximum :5 </h6>
           </div>
 
           <div class="col-md-4">
@@ -830,13 +851,27 @@
 
       <ng-container *ngIf="show_match_results">
         <div class="container">
-          <div style="float:right;margin-top: 3rem;" class="row">
-            <input
-              class="form-control col-md-4 filter-match-result"
-              type="text"
-              (keyup)="FilterMatchVals($event.target.value)"
-              placeholder="&#xF002;&nbsp; Test Store"
-            />
+          <div style="margin-top: 3rem;margin-bottom: 1vw" class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-6">           
+            <div class="form-group">
+                 <label style="float: left;top: .5vw;">Test Stores </label>
+               <ng-multiselect-dropdown
+                  [placeholder]="'Test Stores'"
+                  [data]="testvscntrl_teststore"
+                  [settings]="TestVscntrlSet"
+                  [(ngModel)]="testvscntrl_testr1"
+                  (onSelect)="ontestSelecttable($event)"
+                  (onDeSelect)="ontestDeSelecttable($event)" 
+                  (onSelectAll)="ontestSelectAll($event)"   
+                  (onDeSelectAll)="ontestDeSelectAll($event)"
+                  [disabled] = "loaddatas" 
+                  style="width:20vw;margin-left: 1vw;float: left;"             
+                >
+                </ng-multiselect-dropdown>
+            </div> 
+            </div>            
+
             <button type="button" (click)="downloadCSV()" class="col-md-4 butn dwnld-excel">
               Download Result As Excel
             </button>
@@ -1015,13 +1050,13 @@
           <div style="margin-top:4vw">
 			<h6 class="col-md-10" style="float:left;color:#778899">Note : Higher p-value indicates test store and matched control store are similar based on the top features selected.</h6>
 			
-            <input style="float:right;"
+            <!-- <input style="float:right;"
               class="col-md-2 form-control"
               type="text"
               (keyup)="FilterStatVals($event.target.value)"
               placeholder="&#xF002;&nbsp; Features"
               style="font-family:Arial, FontAwesome;margin-bottom: 1rem;margin-top: 1rem;"
-            />
+            /> -->
           </div>
          <!--  <table
             mat-table

@@ -76,6 +76,7 @@ import {
 import * as Highcharts from 'highcharts';
 import * as moment from 'moment';
 import HC_exporting from 'highcharts/modules/exporting';
+import { environment} from '../../environments/environment'
 declare var require: any;
 HC_exporting(Highcharts);
 
@@ -205,9 +206,12 @@ export class TestConfigComponent implements OnInit {
     filenameval_temp :any;
     myFiles2:any =[]
     plotchart:any = [];
+    estimate_table:any = []
+    estimate_graph:any =[]
     temp_xaxis:any =[];
     measure_excel:any=[]
     loaddatas:boolean = false;
+    temptestname :any ;
     effect:any = '';
     testvscontrol:any = '';
     lvlsign:any = '' ;
@@ -226,10 +230,11 @@ export class TestConfigComponent implements OnInit {
 
     public market: any = [];
     public plantest: any[] = ['Test Planning', 'Test Measurement', 'Load From Saved Test'];
-    public sdmetric:any[] = ['Lift','Sales','Gross Margin'];
+    public sdmetric:any[] = ['Sales','Gross Margin'];
     tempFilter: any = [];
     filenameval: any = '';
     temp_teststores:any =[];
+    metrixscreen: boolean = true;
     Stateval: any = [];
     Storeval: any = [];
     PowerMetricval: any = [];
@@ -413,9 +418,9 @@ export class TestConfigComponent implements OnInit {
         const temp = this.tempFilter.filter(function(d: any) {
             return (
                 d.store_sk.toString().indexOf(val) !== -1 ||
-                d.store_name.toLowerCase().indexOf(val) !== -1 ||
-                d.store_type.toLowerCase().indexOf(val) !== -1 ||
-                d.state_long.toLowerCase().indexOf(val) !== -1 ||
+                // d.store_name.toLowerCase().indexOf(val) !== -1 ||
+                // d.store_type.toLowerCase().indexOf(val) !== -1 ||
+                // d.state_long.toLowerCase().indexOf(val) !== -1 ||
                 !val
             );
         });
@@ -512,9 +517,15 @@ export class TestConfigComponent implements OnInit {
             this.LoadSavedTestdata = this.Load_saved_DATA;
             this.TestmeasureDatasrc.sort = this.sort;
             this.TestMeasuredata = this.Test_measure_DATA;
-        });
+        });    
 
-        localStorage.clear()
+        let getback:any = localStorage.getItem('backto')
+        let market_id:any = localStorage.getItem('market_id')
+
+        if(getback!='3')
+        {
+            localStorage.clear()
+        }
         this.market = [];
 
         this.PowerMetricval = [
@@ -563,8 +574,8 @@ export class TestConfigComponent implements OnInit {
         //this.itemId=['---Select A Plan---'];
         this.homeservice.GetAllMarkets().subscribe((apiresponse: any) => {
             if (apiresponse.status == 'ok') {
-                for (var i = apiresponse.data.length - 1; i >= 0; i--) {
-                    this.market.push(apiresponse.data[i]);
+                for (var i = 0; i <= apiresponse.data.length - 1; i++) {
+                    this.market.push({"market_id" : 1, "market_name":apiresponse.data[i].market_name});
                 }
             } else {
                 //console.log(apiresponse.data)
@@ -629,11 +640,87 @@ export class TestConfigComponent implements OnInit {
                             this.testvalue = parseData.test_name
                             this.loaddatas = true;
 
+                            let temptable:any = []
+                            for (var i = 0 ; i <= parseData.estimate_data.length-1; i++) {
+                            temptable.push({"power":parseData.estimate_data[i].power,"effect":parseData.effect,"no_ofstore":parseData.estimate_data[i].sampleSize})    
+                            }
+
+                           this.EffectData = temptable
+                           let temp_3:any =[];
+                            let temp_4:any =[];
+                            let temp_5:any =[];
+                            let temp_6:any =[];
+                            let temp_7:any =[];
+                            let temp_8:any =[];
+                            let temp_9:any =[];
+                            
+                            let Final_Chart:any = [];
+
+                           for (var i = 0; i <= parseData.estimate_graph.length - 1; i++) {
+                            this.temp_xaxis.push(parseData.estimate_graph[i]['index'])
+                            temp_3.push(parseData.estimate_graph[i]['30'])
+                            temp_4.push(parseData.estimate_graph[i]['40'])
+                            temp_5.push(parseData.estimate_graph[i]['50'])
+                            temp_6.push(parseData.estimate_graph[i]['60'])
+                            temp_7.push(parseData.estimate_graph[i]['70'])
+                            temp_8.push(parseData.estimate_graph[i]['80'])
+                            temp_9.push(parseData.estimate_graph[i]['90'])                
+                        }
+
+
+                        Final_Chart.push({
+                            "name": "30",
+                            "data": temp_3,
+                            "type": 'spline',
+                        })
+                         Final_Chart.push({
+                            "name": "40",
+                            "data": temp_4,
+                            "type": 'spline',
+                        })
+                          Final_Chart.push({
+                            "name": "50",
+                            "data": temp_5,
+                            "type": 'spline',
+                        })
+                           Final_Chart.push({
+                            "name": "60",
+                            "data": temp_6,
+                            "type": 'spline',
+                        })
+                            Final_Chart.push({
+                            "name": "70",
+                            "data": temp_7,
+                            "type": 'spline',
+                        })
+                             Final_Chart.push({
+                            "name": "80",
+                            "data": temp_8,
+                            "type": 'spline',
+                        })
+                            Final_Chart.push({
+                            "name": "90",
+                            "data": temp_9,
+                            "type": 'spline',
+                        })
+
+                            
+                        this.plotchart = Final_Chart
+                        this.lvlsign = parseData.lvlsign
+                        this.testvscontrol = parseData.testvscontrol
+                        this.effect = parseData.effect
+                        this.sdid = parseData.mesuare_lift
+                        this.testvalue = parseData.test_name
+                        this.temptestname = parseData.test_name
+                        
+
+
                             this.homeservice.GetStoresDetails(parseData.select_store).subscribe((apiresponse: any) => {
                             if (apiresponse.status == 'ok') {
                                 this.Confirmstoredata = apiresponse.data;
                                 this.CONFIRM_STORE_DATA = apiresponse.data;
                                 this.selectstorechecked  = apiresponse.data
+                                
                             }
                             });
 
@@ -644,7 +731,54 @@ export class TestConfigComponent implements OnInit {
                 }
             }
         })
+
+
+        
+    
+    if(getback=='3')
+    {
+    setTimeout(() => {
+        this.chnages()
+    },1000)
+
+
     }
+
+    if(!market_id)
+        {
+             this.loaddatas =false
+             this.router.navigate(['./testconfig']);
+             
+        }
+
+    }
+
+    chnages()
+    {        
+     this.wizard.goToNextStep();
+     this.showcnt2 = false;
+     this.CompletedStep = true;
+     setTimeout(() => {
+        this.schnage1()
+    },1000)
+
+    }
+
+    schnage1()
+    {   
+        this.wizard.goToNextStep();
+        this.showcnt1 =false
+        this.show_testplan_store = false
+        this.show_confirm_store = true
+        this.CompletedStep2 =true;
+        this.hideselect_store = false;
+        this.show_uploadstore =false;
+        this.show_upld_file_store =true
+        this.wizard.goToNextStep();
+
+        localStorage.removeItem('backto')
+    }
+
 
     reset()
     {
@@ -924,7 +1058,8 @@ export class TestConfigComponent implements OnInit {
                 variable: this.sdid,
                 effectSize: this.effect,
                 ratio : this.testvscontrol,
-                alpha : this.lvlsign 
+                alpha : this.lvlsign,
+                trial : this.testvalue.trim()
                 
             };
 
@@ -932,6 +1067,8 @@ export class TestConfigComponent implements OnInit {
 
             let table = JSON.parse(apiresponse.data.table)
             let plot =  JSON.parse(apiresponse.data.plot)
+            this.estimate_table = table
+            this.estimate_graph = plot
             let temptable:any = []
             
             for (var i = 0 ; i <= table.length-1; i++) {
@@ -951,48 +1088,48 @@ export class TestConfigComponent implements OnInit {
             
             for (var i = 0; i <= plot.length - 1; i++) {
                 this.temp_xaxis.push(plot[i]['index'])
-                temp_3.push(plot[i]['0.3'])
-                temp_4.push(plot[i]['0.4'])
-                temp_5.push(plot[i]['0.5'])
-                temp_6.push(plot[i]['0.6'])
-                temp_7.push(plot[i]['0.7'])
-                temp_8.push(plot[i]['0.8'])
-                temp_9.push(plot[i]['0.9'])                
+                temp_3.push(plot[i]['30'])
+                temp_4.push(plot[i]['40'])
+                temp_5.push(plot[i]['50'])
+                temp_6.push(plot[i]['60'])
+                temp_7.push(plot[i]['70'])
+                temp_8.push(plot[i]['80'])
+                temp_9.push(plot[i]['90'])                
             }
 
 
             Final_Chart.push({
-                "name": "0.3",
+                "name": "30",
                 "data": temp_3,
                 "type": 'spline',
             })
              Final_Chart.push({
-                "name": "0.4",
+                "name": "40",
                 "data": temp_4,
                 "type": 'spline',
             })
               Final_Chart.push({
-                "name": "0.5",
+                "name": "50",
                 "data": temp_5,
                 "type": 'spline',
             })
                Final_Chart.push({
-                "name": "0.6",
+                "name": "60",
                 "data": temp_6,
                 "type": 'spline',
             })
                 Final_Chart.push({
-                "name": "0.7",
+                "name": "70",
                 "data": temp_7,
                 "type": 'spline',
             })
                  Final_Chart.push({
-                "name": "0.8",
+                "name": "80",
                 "data": temp_8,
                 "type": 'spline',
             })
                 Final_Chart.push({
-                "name": "0.9",
+                "name": "90",
                 "data": temp_9,
                 "type": 'spline',
             })
@@ -1049,7 +1186,7 @@ export class TestConfigComponent implements OnInit {
                     }
                 },
                 title: {
-                    text: 'Effect Size (d)',
+                    text: 'Minimum Measurable Lift (%)',
                     style: {
                         top: '20px',
                         color: '#778899',
@@ -1065,7 +1202,7 @@ export class TestConfigComponent implements OnInit {
                 gridLineDashStyle: 'LongDash',
                 gridLineColor: '#FAFAFA',
                 title: {
-                    text: 'Sample Size (n)',
+                    text: 'Number of Test Stores',
                     style: {
                         color: '#778899',
                         fontSize: '14px',
@@ -1082,12 +1219,17 @@ export class TestConfigComponent implements OnInit {
                 x: 0,
                 y: 20,
                 itemStyle: {
-                    color: '#778899',
+                    color: '#343434',
+                    fontWeight: 'lighter',
                     fontFamily: 'Arial',
                 },
                  title: {
-                 text: 'Power',
-                }
+                 text: 'Power (%)'                 
+                },
+                enabled: true,
+                  labelFormatter: function() {
+                    return this.name +" %";
+                },
             },
             exporting: {
                 enabled: false
@@ -1117,7 +1259,10 @@ export class TestConfigComponent implements OnInit {
                             verticalAlign: 'top',
                             layout: 'vertical',
                             x: 0,
-                            y: 20
+                            y: 20,
+                            itemStyle: {
+                              fontWeight: 'lighter'
+                            }
                         }
                     }
                 }]
@@ -1132,11 +1277,26 @@ export class TestConfigComponent implements OnInit {
          this.show_teststores  = true;
          this.show_upld_file_stores  = false;
          this.show_upld_file_store = true;
+         this.show_uploadstore = true;
+         this.confirm_selection = false;
+         this.upld_stage = true;
+         this.save_stage = false;
+         this.selectstorechecked =[]
+         this.Selectedstoredata =[]
+
          this.wizard.goToNextStep();
          this.CompletedStep2 = true;
          this.Getalltesttores()
+    }
+    HideEffect()
+    {
+        this.TestStoreEstimation = false;
+        this.show_teststores  = false;
+        this.CompletedStep2 = true;
+        this.show_upld_file_stores  = false;
+        this.show_upld_file_store = true;
 
-
+        this.wizard.goToNextStep();
     }
     showcontrolstore(value: any) {
         if (value == 'Test Planning') {
@@ -1221,6 +1381,15 @@ export class TestConfigComponent implements OnInit {
         }
     }
 
+    testsample()
+    {
+        window.location.href = environment.ExcelPath + "test_store.xlsx"   
+    }
+
+    testscontrolsample()
+    {
+        window.location.href = environment.ExcelPath + "test_control_store.xlsx"   
+    }
     show_teststr() {
         if (this.testvalue == '') {
             this.testplan_name_req = true;
@@ -1293,17 +1462,45 @@ export class TestConfigComponent implements OnInit {
                     if (apiresponse.data[apiresponse.data[i].store_type]) continue;
                     apiresponse.data[apiresponse.data[i].store_type] = true;
                     this.Storeval.push(apiresponse.data[i].store_type);
+                    this.Storeval = this.Storeval.sort()
                 }
                 for (i = 0; i < l; i++) {
                     if (apiresponse.data[apiresponse.data[i].state_long]) continue;
                     apiresponse.data[apiresponse.data[i].state_long] = true;
                     this.Stateval.push(apiresponse.data[i].state_long);
+                    this.Stateval = this.Stateval.sort()
                 }
             } else {}
         });
     }
 
+    Hideuploadandmetrix()
+    {
+        this.show_upld_file_stores = true
+        this.show_testplan_store = false;
+        this.show_upld_file_store = false;
+        this.TestStoreEstimation = false;
+        this.show_teststores = false;
+        this.plantestdrpdown = false;
+        this.show_testplan = false;
+    }
+
+    Hideuploadandshowmertix()
+    {
+        this.show_upld_file_store = false;
+        this.show_teststores =false;
+        this.TestStoreEstimation = true;
+        this.confirm_selection =false;
+        this.Selectedstoredata = []
+        this.upld_stage = true    
+        setTimeout(() => {           
+            this.showchart()
+        },500)
+        
+    }
     Hideuploadandselectstore() {
+
+        this.show_upld_file_stores = false
         this.show_testplan_store = true;
         this.show_upld_file_store = false;
         this.TestStoreEstimation = false;
@@ -1503,6 +1700,14 @@ export class TestConfigComponent implements OnInit {
 
                     const groupByTest = groupBy('teststore_id');
                     var results =groupByTest(apiresponse.data.stores)
+                    if(apiresponse.data.stores.length==0)
+                    {
+                         var action = 'close';
+                        this._snackBar.open("0 Stores-id(s) are match our records", action, {
+                            duration: 10000,
+                            verticalPosition: 'bottom'
+                        }); 
+                    }
                     this.measure_excel = apiresponse.data.data
                     localStorage.setItem('FromMeasurement',"1")
                     localStorage.setItem('Measurementdata',this.measure_excel)
@@ -1691,6 +1896,7 @@ export class TestConfigComponent implements OnInit {
                         });                    
         } else {
             this.show_confirm_store = true;
+            this.show_teststores  = false;
             this.hideselect_store = false;
             this.save_stage = true;
             this.confirm_selection = false;
@@ -1704,10 +1910,33 @@ export class TestConfigComponent implements OnInit {
     GotoselectStore() {
         this.show_confirm_store = false;
         this.hideselect_store = true;
+        this.show_teststores =true;
+        this.selectstorechecked =[]
+        this.Confirmstoredata =[]
+        this.Selectedstoredata =[]
+        this.show_uploadstore = true;
+        this.confirm_selection = false;
+        this.upld_stage = true;
         this.save_stage = false;
-        this.confirm_selection = true;
-        this._snackBar.dismiss();
+          this._snackBar.dismiss();
         //this.selectstorechecked=[];
+    }
+
+    Hideestimatdata()
+    {
+        this.TestStoreEstimation = true;
+        this.show_upld_file_stores = false ; 
+        setTimeout(()=>
+        {
+            this.showchart()
+        },200)
+    }
+    show_estimatedata()
+    {
+        this.show_testplan_store = false
+        this.show_upld_file_stores = true
+        this.testvalue = this.temptestname
+
     }
 
     omit_special_char(event: any) {
@@ -1749,7 +1978,13 @@ export class TestConfigComponent implements OnInit {
             stage_id: 1,
             istestplan : true,
             plan_type: this.plan_type,
-            select_store: storeidval
+            select_store: storeidval,
+            mesuare_lift : this.sdid,
+            effect :this.effect,
+            testvscontrol :this.testvscontrol,
+            lvlsign :this.lvlsign,
+            estimate_data :this.estimate_table,
+            estimate_graph : this.estimate_graph,
         };
 
         var stringified_data = JSON.stringify(data);

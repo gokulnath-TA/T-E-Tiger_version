@@ -16,13 +16,14 @@ storeKeys = ['storeID']
 itemKey = 'itemDes'
 
 
-
 def configSplit(attribute):
     arr = attribute.split(',')
-    return [col.strip(' ') for col in arr]
+    return arr
+    # return [col.strip(' ') for col in arr]
 
 trendCols = configSplit(config['runConfig']['trendCols'])
 constrainCols = configSplit(config['runConfig']['constrainCols'])
+sampleSizeCols = configSplit(config['logConfig']['sampleSizeCols'])
 analyseFeatureCols = configSplit(config['logConfig']['analyseFeatureCols'])
 identifyControlCols = configSplit(config['logConfig']['identifyControlCols'])
 liftAnalysisCols = configSplit(config['logConfig']['liftAnalysisCols'])
@@ -43,7 +44,7 @@ def init():
         mkdir(trialPath)
     if os.path.exists(os.path.join(logPath,config['fileConfig']['logFile'])):
         df = pd.read_csv(os.path.join(logPath,config['fileConfig']['logFile']))
-        if (len(df.columns) != len([logIndex]+analyseFeatureCols+identifyControlCols+liftAnalysisCols)):
+        if (len(df.columns) != len([logIndex]+sampleSizeCols+analyseFeatureCols+identifyControlCols+liftAnalysisCols)):
             logBackup = os.path.join(logPath, config['fileConfig']['logFile'].split('.')[0]+'_'+datetime.today().strftime('%Y%m%d')+'.csv')
             df.to_csv(logBackup,index=False)
             chmod(logBackup)
@@ -90,7 +91,7 @@ def logs(action,logdf=None,trial=None):
             except KeyError:
                 logdf.loc[len(logdf),logIndex] = trial
         else :        
-            logdf = pd.DataFrame(columns=[logIndex] + analyseFeatureCols + identifyControlCols + liftAnalysisCols)
+            logdf = pd.DataFrame(columns=[logIndex] + sampleSizeCols+analyseFeatureCols + identifyControlCols + liftAnalysisCols)
             logdf.loc[len(logdf),logIndex] = trial 
 
         logdf = logdf.set_index([logIndex])
@@ -247,21 +248,21 @@ def getFeatures(trial,testStores,dataStore,metric,hierarchy,itemList, logdf,extr
         except FileNotFoundError:
             sys.exit()
         logdf.loc[trial,'numProducts'] = len(itemList)
-        selectedItems = [col for col in dataStore.columns if col.split('net_')[-1] in itemList]
+        selectedItems = [col for col in dataStore.columns if col.split(" Net Sales")[0] in itemList]
         logdf.loc[trial,'numProductSelected'] = len(selectedItems)
 
-        # save weeklySales data for all stores to plot the sales
+        # save weeklySales data for all stores to plot the Sales
         mkdir(os.path.join(config['pathConfig']['trialPath'],trial))
         fileName = os.path.join(config['pathConfig']['trialPath'],trial,config['fileConfig']['trialSales'])
-        dataStore.loc[:,['TotNet']].to_csv(fileName)
+        dataStore.loc[:,['Net Sales']].to_csv(fileName)
         chmod(fileName)
         
         # calculating trend variable
-        dataStore['dvSalesSum'] = dataStore[selectedItems].sum(axis= 1)
+        dataStore['Target Sales'] = dataStore[selectedItems].sum(axis= 1)
 
         # drop selectedItems
         dataStore = dataStore.drop(columns= selectedItems)
-        itemCols = [col for col in dataStore.columns if col.startswith('net_')]
+        itemCols = [col for col in dataStore.columns if " Net Sales" in col]
 
         # trend calculation
         dfTrendCalc = dataStore[trendCols]
@@ -280,27 +281,27 @@ def getFeatures(trial,testStores,dataStore,metric,hierarchy,itemList, logdf,extr
     
         dfTrend = dfTrendCalc.groupby(storeKeys).apply(lambda x: ((x[trendCols][::-1][:4].mean())/(x[trendCols][::-1][4:8].mean())-1)).reset_index()
         # rename the trend columns to end with trend
-        dfTrend.columns = [colname + '_trend' if colname in trendCols else colname for colname in dfTrend.columns]
+        dfTrend.columns = [colname + ' trend' if colname in trendCols else colname for colname in dfTrend.columns]
 
         # aggregating to a store level
         dataStore = dataStore.groupby(by= storeKeys).mean()
-        dataStore[itemCols] = np.where(dataStore[itemCols].div(dataStore['TotNet'],axis= 0)<0.01,np.nan,dataStore[itemCols])
+        dataStore[itemCols] = np.where(dataStore[itemCols].div(dataStore['Net Sales'],axis= 0)<0.01,np.nan,dataStore[itemCols])
         
         target = pd.DataFrame(index= dataStore.index)
         if int(metric) == 1: #weighted price 
-            target['target'] = dataStore['dvSalesSum'].div(dataStore['unit_count_adj'],axis= 0)
-        elif int(metric) == 2: #per sales
-            target['target'] = dataStore['dvSalesSum'].div(dataStore['TotNet'],axis= 0)
-        dataStore = dataStore.drop(columns= ['dvSalesSum'])
+            target['target'] = dataStore['Target Sales'].div(dataStore['Unit Sales'],axis= 0)
+        elif int(metric) == 2: #per Sales
+            target['target'] = dataStore['Target Sales'].div(dataStore['Net Sales'],axis= 0)
+        dataStore = dataStore.drop(columns= ['Target Sales'])
 
         # Aggregating features step : identifying the product categories the products belong to in the seleceted hierarchy
-        otherCategories = itemMap.loc[~itemMap['hierarchy'+hierarchy['lvl']].isin(hierarchy['categories']),'hierarchy'+hierarchy['lvl']].unique()
+        otherCategories = itemMap.loc[~itemMap['categories'].isin(hierarchy['categories']),'categories'].unique()
         
         # aggregating for included items to their respective category level sums        
-        otherCategoryFeatures = {"category_net_"+category: itemMap.loc[itemMap['hierarchy'+hierarchy['lvl']]==category,itemKey].unique() for category in otherCategories} 
+        otherCategoryFeatures = {category + " Net Sales": itemMap.loc[itemMap['categories']==category,itemKey].unique() for category in otherCategories} 
 
         for feature, otherItems in otherCategoryFeatures.items():
-            otherItems = ['net_'+item for item in otherItems]
+            otherItems = [item + " Net Sales" for item in otherItems]
             otherItems = [otherItem for otherItem in otherItems if otherItem in itemCols]
             try:
                 dataStore[feature] = dataStore[otherItems].sum(axis= 1)
@@ -309,10 +310,6 @@ def getFeatures(trial,testStores,dataStore,metric,hierarchy,itemList, logdf,extr
 
         badCols = configSplit(config['runConfig']['badCols'])
         storechar = storeChar.drop(columns= badCols + constrainCols).reset_index()
-        dateCols = [col for col in storechar.columns if '_date' in col]
-        if len(dateCols)>0:
-            storechar[dateCols] = (datetime.today() - storechar[dateCols].apply(pd.to_datetime,format='%m/%d/%Y')).astype('timedelta64[W]')
-            storechar[dateCols] = storechar[dateCols].mask(storechar[dateCols]<0,0)
         
         # merging trend table to the store level idv features
         dataStore = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storechar, dataStore, dfTrend])
@@ -323,7 +320,7 @@ def getFeatures(trial,testStores,dataStore,metric,hierarchy,itemList, logdf,extr
             extraFlag = pd.DataFrame(columns = ['extraFeatures','comments'])
             extraFlag['extraFeatures'] = extraFeatures.columns 
             # appending with the datastore
-            dataStore = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys, how='outer',suffixes=("","_dataStore")),[extraFeatures, dataStore])
+            dataStore = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys, how='outer',suffixes=("_new","_existing")),[extraFeatures, dataStore])
             # applying filterColumns
             dataStore, numFeatures, catFeatures, logdf = filterColumns(dataStore.set_index(storeKeys), testStores, logdf.copy())
             if dataStore is None:
@@ -387,8 +384,8 @@ def getFeatures(trial,testStores,dataStore,metric,hierarchy,itemList, logdf,extr
         if extraFlag is not None:
             extraFlag.loc[extraFlag['comments'].isna(),'comments'] = np.where(extraFlag[extraFlag['comments'].isna()].extraFeatures.isin(dataStore.columns),None,config['logConfig']['corr'])
             dupCols = None
-            if len([col for col in dataStore.columns if '_dataStore' in col]) > 0:
-                dupCols = [col for col in dataStore.columns if '_dataStore' in col]
+            if len([col for col in dataStore.columns if '_existing' in col]) > 0:
+                dupCols = [col for col in dataStore.columns if '_existing' in col]
             logdf.loc[trial,['extraFeatureShape', 'extraFeatureFiltered', 'dataInsufficient', 'multiCorr', 'corr', 'extraDuplicateCols', 'modelData.shape']] = [[[extraFeatures.shape[0]],[extraFeatures.shape[1]]], len(extraFlag.loc[extraFlag.comments.isna()]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['dataInsufficient']]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['multiCorr']]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['corr']]), [[col] for col in dupCols],[[modelData.shape[0]], [modelData.shape[1]]]]
             
             extraFlag.loc[extraFlag['comments'].isna(),'comments'] = config['logConfig']['considered']

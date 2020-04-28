@@ -1,6 +1,6 @@
   <div class="sidenav">
       <div class="first stepper stepper-active">
-        <h5 class="stg1text">Design a Test</h5>
+        <h5 class="stg1text">Design <br>Test</h5>
         
           <aw-wizard
             #wizard1
@@ -69,7 +69,7 @@
 
     
       <div class="third stepper">
-        <h5 class="stg3text">Impact Analysis</h5>
+        <h5 class="stg3text">Impact <br>Analysis</h5>
         <!-- <div class="md-stepper-horizontal">
           <div class="md-step">
             <div class="md-step-circle"><span>6</span></div>
@@ -112,7 +112,7 @@
 
   <div class="container" [hidden]="showcnt2">
     <ng-container *ngIf="show_testplan">
-      <div class="form-group" [hidden]="plantestdrpdown">
+      <div class="form-group" [hidden]="plantestdrpdown" *ngIf="!loaddatas">
         <label>Plan Test</label>
         <ngx-select
           [items]="plantest"
@@ -135,6 +135,8 @@
         <div class="content-border">
           <div class="test_name_content">
             <div><label class="testname-label">Test Name</label></div>
+            
+            <input type="test" [(ngModel)]="temptestname" class="form-control testnameinpt" *ngIf="loaddatas"[disabled]="loaddatas">
             <input
               type="text"
               value=""
@@ -143,7 +145,7 @@
               class="form-control testnameinpt"
               [(ngModel)]="testvalue"
               autocomplete="off"
-              [disabled]=loaddatas
+              *ngIf="!loaddatas"
               (keypress)="omit_special_char($event)"
             />
             <ng-container *ngIf="!loaddatas">
@@ -152,7 +154,7 @@
             </button>
           </ng-container>
           <ng-container *ngIf="loaddatas">
-            <button type="button" #identifytestcntrl class="butn identify-control-storebtn">
+            <button type="button" (click)="show_estimatedata()" #identifytestcntrl class="butn identify-control-storebtn">
               Next
             </button>
           </ng-container>
@@ -221,6 +223,7 @@
                   Submit
                 </button>
               </div>
+              <a (click)="testscontrolsample()" style="cursor: pointer;text-decoration: underline;color: #f3aa50">Sample Test and Control Stores.xlsx</a>
               <!-- btn -->
               <ng-container *ngIf="show_fileextnerror_testmeasure">
                 <span style="color:red;margin-top: -1rem;">Allowed File Types-.csv,.xls,.xlsx </span>
@@ -253,7 +256,7 @@
             class="form-control"
             type="text"
             (keyup)="FilterLoadSavedTest($event.target.value)"
-            placeholder="&#xF002;&nbsp; Search"
+            placeholder="&#xF002;&nbsp; Test Name"
             style="font-family:Arial, FontAwesome;margin-bottom: 1rem;"
           />
         </div>
@@ -289,13 +292,13 @@
 
             <td mat-cell *matCellDef="let row">
               <ng-container *ngIf="row.stage_id == '1'">
-                Test Configuration
+                Design Test
               </ng-container>
               <ng-container *ngIf="row.stage_id == '2'">
-                Control Store Matching
+                Test - Control Matching
               </ng-container>
               <ng-container *ngIf="row.stage_id == '3'">
-                Test Measurement
+                Impact Analysis
               </ng-container>
             </td>
           </ng-container>
@@ -512,11 +515,24 @@
         
        <div class="form-group">
         <label>Metric for Measuring Lift</label>
+        <ng-template #MeasuringContent>
+                Metric based on which Minimum Measurable Lift will be calculated
+              </ng-template>
+
+         <i class="fa fa-info-circle upld-add-tooltip"
+              placement="top"
+              (click)="tooltip()"
+              tooltipClass="my-custom-class0"
+              [ngbTooltip]="MeasuringContent"
+              aria-hidden="true"
+              style="margin-left: 5px;" 
+          ></i>
         <ngx-select
           [items]="sdmetric"
           [(ngModel)]="sdid"
           [noAutoComplete]="true"
           placeholder="--Select Metric --"
+          [disabled] = "loaddatas"
           required
         >
         </ngx-select>        
@@ -525,10 +541,27 @@
             <div><label style="color:red;">* Metric for Measuring Lift Required</label></div>
       </ng-container>
 
-       <div class="row" style="margin-top: 60px">
+       <div class="row"  style="margin-top: 60px">
         <div class="col-md-4">
-          <label>Minimum Measurable Lift</label>
-          <input type="number"  class="form-control testnameinpt"  required [(ngModel)]="effect" name="effect">
+          <label>Minimum Measurable Lift (%)</label>
+           <ng-template #MinMeasureContent>
+               <ul style="text-align: left;">
+               <li>Measures the strength of relationship between two variables</li>
+               <li>(Mean of Test Group - Mean of Control Group) / Standard deviation of Metric for Measuring Lift</li>
+               <li>Lesser the Minimum Measurable Lift larger the Number of stores needed</li>
+             </ul>
+              </ng-template>
+
+          <i class="fa fa-info-circle upld-add-tooltip"
+              placement="top"
+              (click)="tooltip()"
+              tooltipClass="my-custom-class4"
+              [ngbTooltip]="MinMeasureContent"
+              aria-hidden="true"
+              style="margin-left: 5px;" 
+          ></i>
+
+          <input type="number"  class="form-control testnameinpt"  [disabled] = "loaddatas" required [(ngModel)]="effect" name="effect">
            <ng-container *ngIf="effect_req">
             <div><label style="color:red;">* Minimum Measurable Lift Required</label></div>
         </ng-container>
@@ -536,21 +569,50 @@
        
 
         <div class="col-md-4">
-          <label>Test Vs Control Ratio</label>
-          <input type="number"  class="form-control testnameinpt" required [(ngModel)]="testvscontrol" name="testvscontrol">
+          <label>Error Tolerance (%)</label>
+           <ng-template #tolerancelContent>
+            <ul style="text-align: left;">
+               <li>
+              Acceptable level of error when conducting a test
+            </li>
+            <li>Value of 5% indicates that you are willing to accept a 5% risk of concluding that a difference exists between the test and control group when there is no actual difference</li>
+          </ul>
+              </ng-template>
+          <i class="fa fa-info-circle upld-add-tooltip"
+              placement="top"
+              (click)="tooltip()"
+              tooltipClass="my-custom-class1"
+              [ngbTooltip]="tolerancelContent"
+              aria-hidden="true"
+              style="margin-left: 5px;" 
+          ></i>
+          <input type="number"  class="form-control testnameinpt" required [disabled] = "loaddatas" [(ngModel)]="lvlsign" name="lvlsign">
+          <ng-container *ngIf="significance_req">
+            <div><label style="color:red;">* Error Tolerance Required</label></div>
+        </ng-container>
+        </div>
+
+        <div class="col-md-4">
+          <label>Control vs Test Ratio</label>
+          <ng-template #testcontrolContent>
+               Ratio of number of Control stores for each Test store       
+              </ng-template>
+          <i class="fa fa-info-circle upld-add-tooltip"
+              placement="top"
+              (click)="tooltip()"
+              tooltipClass="my-custom-class1"
+              [ngbTooltip]="testcontrolContent"
+              aria-hidden="true"
+              style="margin-left: 5px;" 
+          ></i>
+          <input type="number"  class="form-control testnameinpt" [disabled] = "loaddatas" required [(ngModel)]="testvscontrol" name="testvscontrol">
           <ng-container *ngIf="ratio_req">
-            <div><label style="color:red;">* Test Vs Control Ratio Required</label></div>
+            <div><label style="color:red;">* Control vs Test Ratio Required</label></div>
         </ng-container>
         </div>
           
 
-        <div class="col-md-4">
-          <label>Tolerance in measurement</label>
-          <input type="number"  class="form-control testnameinpt" required [(ngModel)]="lvlsign" name="lvlsign">
-          <ng-container *ngIf="significance_req">
-            <div><label style="color:red;">* Tolerance in measurement Required</label></div>
-        </ng-container>
-        </div>
+        
           
 
        </div>
@@ -589,8 +651,11 @@
               <button type="button" class="butn stponebck" (click)="Hideuploadandselectstore()">Back</button>
             </div>
             <div class="col-md-8 Footerbtngrp">
-              <button type="button" class="col-md-4 butn savecontinue" (click)="estimateTeststore()">
-                Estimate Test Stores
+              <button type="button" *ngIf="!loaddatas" class="col-md-4 butn savecontinue" (click)="estimateTeststore()">
+                Estimate # Test Stores
+              </button>
+              <button type="button" *ngIf="loaddatas" (click)="Hideestimatdata()" class="col-md-4 butn savecontinue">
+                Next
               </button>
             </div>
           </ng-container>
@@ -604,7 +669,7 @@
 
     <ng-container *ngIf="TestStoreEstimation">
 
-      <div class="col-md-12" style="height: 35vw;margin-top: 3vw">
+      <div class="col-md-12" style="height: 42vw;margin-top: 3vw">
           <div class="col-md-5" style="float: left;">
             <!-- <ng-multiselect-dropdown
             [placeholder]="'-- Select Power --'"
@@ -624,26 +689,26 @@
           matSort
           [dataSource]="EffectData | paginate: { itemsPerPage: effectmeasuresize, currentPage: p, totalItems: EffectData.length }"
           class="mat-elevation-z8"
-          style="height: 33.5vw !important;"
+          id="esti_Table"
         >
 
         <ng-container matColumnDef="power">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              <span class="table-header-label" style="margin-left: 0px !important;">Power </span>
+              <span class="table-header-label" style="margin-left: 0px !important;">Power (%) </span>
             </th>
             <td mat-cell *matCellDef="let row">{{row.power}}</td>
           </ng-container>
 
           <ng-container matColumnDef="effect_size">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              <span class="table-header-label">Effect Size</span>
+              <span class="table-header-label">Minimum Measurable Lift (%) </span>
             </th>
             <td mat-cell *matCellDef="let row">{{row.effect}}</td>
           </ng-container>
 
           <ng-container matColumnDef="no_ofstore">
             <th mat-header-cell *matHeaderCellDef mat-sort-header>
-              <span class="table-header-label">No. of Stores Needed</span> 
+              <span class="table-header-label">Number of Test Stores</span> 
             </th>
             <td mat-cell *matCellDef="let row">{{row.no_ofstore}}</td>
           </ng-container>
@@ -692,8 +757,11 @@
 
     <ng-container *ngIf="upld_stage">
       <div class="Footerbtngrp" style="height: 0vw">
-        <button type="button" class="col-md-1 butn stponebck" (click)="Hideuploadandselectstore()">Back</button>
-         <button type="button" class="col-md-1 butn savecontinue" (click)="HideEffect_Showstore()" style="margin-right: 2vw;margin-top: 1vw">
+        <button type="button" class="col-md-1 butn stponebck" (click)="Hideuploadandmetrix()">Back</button>
+         <button type="button" class="col-md-1 butn savecontinue" *ngIf="!loaddatas" (click)="HideEffect_Showstore()" style="margin-right: 2vw;margin-top: 1vw">
+          Next
+        </button>
+        <button type="button" class="col-md-1 butn savecontinue" *ngIf="loaddatas" (click)="HideEffect()" style="margin-right: 2vw;margin-top: 1vw">
           Next
         </button>
       </div>      
@@ -742,8 +810,10 @@
               </div>
               <!-- btn -->              
             </div>
+            <a (click)="testsample()" style="cursor: pointer;text-decoration: underline;color: #f3aa50">Sample Test Stores.xlsx</a>
             <!-- group -->
           </form>
+
           <ng-container *ngIf="show_uploadstoretable">
             <div style="float:right;">
               <input
@@ -860,6 +930,7 @@
           <ng-container *ngIf="!show_uploadstore">
             <div class="state_str row">
               <div class="form-group col-md-2" style="margin-top:0;">
+                <label>Store Type</label>
                 <ng-multiselect-dropdown
                   [(ngModel)]="selectedstoretype"
                   [placeholder]="'--Store Type--'"
@@ -869,6 +940,7 @@
                 </ng-multiselect-dropdown>
               </div>
               <div class="form-group col-md-2" style="margin-top:0;">
+                <label>State</label>
                 <ng-multiselect-dropdown
                   [(ngModel)]="selectedstate"
                   [placeholder]="'--State--'"
@@ -877,7 +949,7 @@
                 >
                 </ng-multiselect-dropdown>
               </div>
-              <div class="col-md-3" style="margin-top:0;">
+              <div class="col-md-3" style="margin-top:2.3vw;">
                 <div class="input-group">
                   <button type="button" class="butn state-str-filter" (click)="getStoreStateval()">Filter</button>
                   <button
@@ -891,7 +963,7 @@
                 </div>
               </div>
 
-              <div class="col-md-2 filter-selecstr">
+              <div class="col-md-2 filter-selecstr" style="margin-top: 2.5vw">
                 <input
                   class="form-control srchbox"
                   type="number"
@@ -1120,8 +1192,7 @@
         <div class="row">
           <ng-container *ngIf="confirm_selection">
             <div class="col-md-4 Footerbtngrp">
-              <button type="button" *ngIf="!loaddatas"class="butn reset" (click)="movetostp1()">Reset</button>
-              <button type="button" *ngIf="!loaddatas" class="butn stponebck" (click)="Hideuploadandselectstore()">Back</button>
+              <button type="button" class="butn stponebck" (click)="Hideuploadandshowmertix()">Back</button>
             </div>
             <div class="col-md-8 Footerbtngrp" >
               <button type="button" *ngIf="!loaddatas" class="col-md-4 butn savecontinue" (click)="ConfirmSelection()">
@@ -1138,8 +1209,11 @@
               <button type="button" class="butn stponebck" (click)="GotoselectStore()">Back</button>
             </div>
             <div class="col-md-8 Footerbtngrp">
-              <button type="button" class="col-md-4 butn savecontinue" (click)="Movetowizard2()">
+              <button type="button" class="col-md-4 butn savecontinue" *ngIf="!loaddatas"(click)="Movetowizard2()">
                 Save & Continue
+              </button>
+              <button type="button" class="col-md-4 butn savecontinue" *ngIf="loaddatas" (click)="Movetowizard2_save()">
+               Next
               </button>
             </div>
           </ng-container>
@@ -1148,11 +1222,14 @@
 
           <ng-container *ngIf="upld_stage">
             <div class="col-md-4 Footerbtngrp">
-              <button type="button" class="butn stponebck" (click)="Hideuploadandselectstore()">Back</button>
+              <button type="button" class="butn stponebck" (click)="Hideuploadandshowmertix()">Back</button>
             </div>
             <div class="col-md-8 Footerbtngrp">
-              <button type="button" class="col-md-4 butn savecontinue" (click)="Movetowizard2()">
+              <button type="button" class="col-md-4 butn savecontinue" *ngIf="!loaddatas" (click)="Movetowizard2()">
                 Save & Continue
+              </button>
+              <button type="button" class="col-md-4 butn savecontinue" *ngIf="loaddatas" (click)="Movetowizard2_save()">
+               Next
               </button>
             </div>
           </ng-container>

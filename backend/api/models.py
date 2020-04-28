@@ -44,7 +44,8 @@ class StoreMstr(BaseModel):
     state_short = models.TextField(blank=True,null=True)
     state_long  = models.TextField(blank=True,null=True)
     store_type = models.TextField(blank=True,null=True)
-   
+    locality_description    = models.CharField(max_length=250,blank=True,null=True)   
+
 
     class Meta:
         managed = True
@@ -152,64 +153,4 @@ class MesuremetricMstr(BaseModel):
         db_table = 'Te_MesuremetricMstr'
 
 
-class StoreMapTbl(BaseModel):
-    storemap_id = models.AutoField(primary_key=True) 
-    test_id = models.CharField(max_length=250)
-    store_id = models.ForeignKey(StoreMstr,on_delete=models.PROTECT,null=True)
-    controlstore_id = models.IntegerField(blank=True,null=True)
-    
-
-    class Meta:
-        managed = True
-        db_table = 'Te_StoremapTbl'
-
-class CtrlstoreMatchTbl(BaseModel):
-    storematch_id = models.AutoField(primary_key=True) 
-    test_id = models.ForeignKey(TestMstr,on_delete=models.PROTECT,null=True)
-    store_id = models.ForeignKey(StoreMstr,on_delete=models.PROTECT,null=True)
-    controlstore_id = models.IntegerField(blank=True,null=True)
-    similar_val = models.FloatField(blank=True,null=True)
-    corr_val = models.FloatField(blank=True,null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'Te_CtlstorematchTbl'
-
-
-class VisresultTbl(BaseModel):
-    vresult_id = models.AutoField(primary_key=True) 
-    test_id = models.ForeignKey(TestMstr,on_delete=models.PROTECT,null=True)
-    store_id = models.ForeignKey(StoreMstr,on_delete=models.PROTECT,null=True)
-    week = models.IntegerField(blank=True,null=True)
-    standard_sale = models.FloatField(blank=True,null=True)
-    
-    class Meta:
-        managed = True
-        db_table = 'Te_VisresultTbl'
-
-class MapVisresultTbl(BaseModel):
-    mapvresult_id = models.AutoField(primary_key=True) 
-    store_id = models.ForeignKey(StoreMstr,on_delete=models.PROTECT,null=True)
-    week = models.IntegerField(blank=True,null=True)
-    controlstore_id = models.IntegerField(blank=True,null=True)
-    standard_sale = models.FloatField(blank=True,null=True) 
-
-    class Meta:
-        managed = True
-        db_table = 'Te_MapVisresultTbl'
-
-class LiftanaTbl(BaseModel):
-    liftana_id = models.AutoField(primary_key=True) 
-    test_id = models.ForeignKey(TestMstr,on_delete=models.PROTECT,null=True)
-    mesur_id = models.ForeignKey(MesuremetricMstr,on_delete=models.PROTECT,null=True)
-    is_teststore = models.BooleanField(blank=True,null=True)
-    store_id = models.ForeignKey(StoreMstr,on_delete=models.PROTECT,null=True)
-    post_period = models.FloatField(blank=True,null=True)
-    per_period = models.FloatField(blank=True,null=True)
-    rank_no = models.IntegerField(blank=True,null=True)
-    lift = models.FloatField(blank=True,null=True)
-
-    class Meta:
-        managed = True
-        db_table = 'Te_LiftanaTbl'
 
