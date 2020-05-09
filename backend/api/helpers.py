@@ -315,7 +315,8 @@ def getFeatures(trial,testStores,dataStore,metric,hierarchy,itemList, logdf,extr
         dataStore = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storechar, dataStore, dfTrend])
         extraFlag = None
         if extraFeatures is not None:
-            extraFeatures[storeKeys] = extraFeatures[storeKeys].astype('str')
+            extraFeatures = extraFeatures.rename(columns= {"Store ID" : "storeID"})
+            extraFeatures[storeKeys] = extraFeatures[storeKeys].astype('str')            
             extraFeatures = extraFeatures.set_index(storeKeys)
             extraFlag = pd.DataFrame(columns = ['extraFeatures','comments'])
             extraFlag['extraFeatures'] = extraFeatures.columns 
@@ -386,7 +387,8 @@ def getFeatures(trial,testStores,dataStore,metric,hierarchy,itemList, logdf,extr
             dupCols = None
             if len([col for col in dataStore.columns if '_existing' in col]) > 0:
                 dupCols = [col for col in dataStore.columns if '_existing' in col]
-            logdf.loc[trial,['extraFeatureShape', 'extraFeatureFiltered', 'dataInsufficient', 'multiCorr', 'corr', 'extraDuplicateCols', 'modelData.shape']] = [[[extraFeatures.shape[0]],[extraFeatures.shape[1]]], len(extraFlag.loc[extraFlag.comments.isna()]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['dataInsufficient']]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['multiCorr']]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['corr']]), [[col] for col in dupCols],[[modelData.shape[0]], [modelData.shape[1]]]]
+                logdf.loc[trial,['extraFeatureShape', 'extraFeatureFiltered', 'dataInsufficient', 'multiCorr', 'corr', 'extraDuplicateCols', 'modelData.shape']] = [[[extraFeatures.shape[0]],[extraFeatures.shape[1]]], len(extraFlag.loc[extraFlag.comments.isna()]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['dataInsufficient']]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['multiCorr']]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['corr']]), [[col] for col in dupCols],[[modelData.shape[0]], [modelData.shape[1]]]]
+            logdf.loc[trial,['extraFeatureShape', 'extraFeatureFiltered', 'dataInsufficient', 'multiCorr', 'corr', 'extraDuplicateCols', 'modelData.shape']] = [[[extraFeatures.shape[0]],[extraFeatures.shape[1]]], len(extraFlag.loc[extraFlag.comments.isna()]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['dataInsufficient']]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['multiCorr']]), len(extraFlag.loc[extraFlag.comments == config['logConfig']['corr']]), None, [[modelData.shape[0]], [modelData.shape[1]]]]
             
             extraFlag.loc[extraFlag['comments'].isna(),'comments'] = config['logConfig']['considered']
         else:
@@ -399,6 +401,7 @@ def getFeatures(trial,testStores,dataStore,metric,hierarchy,itemList, logdf,extr
         logs("save",logdf = logdf.copy())
         pass
 
+    print(extraFlag)
     return modelData, target, extraFlag, numFeatures, catFeatures, logdf.copy(), removeStores
 
 def chmod(fileName):

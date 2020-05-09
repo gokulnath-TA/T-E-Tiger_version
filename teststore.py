@@ -463,12 +463,8 @@ def ExcludeControlStore(request):
 						UnMatch_id.append(data['Control Store ID'][i])
 			GetMatchStore = StoreMstr.objects.filter(store_sk__in=MatchStore_id,is_active=True,is_deleted=False).order_by('store_sk')
 			Store_data  = MatchTestStoreSerializer(GetMatchStore,many=True)
-			finalstore =[]
-			for datas in Store_data.data:
-				data = dict(datas)
-				finalstore.append(data['store_id'])
 			results = {
-					'match_data'   : finalstore,
+					'match_data'   : Store_data.data,
 					'unmatch_data' : str(UnMatch_id)
 			} 
 			return json.Response(results,True)
@@ -774,22 +770,15 @@ class Downloadreport(ListView):
 		second = second_record['record_value']
 		load_jsons = j.loads(second)
 
-		
-		if(len(finaldata['records'])==2):
-			load_jsons1  = load_jsons
-			load_jsons = None
-		else:
-			third_record = dict(finaldata['records'][2])
-			third = third_record['record_value']
-			load_jsons1 = j.loads(third)
+		third_record = dict(finaldata['records'][2])
+		third = third_record['record_value']
+		load_jsons1 = j.loads(third)
 
-		if(load_jsons is not None):
+		analy_str = load_jsons['analystring']
+		categor_features = analy_str['categor_features']
 
-			analy_str = load_jsons['analystring']
-			categor_features = analy_str['categor_features']
-
-			analy_str = load_jsons['analystring']
-			contiue_features= analy_str['contiue_features']
+		analy_str = load_jsons['analystring']
+		contiue_features= analy_str['contiue_features']
 
 		report_name = "Trial_" + stores_json['test_name'] + "_Summary_Report.xlsx"
 
@@ -804,8 +793,7 @@ class Downloadreport(ListView):
 		row = 0
 		col = 0
 		market = stores_json['market_id']
-		if(load_jsons is not None):
-			target_metric = load_jsons['target_metric']
+		target_metric = load_jsons['target_metric']
 
 		if(market==1):
 			market_name = "Australia"
@@ -822,111 +810,96 @@ class Downloadreport(ListView):
 		worksheet.write(row+11, col, "Weekly sales and gcs")
 		worksheet.write(row+12, col, "Weekly financials")
 		worksheet.write(row+ 13, col, "Store excluded due to insufficient data ") # to do exclude test stores
-		if(load_jsons is not None):
-			if(target_metric=='1'):
-				target_name = "Wt Avg price"
-			else:
-				target_name = "% Sales"
-
-		if(load_jsons is not None):
-			worksheet.write(row + 15, col, "Target Metric for Feature Identification is "+target_name +" for " + str(len(load_jsons['prd'])) +" Products listed under " +
+		if(target_metric=='1'):
+			target_name = "Wt Avg price"
+		else:
+			target_name = "% Sales"
+		worksheet.write(row + 15, col, "Target Metric for Feature Identification is "+target_name +" for " + str(len(load_jsons['prd'])) +" Products listed under " +
 						str(len(load_jsons['prd_cat'])) +" Product categories in Hierachy Level " + str(load_jsons['Hierarchy']))
 
-			worksheet.write(row + 17, col, "Feature Selection Window - Start Date " + str(load_jsons['fe_Startdt']) + "/ End Date " + str(load_jsons['fe_Enddt']) + " Duration of the window in weeks - " +
+		worksheet.write(row + 17, col, "Feature Selection Window - Start Date " + str(load_jsons['fe_Startdt']) + "/ End Date " + str(load_jsons['fe_Enddt']) + " Duration of the window in weeks - " +
 						str(load_jsons['duration_window'])) #
 
-			worksheet.write(row + 19, col, "List of Considered Continuous Variables " + str(len(contiue_features)) +" (Please refer to Continuous Variables tab for details)")
-			worksheet.write(row + 20 ,col, "List of Considered Categorical Variables " + str(len(categor_features)) +" (Please refer to Categorical Variables tab for details) ")
+		worksheet.write(row + 19, col, "List of Considered Continuous Variables " + str(len(contiue_features)) +" (Please refer to Continuous Variables tab for details)")
+		worksheet.write(row + 20 ,col, "List of Considered Categorical Variables " + str(len(categor_features)) +" (Please refer to Categorical Variables tab for details) ")
 
-			worksheet.write(row + 22, col,"List of Additional Features user input ") # to do additional features
+		worksheet.write(row + 22, col,"List of Additional Features user input ") # to do additional features
 
-			extraFlag = load_jsons['analystring']['extraflag']
-			extraFlag = j.loads(extraFlag)
-		
-			col = 0
-			worksheet.write(row + 23, col, "Features Name")
-			worksheet.write(row + 23, col+1, "Comments")
-			row = row + 24
-			for res in extraFlag:			
-				worksheet.write(row, col, res['extraFeatures'])
-				worksheet.write(row, col+1,res['comments'])
-				row += 1
-			
-			worksheet.write(row + 1, col, "Selected Features Top 7 Features - by Descending information Gain with values")
-			worksheet.write(row + 1, col, "Selected Features")
-			worksheet.write(row + 1, col+1, "Information Gain")
-			worksheet.write(row + 1, col+2, "Forced Variable Flag")
+		worksheet.write(row + 23, col, "Selected Features Top 7 Features - by Descending information Gain with values")
+		worksheet.write(row + 23, col, "Selected Features")
+		worksheet.write(row + 23, col+1, "Information Gain")
+		worksheet.write(row + 23, col+2, "Forced Variable Flag")
 
-			
-			gain = load_jsons['analystring']['features']
-			gain = j.loads(gain)
+		row = 24
+		col = 0
+		gain = load_jsons['analystring']['features']
+		gain = j.loads(gain)
 
-			for stores in gain:
-				worksheet.write(row + 2, col, stores['features'])
-				worksheet.write(row + 2,col+1,stores['gain'])
-				if(stores['gain'] is None):
-					worksheet.write(row+2,col+2,'True')
-				else:
-					worksheet.write(row+2,col+2,'False')
-				row += 1
+		for stores in gain:
+			worksheet.write(row, col, stores['features'])
+			worksheet.write(row,col+1,stores['gain'])
+			if(stores['gain'] is None):
+				worksheet.write(row,col+2,'True')
+			else:
+				worksheet.write(row,col+2,'False')
+			row += 1
 
-			row = row + 1
-			worksheet.write(row+2 , col, "Model R-Squared " + load_jsons['adjusted_r_squared'])
+		worksheet.write(row+2 , col, "Model R-Squared " + load_jsons['adjusted_r_squared'])
 
-			worksheet.write(row +4, col, "Match "+ str(load_jsons['no_of_cntrl']) + " control store(s) for each test stores")
+		worksheet.write(row +4, col, "Match "+ str(load_jsons['no_of_cntrl']) + " control store(s) for each test stores")
 
-			worksheet.write(row + 6, col, "Control Stores to be excluded") ### to do exclude test stores
-			row = row +7
-			col = 0
-			for exclude in load_jsons['analystring']['remove_stores']:
-				worksheet.write(row, col, exclude)
-				row+= 1
+		worksheet.write(row + 6, col, "Control Stores to be excluded") ### to do exclude test stores
+		row = row +7
+		col = 0
+		for exclude in load_jsons['analystring']['remove_stores']:
+			worksheet.write(row, col, exclude)
+			row+= 1
 
-			worksheet.write(row + 2, col, "Matched Results - Hypothesis testing (Please refer to Match Results tab for details) ")
+		worksheet.write(row + 2, col, "Matched Results - Hypothesis testing (Please refer to Match Results tab for details) ")
 
-			worksheet.write(row + 3, col, "Higher p-values indicate test stores and matched control stores are similar based on the top features selected.")
+		worksheet.write(row + 3, col, "Higher p-values indicate test stores and matched control stores are similar based on the top features selected.")
 
-			worksheet.write(row + 5, col, "Selected Features")
+		worksheet.write(row + 5, col, "Selected Features")
 
-			col=1
-			for cou in range(int(load_jsons['no_of_cntrl'])):
-				worksheet.write(row+5, col, "Control -" + str(col) + " p-value (avg p-value of control -" + str(col) +" stores)")
-				col += 1
+		col=1
+		for cou in range(int(load_jsons['no_of_cntrl'])):
+			worksheet.write(row+5, col, "Control -" + str(col) + " p-value (avg p-value of control -" + str(col) +" stores)")
+			col += 1
 
-			variable_name = load_jsons['stat_results']
+		variable_name = load_jsons['stat_results']
 
-			row = row +7
-			col = 0
-			for value in variable_name:
-				worksheet.write(row, col, value['VariableName'])
-				if(load_jsons['no_of_cntrl']=="5"):
-					worksheet.write(row, col+1, value['control_1'])
-					worksheet.write(row, col+2, value['control_2'])
-					worksheet.write(row, col+3, value['control_3'])
-					worksheet.write(row, col+4, value['control_4'])
-					worksheet.write(row, col+5, value['control_5'])
-				if(load_jsons['no_of_cntrl']=="4"):
-					worksheet.write(row, col + 1, value['control_1'])
-					worksheet.write(row, col + 2, value['control_2'])
-					worksheet.write(row, col + 3, value['control_3'])
-					worksheet.write(row, col + 4, value['control_4'])
-				if (load_jsons['no_of_cntrl'] == "3"):
-					worksheet.write(row, col + 1, value['control_1'])
-					worksheet.write(row, col + 2, value['control_2'])
-					worksheet.write(row, col + 3, value['control_3'])
-				if (load_jsons['no_of_cntrl'] == "2"):
-					worksheet.write(row, col + 1, value['control_1'])
-					worksheet.write(row, col + 2, value['control_2'])
-				if (load_jsons['no_of_cntrl'] == "1"):
-					worksheet.write(row, col + 1, value['control_1'])
-				row +=1
+		row = row +7
+		col = 0
+		for value in variable_name:
+			worksheet.write(row, col, value['VariableName'])
+			if(load_jsons['no_of_cntrl']=="5"):
+				worksheet.write(row, col+1, value['control_1'])
+				worksheet.write(row, col+2, value['control_2'])
+				worksheet.write(row, col+3, value['control_3'])
+				worksheet.write(row, col+4, value['control_4'])
+				worksheet.write(row, col+5, value['control_5'])
+			if(load_jsons['no_of_cntrl']=="4"):
+				worksheet.write(row, col + 1, value['control_1'])
+				worksheet.write(row, col + 2, value['control_2'])
+				worksheet.write(row, col + 3, value['control_3'])
+				worksheet.write(row, col + 4, value['control_4'])
+			if (load_jsons['no_of_cntrl'] == "3"):
+				worksheet.write(row, col + 1, value['control_1'])
+				worksheet.write(row, col + 2, value['control_2'])
+				worksheet.write(row, col + 3, value['control_3'])
+			if (load_jsons['no_of_cntrl'] == "2"):
+				worksheet.write(row, col + 1, value['control_1'])
+				worksheet.write(row, col + 2, value['control_2'])
+			if (load_jsons['no_of_cntrl'] == "1"):
+				worksheet.write(row, col + 1, value['control_1'])
+			row +=1
 
-			controlstring = load_jsons['controlstring']
-			meanSimilarity = controlstring['data']['meanSimilarity']
-			UniqueControls = controlstring['data']['UniqueControls']
+		controlstring = load_jsons['controlstring']
+		meanSimilarity = controlstring['data']['meanSimilarity']
+		UniqueControls = controlstring['data']['UniqueControls']
 
-			worksheet.write(row + 1, col, "Overall Similarity Score - " + str(meanSimilarity))
-			worksheet.write(row + 2, col, "Total " +  str(len(teststores)) +" unique control store are matched for " + str(UniqueControls) +" test stores")
+		worksheet.write(row + 1, col, "Overall Similarity Score - " + str(meanSimilarity))
+		worksheet.write(row + 2, col, "Total " +  str(len(teststores)) +" unique control store are matched for " + str(UniqueControls) +" test stores")
 
 		worksheet.write(row + 4, col, "Test Measurement - Hypothesis Testing")
 		worksheet.write(row + 5 , col, "Lower p-values indicate selected test stores perform significantly better than the matched control stores based on measurement metrics selected")
@@ -945,8 +918,6 @@ class Downloadreport(ListView):
 			row += 1
 			u +=1
 
-		## sfsdfds
-
 		# Second Sheet Test Store IDS
 
 		worksheet = workbook.add_worksheet('Test Store List')
@@ -961,103 +932,98 @@ class Downloadreport(ListView):
 
 		## Third Sheet Product and  Category
 
-		if(load_jsons is not None):
-			prd_cat = load_jsons['prd_cat']
-			prd = load_jsons['prd']
-			worksheet = workbook.add_worksheet('Product Category - Products')
-			row = 1
-			col = 0
+		prd_cat = load_jsons['prd_cat']
+		prd = load_jsons['prd']
+		worksheet = workbook.add_worksheet('Product Category - Products')
+		row = 1
+		col = 0
 
-			worksheet.write(0, 0, 'Test Products Category')
+		worksheet.write(0, 0, 'Test Products Category')
 
-			for category in prd_cat:
-				worksheet.write(row, col, category)
-				# worksheet.write(row, col + 1, elm2)
-				row += 1
+		for category in prd_cat:
+			worksheet.write(row, col, category)
+			# worksheet.write(row, col + 1, elm2)
+			row += 1
 
-			worksheet.write(0, 1, 'Test Products')
-			row = 1
-			col1 = 1
-			for product in prd:
-				worksheet.write(row, col1, product)
-				# worksheet.write(row, col + 1, elm2)
-				row += 1
+		worksheet.write(0, 1, 'Test Products')
+		row = 1
+		col1 = 1
+		for product in prd:
+			worksheet.write(row, col1, product)
+			# worksheet.write(row, col + 1, elm2)
+			row += 1
 
 		## Fourth Sheet continues Variable
 
-		if(load_jsons is not None):
-			worksheet = workbook.add_worksheet('Continuous Variables')
-			row = 1
-			col = 0
+		worksheet = workbook.add_worksheet('Continuous Variables')
+		row = 1
+		col = 0
 
-			worksheet.write(0, 0, 'Continuous Variables considered for feature selection')
+		worksheet.write(0, 0, 'Continuous Variables considered for feature selection')
 
-			for category in contiue_features:
-				worksheet.write(row, col, category)
-				# worksheet.write(row, col + 1, elm2)
-				row += 1
+		for category in contiue_features:
+			worksheet.write(row, col, category)
+			# worksheet.write(row, col + 1, elm2)
+			row += 1
 
 		## Fifth Sheet Categorical Variable
-		if(load_jsons is not None):
-			worksheet = workbook.add_worksheet('Categorical Variables')
-			row = 1
-			col = 0
 
-			worksheet.write(0, 0, 'Categorical Variables considered for feature selection')
+		worksheet = workbook.add_worksheet('Categorical Variables')
+		row = 1
+		col = 0
 
-			for category in categor_features:
-				worksheet.write(row, col, category)
-				# worksheet.write(row, col + 1, elm2)
-				row += 1
+		worksheet.write(0, 0, 'Categorical Variables considered for feature selection')
+
+		for category in categor_features:
+			worksheet.write(row, col, category)
+			# worksheet.write(row, col + 1, elm2)
+			row += 1
 
 		## Sixth Sheet Additional features
 
 
 		## Seventh Sheet constraints Settings
-		if(load_jsons is not None):
-			constaints_check = load_jsons['advncsetting']
 
-			worksheet = workbook.add_worksheet('Constraints Settings')
-			row = 1
-			col = 0
-			if len(constaints_check) == 0:
-				pass
-			else:
-				worksheet.write(0, 0, 'Test Store')
-				worksheet.write(0, 1, 'State')
-				worksheet.write(0, 2, 'Store Type')
-				worksheet.write(0, 3, 'Locality')
+		constaints_check = load_jsons['advncsetting']
 
-				for constaints in constaints_check:
-					worksheet.write(row, col, constaints['storeID'])
-					worksheet.write(row, col + 1, constaints['state'])
-					worksheet.write(row, col + 2, constaints['store_type'])
-					worksheet.write(row, col + 3, constaints['locality_description'])
-					row += 1
+		worksheet = workbook.add_worksheet('Constraints Settings')
+		row = 1
+		col = 0
+		if len(constaints_check) == 0:
+			pass
+		else:
+			worksheet.write(0, 0, 'Test Store')
+			worksheet.write(0, 1, 'State')
+			worksheet.write(0, 2, 'Store Type')
+			worksheet.write(0, 3, 'Locality')
+
+			for constaints in constaints_check:
+				worksheet.write(row, col, constaints['storeID'])
+				worksheet.write(row, col + 1, constaints['state'])
+				worksheet.write(row, col + 2, constaints['store_type'])
+				worksheet.write(row, col + 3, constaints['locality_description'])
+				row += 1
 
 
 		## Eigth Sheet Match results
-		if(load_jsons is not None):
-			controlstring = load_jsons['controlstring']
-			control_datas = controlstring['data']['matches']
 
-			try:
+		controlstring = load_jsons['controlstring']
+		control_datas = controlstring['data']['matches']
 
-				matches_data = pd.DataFrame(eval(control_datas))
-				# worksheet = workbook.add_worksheet('Match Results')
-				workbook.close()
+		try:
 
-				writer = pd.ExcelWriter(report_name, engine='openpyxl', mode='a')
-				writer.book = load_workbook(report_name)  # here is the difference
-				matches_data.to_excel(writer, sheet_name='Match Results',index=False)
-				writer.close()
-			except:
-				workbook.close()
+			matches_data = pd.DataFrame(eval(control_datas))
+			# worksheet = workbook.add_worksheet('Match Results')
+			workbook.close()
+
+			writer = pd.ExcelWriter(report_name, engine='openpyxl', mode='a')
+			writer.book = load_workbook(report_name)  # here is the difference
+			matches_data.to_excel(writer, sheet_name='Match Results',index=False)
+			writer.close()
+		except:
+			workbook.close()
 
 		## Nineth Sheet Measurement results
-
-		if(load_jsons is None):
-			workbook.close()
 
 		measureTest = load_jsons1['measureTest']
 		measure_data = pd.DataFrame(measureTest)
@@ -1067,15 +1033,11 @@ class Downloadreport(ListView):
 		measure_data.to_excel(writer, sheet_name='Measurement Results',index=False)
 		writer.close()
 
-		if(load_jsons is not None):
-			shutil.move(os.path.join('', report_name), os.path.join(config['pathConfig']['trialpath'] ,'trial_'+str(pk) , report_name))
+
+		shutil.move(os.path.join('', report_name), os.path.join(config['pathConfig']['trialpath'] ,'trial_'+str(pk) , report_name))
 
 		tempdest = os.path.join('/home/ubuntu/project/backend/datas/reports/')
-		if(load_jsons is None):
-			shutil.copyfile(os.path.join(report_name),
-						tempdest + report_name)
-		else:
-			shutil.copyfile(os.path.join(config['pathConfig']['trialpath'] + '/trial_' + str(pk) + "/", report_name),
+		shutil.copyfile(os.path.join(config['pathConfig']['trialpath'] + '/trial_' + str(pk) + "/", report_name),
 						tempdest + report_name)
 
 		results =  {
@@ -1241,8 +1203,6 @@ def analyseFeatures(request):
 	else:
 		extraFeatures = None
 
-	print(extraFeatures)
-	
 	global dataStore
 	rSquared= None
 	rSquaredAdj= None
@@ -1435,167 +1395,169 @@ def identifyControls(request):
 	except:
 		return json.Response("Can't able to read log", False)
 
-	try:
-		trial = str(trial)
-		selectedFeatures = list(selectedFeatures)
-		ex = None
-		if len(excludeControls) > 0:
-			ex = [[con] for con in excludeControls]
-            # ex = excludeControls
-        # identifyControlCols = selectedFeatures, storesWithSettings, numStoresWithSettings, nControls, excludeControls, excludeControls.len, identifyControlStatus, icAlert
-		logdf.loc[trial,['selectedFeatures', 'nControls', 'excludeControls', 'excludeControls.len']] = np.array([selectedFeatures, n_controls, ex, len(excludeControls)])
+	# try:
+	trial = str(trial)
+	selectedFeatures = list(selectedFeatures)
+	ex = None
+	if len(excludeControls) > 0:
+		ex = [[con] for con in excludeControls]
+        # ex = excludeControls
+    # identifyControlCols = selectedFeatures, storesWithSettings, numStoresWithSettings, nControls, excludeControls, excludeControls.len, identifyControlStatus, icAlert
+	logdf.loc[trial,['selectedFeatures', 'nControls', 'excludeControls', 'excludeControls.len']] = np.array([selectedFeatures, n_controls, ex, len(excludeControls)])
 
-		modelData = pd.read_csv(os.path.join(config['pathConfig']['trialPath'],trial, config['fileConfig']['modelData']))
-		modelData[storeKeys] = modelData[storeKeys].astype('str')
-		modelData = modelData.set_index(storeKeys)
-		modelData = modelData[selectedFeatures]
+	modelData = pd.read_csv(os.path.join(config['pathConfig']['trialPath'],trial, config['fileConfig']['modelData']))
+	modelData[storeKeys] = modelData[storeKeys].astype('str')
+	modelData = modelData.set_index(storeKeys)
+	modelData = modelData[selectedFeatures]
 
-		gower = pd.DataFrame(gf(modelData), index= modelData.index.values, columns= modelData.index.values)
-		gower = gower.loc[~gower.index.isin(testStores+excludeControls), testStores]
+	gower = pd.DataFrame(gf(modelData), index= modelData.index.values, columns= modelData.index.values)
+	gower = gower.loc[~gower.index.isin(testStores+excludeControls), testStores]
 
-		global storeChar
-		# from scipy.spatial.distance import pdist, squareform
-		# eucl = pd.DataFrame(squareform(pdist(normalize(modelData))), index= modelData.index.values, columns= modelData.index.values)
-		# eucl = eucl.loc[~eucl.index.isin(testStores+excludeControls), testStores]
+	global storeChar
+	# from scipy.spatial.distance import pdist, squareform
+	# eucl = pd.DataFrame(squareform(pdist(normalize(modelData))), index= modelData.index.values, columns= modelData.index.values)
+	# eucl = eucl.loc[~eucl.index.isin(testStores+excludeControls), testStores]
 
-		if settings is not None:
-			settings = settings[storeKeys+constrainCols].set_index(storeKeys)
-			storesWithSettings = settings.dropna(axis=0,how='all').index.values
-			logdf.loc[trial,['storesWithSettings','numStoresWithSettings']] = [storesWithSettings, len(storesWithSettings)]
+	if settings is not None:
+		settings = settings[storeKeys+constrainCols].set_index(storeKeys)
+		storesWithSettings = settings.dropna(axis=0,how='all').index.values
+		logdf.loc[trial,['storesWithSettings','numStoresWithSettings']] = [storesWithSettings, len(storesWithSettings)]
 
-			factors = settings.columns.values
-			settings[factors] = np.where(settings[factors] == 1, storeChar.loc[settings.index, factors], settings[factors])
-			storeChar_ = storeChar.loc[~storeChar.index.isin(testStores+excludeControls), factors]
+		factors = settings.columns.values
+		settings[factors] = np.where(settings[factors] == 1, storeChar.loc[settings.index, factors], settings[factors])
+		storeChar_ = storeChar.loc[~storeChar.index.isin(testStores+excludeControls), factors]
 
-			def constraints(row):
-				rowCols = row.dropna().index.values.tolist()
-				storeFactors = storeChar_[rowCols]
-				storeFactors[rowCols] = np.where(np.equal(storeFactors[rowCols], row.loc[rowCols]), storeFactors[rowCols], None)
-				return storeFactors[rowCols].dropna().index.values
+		def constraints(row):
+			rowCols = row.dropna().index.values.tolist()
+			storeFactors = storeChar_[rowCols]
+			storeFactors[rowCols] = np.where(np.equal(storeFactors[rowCols], row.loc[rowCols]), storeFactors[rowCols], None)
+			return storeFactors[rowCols].dropna().index.values
 
-			settings['possibleMatch'] = settings.apply(constraints, axis= 1)
-			# settings['controlStores'] = settings.apply(lambda test, eucl= gower, n_controls= n_controls: eucl.loc[test['possibleMatch'], test.name].sort_values().index.values[:n_controls], axis= 1)
-			settings['controlStores'] = settings.apply(lambda test, eucl= gower: eucl.loc[test['possibleMatch'], test.name].sort_values().index.values[:20], axis= 1)
-			settings = settings.reset_index()
-			matches = settings[storeKeys+['controlStores']]
-		else:
-			matches = pd.DataFrame(testStores, columns= storeKeys)
-			matches['controlStores'] = matches.apply(lambda test, eucl= gower, n_controls= n_controls: eucl[test[storeKeys[0]]].sort_values().index.values[:n_controls], axis= 1)
-			# matches['controlStores'] = matches.apply(lambda test, eucl= gower: eucl[test[storeKeys[0]]].sort_values().index.values[:20], axis= 1)
+		settings['possibleMatch'] = settings.apply(constraints, axis= 1)
+		# settings['controlStores'] = settings.apply(lambda test, eucl= gower, n_controls= n_controls: eucl.loc[test['possibleMatch'], test.name].sort_values().index.values[:n_controls], axis= 1)
+		settings['controlStores'] = settings.apply(lambda test, eucl= gower: eucl.loc[test['possibleMatch'], test.name].sort_values().index.values[:20], axis= 1)
+		settings = settings.reset_index()
+		matches = settings[storeKeys+['controlStores']]
+	else:
+		matches = pd.DataFrame(testStores, columns= storeKeys)
+		matches['controlStores'] = matches.apply(lambda test, eucl= gower, n_controls= n_controls: eucl[test[storeKeys[0]]].sort_values().index.values[:n_controls], axis= 1)
+		# matches['controlStores'] = matches.apply(lambda test, eucl= gower: eucl[test[storeKeys[0]]].sort_values().index.values[:20], axis= 1)
 
-		matches = matches.explode('controlStores')
-		matches = matches.reset_index(drop= True)
-		matches['similarity'] = matches.apply(lambda pair, dist= gower: 1-dist.loc[pair['controlStores'], pair[storeKeys[0]]], axis= 1)
+	matches = matches.explode('controlStores')
+	matches = matches.reset_index(drop= True)
+	matches['similarity'] = matches.apply(lambda pair, dist= gower: 1-dist.loc[pair['controlStores'], pair[storeKeys[0]]], axis= 1)
 
-		trialSales = pd.read_csv(os.path.join(config['pathConfig']['trialPath'], trial, config['fileConfig']['trialSales']))
-		trialSales[storeKeys] = trialSales[storeKeys].astype('str')
-		trialSales = trialSales.set_index(['wkEndDate'])
+	trialSales = pd.read_csv(os.path.join(config['pathConfig']['trialPath'], trial, config['fileConfig']['trialSales']))
+	trialSales[storeKeys] = trialSales[storeKeys].astype('str')
+	trialSales = trialSales.set_index(['wkEndDate'])
 
-		def salesCorr(row):
-			test = trialSales.loc[trialSales[storeKeys[0]] == row[storeKeys[0]], 'Net Sales'].reset_index()
-			control = trialSales.loc[trialSales[storeKeys[0]] == row['controlStores'], 'Net Sales'].reset_index()
-			return test['Net Sales'].corr(control['Net Sales'])
+	def salesCorr(row):
+		test = trialSales.loc[trialSales[storeKeys[0]] == row[storeKeys[0]], 'Net Sales'].reset_index()
+		control = trialSales.loc[trialSales[storeKeys[0]] == row['controlStores'], 'Net Sales'].reset_index()
+		return test['Net Sales'].corr(control['Net Sales'])
 
-		matches['salesCorrelation'] = matches.apply(salesCorr, axis= 1)
+	matches['salesCorrelation'] = matches.apply(salesCorr, axis= 1)
 
-		matches['rank'] = matches.groupby(storeKeys).cumcount() +1
-		matches = matches.loc[matches['rank'] <= n_controls]
+	matches['rank'] = matches.groupby(storeKeys).cumcount() +1
+	matches = matches.loc[matches['rank'] <= n_controls]
 
-		allStores = pd.DataFrame(list(matches[storeKeys[0]].unique()) + list(matches.controlStores.unique()), columns= storeKeys)
-		allStores = allStores.merge(trialSales.groupby(by= storeKeys).mean(),on= storeKeys).rename(columns={'Net Sales' : 'storeSales'})
-		allStores = allStores.set_index(storeKeys)
+	allStores = pd.DataFrame(list(matches[storeKeys[0]].unique()) + list(matches.controlStores.unique()), columns= storeKeys)
+	allStores = allStores.merge(trialSales.groupby(by= storeKeys).mean(),on= storeKeys).rename(columns={'Net Sales' : 'storeSales'})
+	allStores = allStores.set_index(storeKeys)
 
-		trialSales['Net Sales'] = trialSales.groupby(by= storeKeys).transform(lambda sales: (sales - sales.mean())/sales.std())
+	trialSales['Net Sales'] = trialSales.groupby(by= storeKeys).transform(lambda sales: (sales - sales.mean())/sales.std())
 
-		trialSales = trialSales.reset_index()
-		trialSales = trialSales.pivot_table(index=['wkEndDate'],columns=storeKeys)['Net Sales']
-		trialSales = trialSales.round(2)
-		columns = ['testStores','sales']+reduce(lambda a,b:a+b,[['control_'+str(i+1),'controlSales_'+str(i+1)] for i in range(n_controls)])
-		storeCols = ['testStores']+[col for col in columns if col.startswith('control_')]
-		salesCols = ['sales']+[col for col in columns if col.startswith('controlSales_')]
-		sales = pd.DataFrame(columns= columns)
-		sales.index.name = 'wkEndDate'
-		tempdf = pd.DataFrame(index= trialSales.index,columns=columns)
-		for testStore in testStores:
-			stores = [testStore] + matches.loc[matches[storeKeys[0]] == testStore, 'controlStores'].values.tolist()
-			# tempdf.loc[:, storeCols] = (storeChar.loc[stores, 'storeName'].astype('str').index + '_' + storeChar.loc[stores, 'storeName'].astype('str')).values
-			tempdf.loc[:,storeCols] = stores
-			tempdf.loc[:, salesCols] = trialSales[stores].values
-			sales = sales.append(tempdf)
-        
-        # filtering the modelData for the required test and control stores and the selected features - with the test & control mapping
-		testControl = matches.copy()
-		testControl = pd.melt(testControl, id_vars = ['rank'])
-		testControl.columns = ['rank','testControl']+ storeKeys
-		testControl = pd.merge(testControl,modelData[selectedFeatures].reset_index(), how= 'left',on= storeKeys)
-		# transpose to get the metrics in a single column
-		testControl = testControl.set_index(storeKeys + ['testControl','rank']).stack().reset_index()
-		testControl.columns = storeKeys + ['testControl','rank','metric','metric_value']
+	trialSales = trialSales.reset_index()
+	trialSales = trialSales.pivot_table(index=['wkEndDate'],columns=storeKeys)['Net Sales']
+	trialSales = trialSales.round(2)
+	columns = ['testStores','sales']+reduce(lambda a,b:a+b,[['control_'+str(i+1),'controlSales_'+str(i+1)] for i in range(n_controls)])
+	storeCols = ['testStores']+[col for col in columns if col.startswith('control_')]
+	salesCols = ['sales']+[col for col in columns if col.startswith('controlSales_')]
+	sales = pd.DataFrame(columns= columns)
+	sales.index.name = 'wkEndDate'
+	tempdf = pd.DataFrame(index= trialSales.index,columns=columns)
+	for testStore in testStores:
+		stores = [testStore] + matches.loc[matches[storeKeys[0]] == testStore, 'controlStores'].values.tolist()
+		# tempdf.loc[:, storeCols] = (storeChar.loc[stores, 'storeName'].astype('str').index + '_' + storeChar.loc[stores, 'storeName'].astype('str')).values
+		tempdf.loc[:,storeCols] = stores
+		tempdf.loc[:, salesCols] = trialSales[stores].values
+		sales = sales.append(tempdf)
+    
+    # filtering the modelData for the required test and control stores and the selected features - with the test & control mapping
+	testControl = matches.copy()
+	testControl = pd.melt(testControl, id_vars = ['rank'])
+	testControl.columns = ['rank','testControl']+ storeKeys
+	testControl = pd.merge(testControl,modelData[selectedFeatures].reset_index(), how= 'left',on= storeKeys)
+	# transpose to get the metrics in a single column
+	testControl = testControl.set_index(storeKeys + ['testControl','rank']).stack().reset_index()
+	testControl.columns = storeKeys + ['testControl','rank','metric','metric_value']
 
-		# calculating the p-value for each metric
-		dict1={}
-		for j in testControl['rank'].unique().tolist() :
-			dict2={}
-			for i in selectedFeatures :
-				_, p = ttest_ind(testControl[(testControl['testControl'] == 'controlStores') & (testControl['metric'] == i) & (testControl['rank'] == j)]['metric_value'],testControl[(testControl['testControl'] == storeKeys[0]) & (testControl['metric'] == i)]['metric_value'], equal_var = False)
-				dict2[i]=p
-			dict1[j]=dict2
-		metric_pvalue = pd.DataFrame.from_dict(dict1).reset_index().rename(columns={"index":"features"})
-		metric_pvalue.columns = ['features']+['control_'+str(i+1) for i in range(n_controls)]
+	# calculating the p-value for each metric
+	dict1={}
+	for j in testControl['rank'].unique().tolist() :
+		dict2={}
+		for i in selectedFeatures :
+			_, p = ttest_ind(testControl[(testControl['testControl'] == 'controlStores') & (testControl['metric'] == i) & (testControl['rank'] == j)]['metric_value'],testControl[(testControl['testControl'] == storeKeys[0]) & (testControl['metric'] == i)]['metric_value'], equal_var = False)
+			dict2[i]=p
+		dict1[j]=dict2
+	metric_pvalue = pd.DataFrame.from_dict(dict1).reset_index().rename(columns={"index":"features"})
+	metric_pvalue.columns = ['features']+['control_'+str(i+1) for i in range(n_controls)]
 
-		matches = matches.rename(columns= {storeKeys[0]: 'testStores'})
-		matches['testStores'] = matches['testStores'].astype(int)
-		matches = matches.sort_values(['testStores'])
-		matches['testStores'] = matches['testStores'].astype(str)
-		matches = matches.round(2)
+	matches = matches.rename(columns= {storeKeys[0]: 'testStores'})
+	matches['testStores'] = matches['testStores'].astype(int)
+	matches = matches.sort_values(['testStores'])
+	matches['testStores'] = matches['testStores'].astype(str)
+	matches = matches.round(2)
 
-		tests = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storeChar.loc[testStores,constrainCols],modelData.loc[testStores,selectedFeatures],allStores]).reset_index().rename(columns={storeKeys[0]:'testStores'})
-		controls = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storeChar.loc[matches.controlStores.unique(),constrainCols], modelData.loc[matches.controlStores.unique(),selectedFeatures], allStores]).reset_index().rename(columns={storeKeys[0]:'controlStores'})
-		tests.columns= ['testStores']+[col+'_test' for col in tests.columns if col!='testStores']
-		controls.columns= ['controlStores']+[col+'_control' for col in controls.columns if col!='controlStores']
+	tests = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storeChar.loc[testStores,constrainCols],modelData.loc[testStores,selectedFeatures],allStores]).reset_index().rename(columns={storeKeys[0]:'testStores'})
+	controls = reduce(lambda df1,df2 : pd.merge(df1,df2,on= storeKeys),[storeChar.loc[matches.controlStores.unique(),constrainCols], modelData.loc[matches.controlStores.unique(),selectedFeatures], allStores]).reset_index().rename(columns={storeKeys[0]:'controlStores'})
+	tests.columns= ['testStores']+[col+'_test' for col in tests.columns if col!='testStores']
+	controls.columns= ['controlStores']+[col+'_control' for col in controls.columns if col!='controlStores']
 
-		order = tests.columns.tolist() + controls.columns.tolist() + [col for col in matches.columns if col not in ['testStores','controlStores']]
-		matches = matches.merge(tests,on=['testStores']).merge(controls,on=['controlStores'])[order]
+	order = tests.columns.tolist() + controls.columns.tolist() + [col for col in matches.columns if col not in ['testStores','controlStores']]
+	matches = matches.merge(tests,on=['testStores']).merge(controls,on=['controlStores'])[order]
 
-		fileName = os.path.join(config['pathConfig']['trialPath'], trial, config['fileConfig']['matches'])
-		matches.to_csv(fileName, index=False)
-		chmod(fileName)
+	fileName = os.path.join(config['pathConfig']['trialPath'], trial, config['fileConfig']['matches'])
+	matches.to_csv(fileName, index=False)
+	chmod(fileName)
 
-		nUniqueControls = matches.controlStores.unique().shape[0]
-		meanSimilarity = matches.similarity.mean()
+	nUniqueControls = matches.controlStores.unique().shape[0]
+	meanSimilarity = matches.similarity.mean()
 
-		# matches['testStores'] = (storeChar.loc[matches['testStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[matches['testStores'], 'storeName'].astype('str')).values
-		# matches['controlStores'] = (storeChar.loc[matches['controlStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[matches['controlStores'], 'storeName'].astype('str')).values
-		sales = sales.reset_index()
-		sales['testStores'] = sales['testStores'].astype(int)
-		sales = sales.sort_values(['testStores'])
-		sales['testStores'] = sales['testStores'].astype(str)       
-		metric_pvalue = metric_pvalue.round(2)
+	# matches['testStores'] = (storeChar.loc[matches['testStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[matches['testStores'], 'storeName'].astype('str')).values
+	# matches['controlStores'] = (storeChar.loc[matches['controlStores'], 'storeName'].astype('str').index + '_' + storeChar.loc[matches['controlStores'], 'storeName'].astype('str')).values
+	sales = sales.reset_index()
+	sales['testStores'] = sales['testStores'].astype(int)
+	sales = sales.sort_values(['testStores'])
+	sales['testStores'] = sales['testStores'].astype(str)       
+	metric_pvalue = metric_pvalue.round(2)
 
-		logdf.loc[trial,identifyControlCols[-2:]] = [success, None]
-		logs("save",logdf=logdf)
+	print(metric_pvalue)
+	exit()
+	logdf.loc[trial,identifyControlCols[-2:]] = [success, None]
+	logs("save",logdf=logdf)
 
-		finalmatches = matches.round(2).to_json(orient='records')
-		finalsales = sales.reset_index().to_json(orient='records')
-		# finalmatchresults = matchResults.to_json(orient='records')
-		# finalcolumns = columns.to_json(orient='records')
-		results = {
-		"matches": finalmatches,
-		# "reports": finalmatchresults,
-		"columns": matches.columns.tolist(),
-		"sales": finalsales,
-		"metric": metric_pvalue.round(2).to_dict(),
-		"UniqueControls" :nUniqueControls,
-		"meanSimilarity" :meanSimilarity
-		}
+	finalmatches = matches.round(2).to_json(orient='records')
+	finalsales = sales.reset_index().to_json(orient='records')
+	# finalmatchresults = matchResults.to_json(orient='records')
+	# finalcolumns = columns.to_json(orient='records')
+	results = {
+	"matches": finalmatches,
+	# "reports": finalmatchresults,
+	"columns": matches.columns.tolist(),
+	"sales": finalsales,
+	"metric": metric_pvalue.round(2).to_dict(),
+	"UniqueControls" :nUniqueControls,
+	"meanSimilarity" :meanSimilarity
+	}
 
-		return json.Response(results)
-	except Exception as e:
-		_, _, exc_tb = sys.exc_info()
-		error = [exc_tb.tb_lineno, os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]]
-		logdf.loc[trial, identifyControlCols[-2:]] = [e, error]
-		logs("save", logdf=logdf.copy())
-		return json.Response("Can't able to analyse", False)
+	return json.Response(results)
+	# except Exception as e:
+	# 	_, _, exc_tb = sys.exc_info()
+	# 	error = [exc_tb.tb_lineno, os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]]
+	# 	logdf.loc[trial, identifyControlCols[-2:]] = [e, error]
+	# 	logs("save", logdf=logdf.copy())
+	# 	return json.Response("Can't able to analyse", False)
 
 
 
@@ -1671,8 +1633,8 @@ def liftAnalysis(request):
 	else:
 		storeMap = pd.DataFrame(eval(storeMap))
 		storeMap = pd.DataFrame.from_dict(storeMap, orient='columns')
-		storeMap['testStores'] = storeMap['Test Store ID'].astype('str')
-		storeMap['controlStores'] = storeMap['Control Store ID'].astype('str')
+		storeMap['testStores'] = storeMap['Test store ID'].astype('str')
+		storeMap['controlStores'] = storeMap['Control store ID'].astype('str')
 		storeMap['rank'] = storeMap['Rank']
 
 	storeMap = storeMap[['testStores','controlStores','rank']]

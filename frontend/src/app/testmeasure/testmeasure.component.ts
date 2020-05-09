@@ -440,9 +440,85 @@ export class TestMeasureComponent implements OnInit {
                                 this.Stat_Result_Data = stat_arr
                                 this.StatResultsdata = this.Stat_Result_Data
 
+                                this.parse_postmetrics = parseData2.postmetrics;
+                                this.no_of_cntrl = parseData2.no_of_cntrl;
+                                console.log(parseData2)
+                            }
+                            else if(apiresponse.data.records.length==2)
+                            {
+                                this.loaddatas = true;
+                                this.disablestore =true
+                                let parseData2 = JSON.parse(apiresponse.data.records[1].record_value)
+                                if(parseData2.stage_id==3)
+                                {
+                                    let tempstart_Date:any = parseData2.pre_start.split("-")
+                                    this.model1 = {"year":parseInt(tempstart_Date[0]),"month":parseInt(tempstart_Date[1]),"day":parseInt(tempstart_Date[2])}
+                                    let tempend_Date:any = parseData2.pre_end.split("-")
+                                    this.model2 = {"year":parseInt(tempend_Date[0]),"month":parseInt(tempend_Date[1]),"day":parseInt(tempend_Date[2])}
 
+                                    let tempstart_Date1:any = parseData2.post_start.split("-")
+                                    this.model3 = {"year":parseInt(tempstart_Date1[0]),"month":parseInt(tempstart_Date1[1]),"day":parseInt(tempstart_Date1[2])}
+                                    let tempend_Date1:any = parseData2.post_end.split("-")
+                                    this.model4 = {"year":parseInt(tempend_Date1[0]),"month":parseInt(tempend_Date1[1]),"day":parseInt(tempend_Date1[2])}
+                                    
+                                    this.Metricmodelid = parseData2.measurement_metrix                                
+                                    this.temp_measuredata = parseData2.measureTest      
+                                    this.postdays = parseData2.postdays
+                                    this.predays = parseData2.predays
+                                    this.variable_name = parseData2.variable
+                                    let metric = parseData2.metric
+                                    this.metrix1 = parseData2.metric
+                                    this.delta1 = parseData2.delta
+                                    this.parse_measureTest_data = parseData2.measureTest
+                                    let lift = parseData2.delta
+                                   
+                                    var stat_arr: any = []
 
-                                
+                                    for (var i = 0; i <= metric.length - 1; i++) {
+
+                                        if(metric[i]=='-0')
+                                        {
+                                            stat_arr.push({
+                                            'VariableName': this.variable_name[i],
+                                            'PValue': null,
+                                            'Lift' : lift[i]
+                                        });
+                                        }
+                                        else
+                                        {
+                                        stat_arr.push({
+                                            'VariableName': this.variable_name[i],
+                                            'PValue': metric[i],
+                                            'Lift' : lift[i]
+                                        });
+                                    }
+
+                                    };
+
+                                    let temp_teststore: any = []
+                                    this.testvscntrl_testr = []
+                                    this.testvscntrl_testr1 =[]
+                                    for (var i = 0; i <= this.temp_measuredata.length - 1; i++) {
+                                        if (this.temp_measuredata[i].storeGroup == "TEST") {
+                                            if (temp_teststore.find((x: any) => x.id == this.temp_measuredata[i].storeID)) {} else {
+                                                temp_teststore.push({
+                                                    "id": this.temp_measuredata[i].testStores,
+                                                    "text": this.temp_measuredata[i].testStores 
+                                                });
+                                            }
+                                        }
+                                    }
+                                    this.testvscntrl_teststore = temp_teststore                                
+                                    this.testvscntrl_testr1 = temp_teststore
+                                    this.liftcomparison = parseData2.deltagraph
+                                    this.Variabletoanlyze = this.variable_name
+                                    this.Variabletoanlyze_lift = this.variable_name
+                                    this.Stat_Result_Data = stat_arr
+                                    this.StatResultsdata = this.Stat_Result_Data
+
+                                    this.parse_postmetrics = parseData2.postmetrics;
+                                    this.no_of_cntrl = parseData2.no_of_cntrl;
+                                }
                             }
                             
                             let temp_id:any =[];
@@ -859,6 +935,8 @@ export class TestMeasureComponent implements OnInit {
             variable: this.variable_name,
             metric: this.metrix1,
             delta: this.delta1,
+            postmetrics : this.parse_postmetrics,
+            no_of_cntrl : this.no_of_cntrl,
             
             deltagraph: this.liftcomparison,
             pre_start: this.stdate,

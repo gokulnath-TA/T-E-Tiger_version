@@ -185,6 +185,7 @@ export class TestConfigComponent implements OnInit {
     selectedstate: any = '';
     selectedstoretype: any = '';
     STORE_DATA: Storevalues[] = [];
+    noteshow:boolean =false;
     uploadForm: FormGroup;
     type_store: any = '1';
     plan_type: any;
@@ -229,7 +230,7 @@ export class TestConfigComponent implements OnInit {
     @ViewChild('content') private content: any;
 
     public market: any = [];
-    public plantest: any[] = ['Test Planning', 'Test Measurement', 'Load From Saved Test'];
+    public plantest: any[] = ['Design a New Test', 'Analyze Impact', 'Load From Saved Test'];
     public sdmetric:any[] = ['Sales','Gross Margin'];
     tempFilter: any = [];
     filenameval: any = '';
@@ -1299,7 +1300,7 @@ export class TestConfigComponent implements OnInit {
         this.wizard.goToNextStep();
     }
     showcontrolstore(value: any) {
-        if (value == 'Test Planning') {
+        if (value == 'Design a New Test') {
             this.show_testplan_store = true;
             this.show_Testmeasurement = false;
             this.show_load_store = false;
@@ -1312,8 +1313,10 @@ export class TestConfigComponent implements OnInit {
             this.filenameval_test_cntrl = '';
             this.filenameval = '';
             this.submit_visible = true;
+            this.noteshow = false
             this.submit_visible_test_cntrl = true;
-        } else if (value == 'Test Measurement') {
+        } else if (value == 'Analyze Impact') {
+            this.noteshow = true;
             this.show_Testmeasurement = true;
             this.show_load_store = false;
             this.show_testplan_store = false;
@@ -1330,6 +1333,7 @@ export class TestConfigComponent implements OnInit {
         } else if (value == 'Load From Saved Test') {
             this.show_testplan_store = false;
             this.show_Testmeasurement = false;
+            this.noteshow = false
             this.show_load_store = true;
             this.hide_back = false;
             this.filenameval = '';

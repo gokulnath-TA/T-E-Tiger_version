@@ -6,7 +6,7 @@
 //import env from './.env';
 
 export const environment = {
-  production: false,
+  production: true,
   version: 1 + '-dev',
   serverUrl: 'http://localhost:8000/api/',
   LiveUrl: 'http://34.225.133.232:8000/api/',

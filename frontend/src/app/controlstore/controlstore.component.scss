@@ -751,6 +751,11 @@ tr.mat-header-row {
     line-height: 40px;
     top: 5vw;
   }
+  
+  input.form-control.unselected-filter.ng-untouched.ng-pristine.ng-valid
+  {
+    max-width:18vw !important;
+  }
 }
 
 @media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {

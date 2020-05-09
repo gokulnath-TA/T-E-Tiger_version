@@ -2238,7 +2238,11 @@ export class ControlStoreComponent implements OnInit {
                         return;
 
                     }
-                    if (apiresponse.data.AllTest_store == apiresponse.data.Match_store) {} else {
+                    if (apiresponse.data.AllTest_store == apiresponse.data.Match_store) {
+                        this.ValidateMatchsuccessstore(apiresponse.data.Additional_Features.length, apiresponse.data.Match_store);    
+
+                    } else {
+                       
                         if(apiresponse.data.UnMatch_id==0)
                         {
                             this.ValidateMatchstore(apiresponse.data.AllTest_store, apiresponse.data.Match_store);    
@@ -2261,6 +2265,17 @@ export class ControlStoreComponent implements OnInit {
             error => {}
         );
     }
+
+    ValidateMatchsuccessstore(Allstores: any, Matchstores: any) {
+        
+         var message =
+          Allstores  + ' additional feature(s) uploaded successfully ';
+        var action = 'close';
+        this._snackBar.open(message, action, {
+            duration: 10000,
+            verticalPosition: 'bottom'
+        });
+        }
 
     ValidateMatchstore(Allstores: any, Matchstores: any) {
         // var message =
